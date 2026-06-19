@@ -2,7 +2,7 @@
 
 # 🧰 BlueFalcon Ultimate Toolkit
 
-**The fast, safe, and absolute best way to prepare, route, and manage a fresh Linux server.**
+**The fast, safe, and modular way to prepare, route, and manage a fresh Linux server.**
 
 ![Linux](https://img.shields.io/badge/Platform-Debian%20%7C%20Ubuntu-FCC624?style=for-the-badge&logo=linux&logoColor=black)
 [![Language](https://img.shields.io/badge/Written%20in-Shell/Python-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -12,29 +12,43 @@
 <br />
 </div>
 
-An all-in-one, automated shell script to completely set up a fresh Linux server. It handles everything from initial security and utility installations (including Docker), to advanced Cloudflare WARP routing, and finally, a universal web dashboard for one-click VPN management.
-<br><br>
+An all-in-one, automated deployment toolkit designed to completely set up a fresh Linux server. Built on a clean, scalable architecture, it handles everything from initial security and utility installations to advanced Cloudflare WARP routing, and features a universal web dashboard for one-click VPN management.
+
+<br>
 
 ## ⚡ Quick Run
 Copy and run this single command with root privileges on your fresh VPS:
 
 ```bash
-wget -O setup.sh https://raw.githubusercontent.com/bluefalcon2270/bluefalcon-ultimate-toolkit/main/setup.sh && sudo bash setup.sh
+git clone https://github.com/bluefalcon2270/bluefalcon-ultimate-toolkit.git /opt/bluefalcon-ultimate-toolkit
+cd /opt/bluefalcon-ultimate-toolkit
+chmod +x setup.sh && sudo ./setup.sh
 ```
+
+*(Note: Since the project is now modular, it is recommended to clone the repository rather than pulling a single raw script.)*
+
+<br>
+
+## 🏗️ System Architecture
+The toolkit is structured for maximum maintainability and protocol independence:
+
+* **Universal Web Panel (`/panel`):** The Flask-based MVC web dashboard sits entirely in the root directory. This ensures it remains strictly independent of any single VPN protocol (like OpenVPN), allowing easy expansion for future protocols like WireGuard or Xray.
+* **Centralized Utilities (`/modules/essential_tools.sh`):** Core dependencies and advanced environments like Docker are treated as standard packages within the core utility deployment, streamlining the setup process into one highly efficient module.
+* **Isolated VPN Engines (`/vpn-scripts`):** Backend execution scripts are categorized by protocol, ensuring easy debugging and safe updates without cross-contamination.
 
 <br>
 
 ## 🌟 Features
-By running this script, you access a unified, master terminal menu with the following capabilities:
+By running the main `setup.sh` launcher, you access a unified master terminal menu with the following capabilities:
 
 ### 1️⃣ Essential Tools
 * **Update System:** Run standard package updates non-interactively.
-* **System Packages:** Installs a critical checklist of packages (including `nano`, `curl`, `git`, `htop`, `ufw`, `iptables`, and the complete `docker-ce` engine & compose plugins).
+* **System Packages:** Installs a critical checklist of packages (`nano`, `curl`, `git`, `htop`, `ufw`, `iptables`, and the complete `docker-ce` engine & compose plugins).
 * **SSH Settings:** Change your SSH port, root password, and securely toggle password vs. key logins directly from a status dashboard.
 
-### 2️⃣ OpenVPN & Web Panel
-* **Live Dashboards:** Monitor your server's live health (CPU, RAM, Disk, Network) with real-time graphs.
-* **Protocol Independent Setup:** The panel sits in the root directory, ensuring maximum compatibility. Currently configured for automated OpenVPN deployment, traffic tracking, and automated profile generation.
+### 2️⃣ Universal Web Panel & OpenVPN
+* **Live Dashboards:** Monitor your server's live health (CPU, RAM, Disk, Network) with real-time dynamic graphs.
+* **Protocol Execution:** Currently ships with the OpenVPN engine for automated deployment, traffic tracking, and automated profile generation. 
 * **One-Click Controls:** Pause/resume users, set expiry dates, and download mobile/desktop profiles instantly.
 
 ### 3️⃣ Cloudflare WARP
@@ -42,7 +56,7 @@ By running this script, you access a unified, master terminal menu with the foll
 * **WARP+ Support:** Upgrade your connection instantly using a premium license key.
 * **Live Dashboard:** Displays active connection statuses, server IPs, and WARP masking IPs all in real time.
 
-<br><br>
+<br>
 
 ## ✅ Supported Systems
 | Distribution | Compatibility |
@@ -50,7 +64,7 @@ By running this script, you access a unified, master terminal menu with the foll
 | **Ubuntu** (22.04, 24.04) | ✅ |
 | **Debian** (11, 12, 13) | ✅ |
 
-<br><br>
+<br>
 
 ---
-**Watch the Tutorial:** I use this exact toolkit in my YouTube tutorials to ensure viewers have a standardized, error-free environment before we dive into advanced server deployments.
+**Watch the Tutorial:** I use this exact toolkit in my YouTube tutorials to ensure viewers have a standardized, error-free environment before we dive into advanced server deployments. Subscribe at [@BlueFalcon2270](https://www.youtube.com/@BlueFalcon2270).
