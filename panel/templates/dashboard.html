@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Dashboard | BlueFalcon OpenVPN Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans min-h-screen">
+<nav class="bg-gray-800 border-b border-gray-700 px-6 py-4 flex justify-between items-center">
+    <div class="text-2xl font-bold text-emerald-400 tracking-wider">🦅 BlueFalcon OpenVPN Panel <span class="text-xs text-gray-500 ml-2">v2.4</span></div>
+    <div class="flex items-center gap-4">
+        <a href="/settings" class="text-gray-400 hover:text-emerald-400 transition">⚙️ Settings</a>
+        <a href="/logout" class="text-gray-400 hover:text-white transition">Logout</a>
+    </div>
+</nav>
+<div class="max-w-6xl mx-auto px-6 py-8">
+    <div class="bg-gray-800 rounded-xl border border-gray-700 shadow-lg mb-8 p-6">
+        <h2 class="text-lg font-bold text-white mb-6">Live System Monitor</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-gray-900 p-4 rounded-lg border border-gray-700 flex flex-col items-center justify-start h-full">
+                <div class="relative w-full max-w-[160px] aspect-[2/1] mt-2">
+                    <canvas id="cpuChart"></canvas>
+                    <div class="absolute inset-0 flex items-end justify-center pb-1">
+                        <span class="text-xl font-bold text-emerald-400" id="cpu_val">--%</span>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-400 mt-4 font-bold tracking-wider mb-2">CPU</p>
+                <div id="cpu_cores_container" class="w-full mt-auto grid grid-cols-2 gap-x-3 gap-y-2">
+                    </div>
+            </div>
+            <div class="bg-gray-900 p-4 rounded-lg border border-gray-700 flex flex-col items-center justify-start h-full">
+                <div class="relative w-full max-w-[160px] aspect-[2/1] mt-2">
+                    <canvas id="ramChart"></canvas>
+                    <div class="absolute inset-0 flex items-end justify-center pb-1">
+                        <span class="text-xl font-bold text-blue-400" id="ram_val">--%</span>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-400 mt-4 font-bold tracking-wider">RAM</p>
+                <p class="text-xs text-gray-500 mt-1 font-mono" id="ram_detail">-- / --</p>
+            </div>
+            <div class="bg-gray-900 p-4 rounded-lg border border-gray-700 flex flex-col items-center justify-start h-full">
+                <div class="relative w-full max-w-[160px] aspect-[2/1] mt-2">
+                    <canvas id="diskChart"></canvas>
+                    <div class="absolute inset-0 flex items-end justify-center pb-1">
+                        <span class="text-xl font-bold text-purple-400" id="disk_val">--%</span>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-400 mt-4 font-bold tracking-wider">STORAGE</p>
+                <p class="text-xs text-gray-500 mt-1 font-mono" id="disk_detail">-- / --</p>
+            </div>
+            <div class="bg-gray-900 p-4 rounded-lg border border-gray-700 flex flex-col items-center justify-center h-full">
+                <p class="text-sm text-gray-400 mb-4 font-bold tracking-wider">NETWORK TRAFFIC</p>
+                <div class="flex flex-col gap-3 w-full px-4">
+                    <div class="bg-gray-800 p-3 rounded border border-gray-700 flex justify-between items-center">
+                        <span class="text-emerald-400 font-bold">↓ DL</span>
+                        <span class="text-emerald-400 font-mono" id="net_rx_val">0 KB/s</span>
+                    </div>
+                    <div class="bg-gray-800 p-3 rounded border border-gray-700 flex justify-between items-center">
+                        <span class="text-rose-400 font-bold">↑ UL</span>
+                        <span class="text-rose-400 font-mono" id="net_tx_val">0 KB/s</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700"><h3 class="text-gray-400 text-sm font-medium">Server Name</h3><p class="text-xl text-white mt-1">{{ settings['server_name'] }}</p></div>
+        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700"><h3 class="text-gray-400 text-sm font-medium">Protocol / Port</h3><p class="text-xl text-white mt-1 uppercase">{{ settings['protocol'] }} <span class="text-emerald-400">/ {{ settings['port'] }}</span></p></div>
+        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700"><h3 class="text-gray-400 text-sm font-medium">Connection Limit</h3><p class="text-xl text-white mt-1 capitalize">{{ settings['conn_limit'] }}</p></div>
+        <div class="bg-emerald-900/20 p-5 rounded-xl border border-emerald-700/50"><h3 class="text-emerald-400/80 text-sm font-medium">Total Server Traffic</h3><p class="text-xl text-emerald-400 mt-1">↓ {{ t_rx|format_bytes }} &nbsp; ↑ {{ t_tx|format_bytes }}</p></div>
+    </div>
+    <div class="bg-gray-800 rounded-xl border border-gray-700 shadow-lg overflow-hidden">
+        <div class="p-6 border-b border-gray-700 bg-gray-900">
+            <form action="/dashboard" method="POST" class="flex flex-wrap gap-4 items-end">
+                <div><label class="block text-sm font-medium text-gray-400 mb-1">Display Name (Spaces Allowed)</label><input type="text" name="new_user" required class="bg-gray-800 border border-gray-600 rounded-md py-2 px-3 text-white"></div>
+                <div><label class="block text-sm font-medium text-gray-400 mb-1">Password</label><input type="text" name="new_pass" required class="bg-gray-800 border border-gray-600 rounded-md py-2 px-3 text-white"></div>
+                <div><label class="block text-sm font-medium text-gray-400 mb-1">Expiry (Days)</label><input type="number" name="exp_days" value="0" min="0" required class="bg-gray-800 border border-gray-600 rounded-md py-2 px-3 text-white w-24"></div>
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded transition">+ Generate Profile</button>
+            </form>
+        </div>
+        <div class="p-6 overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="text-gray-400 text-sm border-b border-gray-700">
+                        <th class="pb-3">User</th>
+                        <th class="pb-3">Status</th>
+                        <th class="pb-3">Total Data Usage</th>
+                        <th class="pb-3">Time Left</th>
+                        <th class="pb-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr class="border-b border-gray-700/50">
+                        <td class="py-4 text-white font-medium">{{ user['display_name'] }} <span class="text-xs text-gray-500 block">sys: {{ user['system_name'] }}</span></td>
+                        <td class="py-4">
+                            {% if user['status'] == 'paused' %}
+                                <span class="bg-orange-900/50 text-orange-400 px-2 py-1 rounded text-xs">⏸ Paused</span>
+                            {% elif stats[user['system_name']]['online'] %}
+                                <span class="bg-green-900/50 text-green-400 px-2 py-1 rounded text-xs">● Online</span>
+                            {% else %}
+                                <span class="bg-gray-700/50 text-gray-400 px-2 py-1 rounded text-xs">Offline</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 text-sm text-gray-300">{{ stats[user['system_name']]['usage']|format_bytes }}</td>
+                        <td class="py-4 text-sm text-gray-400">
+                            {% if user['exp_days'] == 0 %} 
+                                Unlimited 
+                            {% elif user['exp_days'] < current_time %} 
+                                <span class="text-red-400">Expired</span> 
+                            {% else %} 
+                                {{ ((user['exp_days'] - current_time) / 86400) | round(1) }} Days 
+                            {% endif %}
+                        </td>
+                        <td class="py-4 text-right space-x-2 whitespace-nowrap">
+                            <a href="/toggle/{{ user['system_name'] }}" class="bg-gray-700 hover:bg-gray-600 text-white px-2.5 py-1.5 rounded text-sm transition">{% if user['status'] == 'paused' %}▶ Resume{% else %}⏸ Pause{% endif %}</a>
+                            <a href="/download/{{ user['system_name'] }}" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded text-sm transition font-medium">Auto-Login</a>
+                            <a href="/download_manual/{{ user['system_name'] }}" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded text-sm transition font-medium">User-Login</a>
+                            <a href="/revoke/{{ user['system_name'] }}" onclick="return confirm('Delete and revoke user forever?')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded text-sm transition">Revoke</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    const chartOptions = {
+        responsive: true, 
+        maintainAspectRatio: false,
+        cutout: '82%', 
+        circumference: 180, 
+        rotation: -90,
+        plugins: { tooltip: { enabled: false }, legend: { display: false } },
+        animation: { duration: 0 }
+    };
+    const createDonut = (ctxId, color) => new Chart(document.getElementById(ctxId).getContext('2d'), {
+        type: 'doughnut',
+        data: { datasets: [{ data: [0, 100], backgroundColor: [color, '#374151'], borderWidth: 0, borderRadius: 2 }] },
+        options: chartOptions
+    });
+    const cpuChart = createDonut('cpuChart', '#34d399');
+    const ramChart = createDonut('ramChart', '#60a5fa');
+    const diskChart = createDonut('diskChart', '#c084fc');
+    let lastRx = 0, lastTx = 0, firstPoll = true;
+    function formatSpeed(bytes) {
+        if (bytes < 1024) return bytes + " B/s";
+        else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB/s";
+        else return (bytes / 1048576).toFixed(2) + " MB/s";
+    }
+    setInterval(() => {
+        fetch('/api/sysinfo')
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('cpu_val').innerText = data.cpu + '%';
+            cpuChart.data.datasets[0].data = [data.cpu, 100 - data.cpu];
+            cpuChart.update();
+            const coresContainer = document.getElementById('cpu_cores_container');
+            coresContainer.innerHTML = '';
+            if (data.cpu_cores && data.cpu_cores.length > 0) {
+                data.cpu_cores.forEach((coreLoad, index) => {
+                    coresContainer.insertAdjacentHTML('beforeend', `
+                        <div class="flex flex-col">
+                            <div class="flex justify-between text-[10px] text-gray-500 mb-0.5">
+                                <span>C${index}</span>
+                                <span class="text-emerald-400/80">${coreLoad.toFixed(1)}%</span>
+                            </div>
+                            <div class="w-full bg-gray-800 rounded-full h-1">
+                                <div class="bg-emerald-500 h-1 rounded-full" style="width: ${coreLoad}%"></div>
+                            </div>
+                        </div>
+                    `);
+                });
+            }
+            document.getElementById('ram_val').innerText = data.ram_percent + '%';
+            document.getElementById('ram_detail').innerText = data.ram_used + ' / ' + data.ram_total;
+            ramChart.data.datasets[0].data = [data.ram_percent, 100 - data.ram_percent];
+            ramChart.update();
+            document.getElementById('disk_val').innerText = data.disk_percent + '%';
+            document.getElementById('disk_detail').innerText = data.disk_used + ' / ' + data.disk_total;
+            diskChart.data.datasets[0].data = [data.disk_percent, 100 - data.disk_percent];
+            diskChart.update();
+            if (!firstPoll) {
+                let rxSpeed = (data.net_rx - lastRx) / 2;
+                let txSpeed = (data.net_tx - lastTx) / 2;
+                document.getElementById('net_rx_val').innerText = formatSpeed(Math.max(0, rxSpeed));
+                document.getElementById('net_tx_val').innerText = formatSpeed(Math.max(0, txSpeed));
+            }
+            lastRx = data.net_rx;
+            lastTx = data.net_tx;
+            firstPoll = false;
+        }).catch(err => console.error("Error fetching sysinfo:", err));
+    }, 2000);
+</script>
+</body>
+</html>
