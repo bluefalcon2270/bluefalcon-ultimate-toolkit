@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>WARP Routing | BlueFalcon Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans min-h-screen">
+<nav class="bg-gray-800 border-b border-gray-700 px-6 py-4 flex justify-between items-center">
+    <div class="text-2xl font-bold text-emerald-400 tracking-wider">🦅 BlueFalcon OpenVPN Panel <span class="text-xs text-gray-500 ml-2">v2.4</span></div>
+    <div class="flex items-center gap-4">
+        <a href="/dashboard" class="text-gray-400 hover:text-white transition">VPN Dashboard</a>
+        <a href="/warp" class="text-blue-400 font-bold transition">☁️ WARP</a>
+        <a href="/settings" class="text-gray-400 hover:text-emerald-400 transition">⚙️ Settings</a>
+        <a href="/logout" class="text-red-400 hover:text-red-300 transition">Logout</a>
+    </div>
+</nav>
+
+<div class="max-w-4xl mx-auto px-6 py-8">
+    <h2 class="text-2xl font-bold text-white mb-6">Cloudflare WARP Routing</h2>
+    
+    <div class="bg-gray-800 rounded-xl border border-gray-700 shadow-lg p-6 mb-8">
+        <h3 class="text-lg font-bold text-gray-400 mb-4 border-b border-gray-700 pb-2">Live Interface Monitor</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <div class="bg-gray-900 p-4 rounded-lg border border-gray-700">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="font-bold text-white">IPv4 Routing</span>
+                    {% if trace.v4_status in ['on', 'plus'] %}
+                        <span class="bg-green-900/50 text-green-400 px-2 py-1 rounded text-xs">● Masked</span>
+                    {% else %}
+                        <span class="bg-gray-700 text-gray-400 px-2 py-1 rounded text-xs">Exposed</span>
+                    {% endif %}
+                </div>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between border-b border-gray-800 pb-1">
+                        <span class="text-gray-500">True VPS IP</span>
+                        <span class="text-yellow-400 font-mono">{{ trace.v4_vps }}</span>
+                    </div>
+                    <div class="flex justify-between pt-1">
+                        <span class="text-gray-500">Public Facing IP</span>
+                        <span class="{% if trace.v4_status in ['on', 'plus'] %}text-emerald-400{% else %}text-red-400{% endif %} font-mono font-bold">{{ trace.v4_warp }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-900 p-4 rounded-lg border border-gray-700">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="font-bold text-white">IPv6 Routing</span>
+                    {% if trace.v6_status in ['on', 'plus'] %}
+                        <span class="bg-green-900/50 text-green-400 px-2 py-1 rounded text-xs">● Masked</span>
+                    {% else %}
+                        <span class="bg-gray-700 text-gray-400 px-2 py-1 rounded text-xs">Exposed</span>
+                    {% endif %}
+                </div>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between border-b border-gray-800 pb-1">
+                        <span class="text-gray-500">True VPS IP</span>
+                        <span class="text-yellow-400 font-mono truncate max-w-[150px]">{{ trace.v6_vps }}</span>
+                    </div>
+                    <div class="flex justify-between pt-1">
+                        <span class="text-gray-500">Public Facing IP</span>
+                        <span class="{% if trace.v6_status in ['on', 'plus'] %}text-emerald-400{% else %}text-red-400{% endif %} font-mono font-bold truncate max-w-[150px]">{{ trace.v6_warp }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gray-800 rounded-xl border border-gray-700 shadow-lg p-6">
+        <h3 class="text-lg font-bold text-gray-400 mb-4 border-b border-gray-700 pb-2">WARP Configuration</h3>
+        
+        {% if is_installed %}
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-gray-900 p-4 rounded-lg border border-gray-700">
+                <div>
+                    <h4 class="text-white font-bold">WARP Engine is Active</h4>
+                    <p class="text-sm text-gray-500">Toggle routing on/off or completely remove the engine.</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="/warp/action/toggle" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded transition">Toggle Service</a>
+                    <a href="/warp/action/uninstall" onclick="return confirm('Are you sure you want to completely uninstall WARP?')" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded transition">Uninstall</a>
+                </div>
+            </div>
+        {% else %}
+            <form action="/warp/action/install" method="POST" class="bg-gray-900 p-6 rounded-lg border border-gray-700 space-y-4">
+                <p class="text-gray-400 text-sm mb-4">Deploy Cloudflare WARP to mask your outbound OpenVPN traffic.</p>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Target Network</label>
+                    <select name="target" class="w-full bg-gray-800 border border-gray-600 rounded-md py-2 px-3 text-white">
+                        <option value="3">IPv4 & IPv6 (Dual-Stack)</option>
+                        <option value="1">IPv4 Only</option>
+                        <option value="2">IPv6 Only</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">License Key (Optional for WARP+)</label>
+                    <input type="text" name="license" placeholder="Leave blank for Free WARP..." class="w-full bg-gray-800 border border-gray-600 rounded-md py-2 px-3 text-white">
+                </div>
+                
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg transition mt-4">Install WARP Engine</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

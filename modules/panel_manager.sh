@@ -23,6 +23,9 @@ install_panel() {
         # Copy OpenVPN scripts to the scripts directory
         cp -r "${REPO_DIR}/vpn-scripts/openvpn/"* "${APP_DIR}/scripts/"
         
+        # Copy WARP scripts to the scripts directory
+        cp -r "${REPO_DIR}/vpn-scripts/warp/"* "${APP_DIR}/scripts/"
+        
         chmod +x "${APP_DIR}/scripts/"*.sh
     }
     

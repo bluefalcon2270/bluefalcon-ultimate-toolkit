@@ -1,4 +1,4 @@
-# /opt/bluefalcon-ultimate-toolkit/app.py
+# /opt/bluefalcon-ultimate-toolkit/panel/app.py
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, Response
 import sqlite3, os, time, subprocess, re, psutil
 
@@ -24,6 +24,12 @@ def init_db():
     except: pass
     try: conn.execute('ALTER TABLE users ADD COLUMN tx INTEGER DEFAULT 0')
     except: pass
+    
+    # WARP Integration Table
+    conn.execute('CREATE TABLE IF NOT EXISTS warp (is_installed INTEGER DEFAULT 0)')
+    if not conn.execute('SELECT * FROM warp').fetchone():
+        conn.execute('INSERT INTO warp (is_installed) VALUES (0)')
+        
     conn.commit()
     conn.close()
 
@@ -296,5 +302,53 @@ def download_manual(sys_name):
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
+# ==========================================
+# WARP Panel Integration Routes
+# ==========================================
+
+def get_warp_trace():
+    vps_v4 = os.popen("hostname -I | awk '{print $1}'").read().strip() or "N/A"
+    vps_v6 = os.popen("hostname -I | awk '{ for(i=1;i<=NF;i++) if($i~/^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{1,4}$/) {print $i; exit} }'").read().strip() or "N/A"
+    trace_v4 = os.popen("curl -s4 https://www.cloudflare.com/cdn-cgi/trace --connect-timeout 2").read()
+    trace_v6 = os.popen("curl -s6 https://www.cloudflare.com/cdn-cgi/trace --connect-timeout 2").read()
+    
+    def parse(trace):
+        status, ip = "off", "------------"
+        for line in trace.split('\n'):
+            if line.startswith('warp='): status = line.split('=')[1]
+            if line.startswith('ip='): ip = line.split('=')[1]
+        return status, ip
+
+    w4_stat, w4_ip = parse(trace_v4)
+    w6_stat, w6_ip = parse(trace_v6)
+    return {"v4_vps": vps_v4, "v4_warp": w4_ip, "v4_status": w4_stat, "v6_vps": vps_v6, "v6_warp": w6_ip, "v6_status": w6_stat}
+
+@app.route('/warp', methods=['GET'])
+def warp_dashboard():
+    if 'admin_logged_in' not in session: return redirect(url_for('login'))
+    conn = get_db()
+    settings = conn.execute('SELECT server_name FROM settings').fetchone()
+    conn.close()
+    trace = get_warp_trace()
+    wgcf_exists = os.path.exists('/etc/wireguard/wgcf.conf')
+    return render_template('warp.html', trace=trace, is_installed=wgcf_exists, settings=settings)
+
+@app.route('/warp/action/<action>', methods=['POST', 'GET'])
+def warp_action(action):
+    if 'admin_logged_in' not in session: return redirect(url_for('login'))
+    script_path = f"{APP_DIR}/scripts/action.sh"
+    
+    if action == "install":
+        target = request.form.get('target', '3')
+        key = request.form.get('license', 'free')
+        subprocess.Popen(['bash', script_path, 'install', target, key])
+        time.sleep(4) # Allow background script to initialize
+    elif action == "toggle":
+        os.system(f"bash {script_path} toggle")
+    elif action == "uninstall":
+        os.system(f"bash {script_path} uninstall")
+        
+    return redirect(url_for('warp_dashboard'))
 
 if __name__ == '__main__': app.run(host='0.0.0.0', port=2020)
