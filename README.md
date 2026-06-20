@@ -4,16 +4,16 @@
 
 **The fast, safe, and modular way to prepare, route, and manage a fresh Linux server.**
 
-![Version](https://img.shields.io/badge/Version-v1.2-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-v2.0-blue?style=for-the-badge)
 ![Linux](https://img.shields.io/badge/Platform-Debian%20%7C%20Ubuntu-FCC624?style=for-the-badge&logo=linux&logoColor=black)
-[![Language](https://img.shields.io/badge/Written%20in-Shell/Python-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
+[![Language](https://img.shields.io/badge/Written%20in-Shell/Python-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)]([https://www.gnu.org/software/bash/](https://www.gnu.org/software/bash/))
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 [![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@BlueFalcon2270)
 
 <br />
 </div>
 
-An all-in-one, automated deployment toolkit designed to completely set up a fresh Linux server. Built on a clean, scalable architecture, it handles everything from initial security and utility installations to advanced Cloudflare WARP routing, and features a universal web dashboard for one-click VPN management.
+An all-in-one, automated deployment toolkit designed to completely set up a fresh Linux server. Built on a clean, scalable architecture, it handles everything from initial security and utility installations to advanced Cloudflare WARP routing, and features a Google Material Design 3 web dashboard for one-click VPN management.
 
 <br>
 
@@ -24,14 +24,14 @@ Run this single command with root privileges on your fresh VPS. It acts as an in
 bash <(curl -Ls https://raw.githubusercontent.com/bluefalcon2270/bluefalcon-ultimate-toolkit/main/install.sh)
 ```
 
-**Global Shortcut:** Once installed, simply type `bf-ui` from anywhere in your terminal to instantly launch the master control panel! *(On first run, the toolkit will automatically bypass the terminal menu and instantly deploy the Web Panel Initialization Wizard).*
+**Global Shortcut:** Once installed, simply type `bf-ui` from anywhere in your terminal to instantly launch the master control panel!
 
 <br>
 
 ## 🏗️ System Architecture
 The toolkit is structured for maximum maintainability and professional scaling:
 
-* **Sanaei-Style Web UI (`/panel`):** A Flask-based MVC web dashboard featuring a persistent left-navigation sidebar, separating routing, management, and system logs into dedicated views.
+* **Material Design Web UI (`/panel`):** A Flask-based MVC web dashboard fully rewritten using Google Material Design 3. Features a persistent left-navigation sidebar, separating routing, management, and system logs into dedicated views.
 * **Centralized Utilities (`/modules/essential_tools.sh`):** Core dependencies and advanced environments like Docker are treated as standard packages within the core utility deployment.
 * **Isolated VPN Engines (`/vpn-scripts`):** Backend execution scripts are categorized by protocol, ensuring easy debugging and safe updates without cross-contamination.
 
@@ -51,13 +51,13 @@ The toolkit is structured for maximum maintainability and professional scaling:
 
 ### 3️⃣ OpenVPN Management
 * **Terminal & Web Sync:** Create, pause, and revoke users directly from the terminal, with all changes instantly reflected in the Web Panel database.
-* **Live Dashboards:** Monitor your server's live health (CPU, RAM, Disk, Network) with real-time dynamic graphs.
+* **Live Dashboards:** Monitor your server's live health (CPU, RAM, Disk, Network) with real-time dynamic, AWS-style progress bars.
 * **Automated Profiles:** Download mobile/desktop profiles instantly.
 
 ### 4️⃣ Cloudflare WARP
 * **Dual-Stack Routing:** Hide your server's true IP and bypass restrictions by routing IPv4 and/or IPv6 traffic through Cloudflare's WireGuard network (`wgcf`).
 * **WARP+ Support:** Upgrade your connection instantly using a premium license key.
-* **Modern Dashboard:** Displays active connection statuses, server IPs, and WARP masking IPs via modern routing cards in the web panel.
+* **Intelligent Network Bypassing:** OpenVPN config generators are hardcoded to bypass the WARP tunnel, ensuring your VPN files are always mapped to your true physical server IP.
 
 <br>
 

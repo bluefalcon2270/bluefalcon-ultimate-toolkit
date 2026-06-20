@@ -1,98 +1,119 @@
 {% extends 'base.html' %}
 {% block title %}WARP Routing | BlueFalcon{% endblock %}
-{% block header_title %}☁️ Cloudflare WARP Shielding{% endblock %}
+{% block header_title %}Cloudflare WARP{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto">
-    <div class="flex justify-between items-center mb-8">
-        <h2 class="text-2xl font-bold text-white">Routing Engine Status</h2>
+<div class="max-w-5xl space-y-6">
+    
+    <!-- Status Header -->
+    <div class="material-card p-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-xl font-semibold text-gray-800">Routing Engine</h2>
+            <p class="text-sm text-gray-500 mt-1">Manage outbound traffic masking via Cloudflare.</p>
+        </div>
         {% if is_installed %}
-            <span class="text-white px-4 py-1.5 rounded-md text-sm font-bold border border-gray-600 bg-gray-800">Engine Deployed</span>
+            <span class="bg-[#E6F4EA] text-[#137333] px-4 py-2 material-pill font-medium border border-[#CEEAD6]">Engine Active</span>
         {% else %}
-            <span class="text-gray-500 px-4 py-1.5 rounded-md text-sm font-bold border border-gray-700">No Engine Found</span>
+            <span class="bg-gray-100 text-gray-600 px-4 py-2 material-pill font-medium border border-gray-200">Engine Offline</span>
         {% endif %}
     </div>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        
-        <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow-md">
-            <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
-                <h3 class="text-lg font-bold text-white">IPv4 Stack</h3>
+
+    <!-- Routing Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- IPv4 -->
+        <div class="material-card p-8 relative overflow-hidden">
+            {% if trace.v4_status in ['on', 'plus'] %}
+                <div class="absolute top-0 left-0 w-full h-1 bg-[#137333]"></div>
+            {% else %}
+                <div class="absolute top-0 left-0 w-full h-1 bg-gray-200"></div>
+            {% endif %}
+            
+            <div class="flex justify-between items-start mb-8">
+                <h3 class="text-lg font-semibold text-gray-800">IPv4 Stack</h3>
                 {% if trace.v4_status in ['on', 'plus'] %}
-                    <div class="flex items-center gap-2 text-white font-bold text-sm bg-gray-900 px-3 py-1 rounded-md border border-gray-700">
-                        <span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span></span>
-                        Shield Active
-                    </div>
+                    <span class="text-[#137333] font-medium text-sm flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-[#137333]"></span> Masked
+                    </span>
                 {% else %}
-                    <div class="text-gray-500 font-bold text-sm">Exposed</div>
+                    <span class="text-gray-500 font-medium text-sm">Exposed</span>
                 {% endif %}
             </div>
-            <div class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Physical Server IP</span>
-                    <span class="text-md font-mono text-gray-400">{{ trace.v4_vps }}</span>
+            
+            <div class="space-y-6">
+                <div>
+                    <span class="text-sm text-gray-500 block mb-1">True Server IP</span>
+                    <span class="text-gray-800 font-mono">{{ trace.v4_vps }}</span>
                 </div>
-                <div class="flex justify-between items-center bg-gray-900 p-3 rounded-lg border border-gray-700">
-                    <span class="text-xs font-bold text-white uppercase tracking-wider">Public Masked IP</span>
-                    <span class="text-lg font-mono font-bold text-white">{{ trace.v4_warp }}</span>
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <span class="text-sm text-gray-500 block mb-1">Public Masked IP</span>
+                    <span class="text-xl font-mono text-gray-900">{{ trace.v4_warp }}</span>
                 </div>
             </div>
         </div>
 
-        <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow-md">
-            <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
-                <h3 class="text-lg font-bold text-white">IPv6 Stack</h3>
+        <!-- IPv6 -->
+        <div class="material-card p-8 relative overflow-hidden">
+            {% if trace.v6_status in ['on', 'plus'] %}
+                <div class="absolute top-0 left-0 w-full h-1 bg-[#137333]"></div>
+            {% else %}
+                <div class="absolute top-0 left-0 w-full h-1 bg-gray-200"></div>
+            {% endif %}
+
+            <div class="flex justify-between items-start mb-8">
+                <h3 class="text-lg font-semibold text-gray-800">IPv6 Stack</h3>
                 {% if trace.v6_status in ['on', 'plus'] %}
-                    <div class="flex items-center gap-2 text-white font-bold text-sm bg-gray-900 px-3 py-1 rounded-md border border-gray-700">
-                        <span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span></span>
-                        Shield Active
-                    </div>
+                    <span class="text-[#137333] font-medium text-sm flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-[#137333]"></span> Masked
+                    </span>
                 {% else %}
-                    <div class="text-gray-500 font-bold text-sm">Exposed</div>
+                    <span class="text-gray-500 font-medium text-sm">Exposed</span>
                 {% endif %}
             </div>
-            <div class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Physical Server IP</span>
-                    <span class="text-md font-mono text-gray-400 truncate max-w-[150px]">{{ trace.v6_vps }}</span>
+            
+            <div class="space-y-6">
+                <div>
+                    <span class="text-sm text-gray-500 block mb-1">True Server IP</span>
+                    <span class="text-gray-800 font-mono truncate block">{{ trace.v6_vps }}</span>
                 </div>
-                <div class="flex justify-between items-center bg-gray-900 p-3 rounded-lg border border-gray-700">
-                    <span class="text-xs font-bold text-white uppercase tracking-wider">Public Masked IP</span>
-                    <span class="text-lg font-mono font-bold text-white truncate max-w-[150px]">{{ trace.v6_warp }}</span>
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <span class="text-sm text-gray-500 block mb-1">Public Masked IP</span>
+                    <span class="text-xl font-mono text-gray-900 truncate block">{{ trace.v6_warp }}</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="bg-gray-800 rounded-xl border border-gray-700 shadow-md p-6">
-        <h3 class="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2">Configuration Directives</h3>
-        
+    <!-- Management / Setup -->
+    <div class="material-card p-8">
         {% if is_installed %}
-            <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
                 <div>
-                    <h4 class="text-white font-bold">Service Controller</h4>
-                    <p class="text-sm text-gray-400">Suspend the shielding background service or purge the engine completely.</p>
+                    <h3 class="text-lg font-semibold text-gray-800">Service Directives</h3>
+                    <p class="text-gray-500 mt-1">Temporarily bypass the shield or completely remove the integration.</p>
                 </div>
-                <div class="flex gap-3">
-                    <a href="/warp/action/toggle" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg transition border border-gray-600">Toggle Power</a>
-                    <a href="/warp/action/uninstall" onclick="return confirm('Purge WARP entirely?')" class="bg-red-900/30 hover:bg-red-900/50 text-red-500 font-bold py-2 px-6 rounded-lg transition border border-red-900/50">Purge Engine</a>
+                <div class="flex gap-4">
+                    <a href="/warp/action/toggle" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-xl font-medium transition">Toggle Service</a>
+                    <a href="/warp/action/uninstall" onclick="return confirm('Purge WARP entirely?')" class="bg-[#FCE8E6] hover:bg-[#FAD2CF] text-[#B3261E] px-6 py-3 rounded-xl font-medium transition">Purge Engine</a>
                 </div>
             </div>
         {% else %}
-            <form action="/warp/action/install" method="POST" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-bold text-gray-400 mb-1">Target Network Architecture</label>
-                    <select name="target" class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white focus:border-emerald-500 outline-none">
-                        <option value="3">Dual-Stack (IPv4 & IPv6)</option>
-                        <option value="1">IPv4 Exclusive</option>
-                        <option value="2">IPv6 Exclusive</option>
-                    </select>
+            <form action="/warp/action/install" method="POST" class="max-w-2xl">
+                <h3 class="text-lg font-semibold text-gray-800 mb-6">Install WARP Shielding</h3>
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Target Network</label>
+                        <select name="target" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] focus:border-[#0B57D0] outline-none">
+                            <option value="3">Dual-Stack (IPv4 & IPv6)</option>
+                            <option value="1">IPv4 Exclusive</option>
+                            <option value="2">IPv6 Exclusive</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">License Key <span class="text-gray-400 font-normal">(Optional)</span></label>
+                        <input type="text" name="license" placeholder="Leave blank for free tier..." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] focus:border-[#0B57D0] outline-none">
+                    </div>
+                    <button type="submit" class="bg-[#0B57D0] hover:bg-[#0842A0] text-white px-8 py-3 rounded-xl font-medium transition mt-4">Install Cloudflare WARP</button>
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-400 mb-1">WARP+ License String (Optional)</label>
-                    <input type="text" name="license" placeholder="Leave blank for free tier..." class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white focus:border-emerald-500 outline-none">
-                </div>
-                <button type="submit" class="w-full bg-white text-black hover:bg-gray-200 font-bold py-3 rounded-lg transition mt-2">Inject WARP Shielding</button>
             </form>
         {% endif %}
     </div>

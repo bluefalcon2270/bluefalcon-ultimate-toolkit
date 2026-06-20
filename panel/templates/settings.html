@@ -1,37 +1,69 @@
-<!DOCTYPE html><html lang="en"><head><title>Settings | BlueFalcon OpenVPN Panel</title><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-gray-900 text-gray-200 font-sans min-h-screen">
-<nav class="bg-gray-800 border-b border-gray-700 px-6 py-4 flex justify-between items-center">
-    <div class="text-2xl font-bold text-emerald-400 tracking-wider">🦅 BlueFalcon OpenVPN Panel <span class="text-xs text-gray-500 ml-2">v2.4</span></div>
-    <div class="flex items-center gap-4">
-        <a href="/dashboard" class="text-gray-400 hover:text-white transition">VPN Dashboard</a>
-        <a href="/warp" class="text-gray-400 hover:text-blue-400 transition">☁️ WARP</a>
-        <a href="/settings" class="text-emerald-400 font-bold transition">⚙️ Settings</a>
-        <a href="/logout" class="text-red-400 hover:text-red-300 transition">Logout</a>
-    </div>
-</nav>
-<div class="max-w-2xl mx-auto px-6 py-8">
-<form action="/settings" method="POST" class="space-y-6">
-<div class="bg-gray-800 p-6 rounded-xl border border-gray-700"><h2 class="text-xl font-bold text-white mb-4">VPN Routing & Limits</h2>
-<div class="space-y-4">
-<div><label class="block text-gray-400 text-sm mb-1">OpenVPN Protocol</label>
-<select name="vpn_protocol" class="w-full bg-gray-900 border border-gray-600 rounded-md py-2 px-3 text-white"><option value="udp" {% if settings['protocol'] == 'udp' %}selected{% endif %}>UDP</option><option value="tcp" {% if settings['protocol'] == 'tcp' %}selected{% endif %}>TCP</option></select></div>
-<div><label class="block text-gray-400 text-sm mb-1">OpenVPN Port</label><input type="number" name="vpn_port" value="{{ settings['port'] }}" class="w-full bg-gray-900 border border-gray-600 rounded-md py-2 px-3 text-white"></div>
-<div><label class="block text-gray-400 text-sm mb-1">Connection Limit</label><select name="conn_limit" class="w-full bg-gray-900 border border-gray-600 rounded-md py-2 px-3 text-white"><option value="1" {% if settings['conn_limit'] == '1' %}selected{% endif %}>1 Device</option><option value="unlimited" {% if settings['conn_limit'] == 'unlimited' %}selected{% endif %}>Unlimited</option></select></div>
-<div><label class="block text-gray-400 text-sm mb-1">DNS Server</label>
-<select name="dns_preset" class="w-full bg-gray-900 border border-gray-600 rounded-md py-2 px-3 text-white" onchange="document.getElementById('custom_dns_div').style.display = this.value === 'custom' ? 'grid' : 'none';">
-<option value="1.1.1.1" {% if settings['dns'] == '1.1.1.1' %}selected{% endif %}>Cloudflare</option><option value="8.8.8.8" {% if settings['dns'] == '8.8.8.8' %}selected{% endif %}>Google</option><option value="9.9.9.9" {% if settings['dns'] == '9.9.9.9' %}selected{% endif %}>Quad9</option><option value="custom" {% if settings['dns'] not in ['1.1.1.1', '8.8.8.8', '9.9.9.9', '94.140.14.14'] %}selected{% endif %}>Custom IP...</option></select>
-<div id="custom_dns_div" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2" style="display: {% if settings['dns'] not in ['1.1.1.1', '8.8.8.8', '9.9.9.9', '94.140.14.14'] %}grid{% else %}none{% endif %};">
-<input type="text" name="custom_dns1" value="{{ settings['dns'] if settings['dns'] not in ['1.1.1.1', '8.8.8.8', '9.9.9.9', '94.140.14.14'] else '' }}" placeholder="Primary DNS" class="w-full bg-gray-900 border border-gray-600 rounded-md py-2 px-3 text-white">
-<input type="text" name="custom_dns2" value="{{ settings['dns2'] if settings['dns2'] else '' }}" placeholder="Secondary DNS (Optional)" class="w-full bg-gray-900 border border-gray-600 rounded-md py-2 px-3 text-white">
-</div></div>
-</div></div>
-<div class="bg-gray-800 p-6 rounded-xl border border-gray-700"><h2 class="text-xl font-bold text-white mb-4">Panel Configuration</h2>
-<div class="space-y-4">
-<div><label class="block text-gray-400 text-sm mb-1">Web Panel Port</label><input type="number" name="panel_port" value="{{ settings['panel_port'] }}" class="w-full bg-gray-900 border border-gray-600 rounded-md py-2 px-3 text-white"></div>
-<div><label class="block text-gray-400 text-sm mb-1">Update Admin Credentials</label>
-<div class="grid grid-cols-2 gap-4">
-<input type="text" name="admin_user" value="{{ admin['username'] }}" required class="bg-gray-900 border border-gray-600 rounded-md py-2 px-3 text-white">
-<input type="password" name="admin_pass" placeholder="New Password" required class="bg-gray-900 border border-gray-600 rounded-md py-2 px-3 text-white">
-</div></div></div></div>
-<button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg">Save & Apply System Changes</button>
-</form></div></body></html>
+{% extends 'base.html' %}
+{% block title %}Settings | BlueFalcon{% endblock %}
+{% block header_title %}Master Settings{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+    <form action="/settings" method="POST" class="space-y-6">
+        
+        <div class="material-card p-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-6">VPN Network Parameters</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Protocol</label>
+                    <select name="vpn_protocol" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                        <option value="udp" {% if settings['protocol'] == 'udp' %}selected{% endif %}>UDP</option>
+                        <option value="tcp" {% if settings['protocol'] == 'tcp' %}selected{% endif %}>TCP</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Port</label>
+                    <input type="number" name="vpn_port" value="{{ settings['port'] }}" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Device Limit</label>
+                    <select name="conn_limit" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                        <option value="1" {% if settings['conn_limit'] == '1' %}selected{% endif %}>1 Device</option>
+                        <option value="unlimited" {% if settings['conn_limit'] == 'unlimited' %}selected{% endif %}>Unlimited</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">DNS Resolver</label>
+                    <select name="dns_preset" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none mb-3" onchange="const c=document.getElementById('custom_dns_div'); if(this.value==='custom'){c.style.display='grid'; document.getElementById('cd1').required=true;}else{c.style.display='none'; document.getElementById('cd1').required=false;}">
+                        <option value="1.1.1.1" {% if settings['dns'] == '1.1.1.1' %}selected{% endif %}>Cloudflare</option>
+                        <option value="8.8.8.8" {% if settings['dns'] == '8.8.8.8' %}selected{% endif %}>Google</option>
+                        <option value="9.9.9.9" {% if settings['dns'] == '9.9.9.9' %}selected{% endif %}>Quad9</option>
+                        <option value="custom" {% if settings['dns'] not in ['1.1.1.1','8.8.8.8','9.9.9.9','94.140.14.14'] %}selected{% endif %}>Custom IP...</option>
+                    </select>
+                    <div id="custom_dns_div" class="grid grid-cols-2 gap-4" style="display: {% if settings['dns'] not in ['1.1.1.1','8.8.8.8','9.9.9.9','94.140.14.14'] %}grid{% else %}none{% endif %};">
+                        <input type="text" id="cd1" name="custom_dns1" value="{{ settings['dns'] if settings['dns'] not in ['1.1.1.1','8.8.8.8','9.9.9.9','94.140.14.14'] else '' }}" placeholder="Primary DNS" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                        <input type="text" name="custom_dns2" value="{{ settings['dns2'] if settings['dns2'] else '' }}" placeholder="Secondary DNS" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="material-card p-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-6">Panel Configuration</h2>
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Web Panel Port</label>
+                    <input type="number" name="panel_port" value="{{ settings['panel_port'] }}" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Admin Username</label>
+                        <input type="text" name="admin_user" value="{{ admin['username'] }}" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                        <input type="password" name="admin_pass" placeholder="Enter new password" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="w-full bg-[#0B57D0] hover:bg-[#0842A0] text-white font-medium py-4 rounded-xl shadow-sm transition text-lg">Save Configuration</button>
+    </form>
+</div>
+{% endblock %}

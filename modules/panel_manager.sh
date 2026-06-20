@@ -23,7 +23,7 @@ install_panel() {
         chmod +x "${APP_DIR}/scripts/"*.sh
     }
     
-    CURRENT_LOG="${LOG_FILE}" run_with_spinner "Deploying Application Files" deploy_panel_files
+    CURRENT_LOG="${LOG_FILE}" run_with_spinner "Deploying Material Design Application" deploy_panel_files
 
     if ! grep -q "/swapfile" /etc/fstab; then
         CURRENT_LOG="${LOG_FILE}" run_with_spinner "Creating Swapfile" bash -c "fallocate -l 1G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile && echo '/swapfile none swap sw 0 0' >> /etc/fstab"
@@ -59,7 +59,7 @@ EOF
 
     IPV4=$(ip -4 addr show $(ip route | awk '/default/ {print $5}' | head -1) | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
     echo -e "\n[ ${GREEN}✔${NC} ] WEB PANEL DEPLOYED SUCCESSFULLY!"
-    echo -e "Open your browser to configure OpenVPN: ${YELLOW}http://$IPV4:2020${NC}\n"
+    echo -e "Open your browser to the Initialization Wizard: ${YELLOW}http://$IPV4:2020${NC}\n"
     pause_execution
 }
 

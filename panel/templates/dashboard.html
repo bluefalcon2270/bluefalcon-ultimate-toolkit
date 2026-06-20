@@ -1,61 +1,84 @@
 {% extends 'base.html' %}
-{% block title %}Node Hardware | BlueFalcon{% endblock %}
-{% block header_title %}📊 Hardware Node Telemetry{% endblock %}
+{% block title %}Dashboard | BlueFalcon{% endblock %}
+{% block header_title %}System Dashboard{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto space-y-6">
-    
+<div class="max-w-6xl space-y-6">
+    <!-- Server Hardware Status -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-md">
-            <div class="flex justify-between items-end mb-3">
-                <span class="text-sm font-bold text-gray-400 uppercase tracking-wider">CPU Core Allocation</span>
-                <span id="cpu_val" class="text-xl font-bold text-white">0.0%</span>
+        <!-- CPU Card -->
+        <div class="material-card p-6 flex flex-col">
+            <div class="flex justify-between items-start mb-4">
+                <span class="text-gray-500 font-medium">CPU Usage</span>
+                <span id="cpu_val" class="text-2xl font-bold text-gray-800">0%</span>
             </div>
-            <div class="w-full bg-gray-900 h-2 rounded-full overflow-hidden border border-gray-700">
-                <div id="cpu_bar" class="bg-emerald-500 h-full transition-all duration-500 ease-out" style="width: 0%"></div>
+            <div class="w-full bg-gray-100 h-1.5 material-pill overflow-hidden mt-auto">
+                <div id="cpu_bar" class="bg-[#0B57D0] h-full transition-all duration-500 ease-out" style="width: 0%"></div>
             </div>
-            <div id="cpu_cores_container" class="w-full mt-4 grid grid-cols-4 gap-2"></div>
+            <div id="cpu_cores_container" class="mt-4 grid grid-cols-2 gap-4"></div>
         </div>
 
-        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-md">
-            <div class="flex justify-between items-end mb-3">
-                <span class="text-sm font-bold text-gray-400 uppercase tracking-wider">Memory Utilization</span>
+        <!-- RAM Card -->
+        <div class="material-card p-6 flex flex-col">
+            <div class="flex justify-between items-start mb-4">
+                <span class="text-gray-500 font-medium">Memory</span>
                 <div class="text-right">
-                    <span id="ram_val" class="text-xl font-bold text-white block">0.0%</span>
-                    <span id="ram_detail" class="text-xs font-mono text-gray-500">0 MB / 0 GB</span>
+                    <span id="ram_val" class="text-2xl font-bold text-gray-800 block">0%</span>
+                    <span id="ram_detail" class="text-sm text-gray-400 mt-1">0 MB / 0 GB</span>
                 </div>
             </div>
-            <div class="w-full bg-gray-900 h-2 rounded-full overflow-hidden border border-gray-700">
-                <div id="ram_bar" class="bg-blue-500 h-full transition-all duration-500 ease-out" style="width: 0%"></div>
+            <div class="w-full bg-gray-100 h-1.5 material-pill overflow-hidden mt-auto">
+                <div id="ram_bar" class="bg-[#0B57D0] h-full transition-all duration-500 ease-out" style="width: 0%"></div>
             </div>
         </div>
 
-        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-md">
-            <div class="flex justify-between items-end mb-3">
-                <span class="text-sm font-bold text-gray-400 uppercase tracking-wider">Disk Capacity</span>
+        <!-- Storage Card -->
+        <div class="material-card p-6 flex flex-col">
+            <div class="flex justify-between items-start mb-4">
+                <span class="text-gray-500 font-medium">Storage</span>
                 <div class="text-right">
-                    <span id="disk_val" class="text-xl font-bold text-white block">0.0%</span>
-                    <span id="disk_detail" class="text-xs font-mono text-gray-500">0 GB / 0 GB</span>
+                    <span id="disk_val" class="text-2xl font-bold text-gray-800 block">0%</span>
+                    <span id="disk_detail" class="text-sm text-gray-400 mt-1">0 GB / 0 GB</span>
                 </div>
             </div>
-            <div class="w-full bg-gray-900 h-2 rounded-full overflow-hidden border border-gray-700">
-                <div id="disk_bar" class="bg-purple-500 h-full transition-all duration-500 ease-out" style="width: 0%"></div>
+            <div class="w-full bg-gray-100 h-1.5 material-pill overflow-hidden mt-auto">
+                <div id="disk_bar" class="bg-[#0B57D0] h-full transition-all duration-500 ease-out" style="width: 0%"></div>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-md flex justify-between items-center">
-            <span class="text-sm font-bold text-gray-400 uppercase">Live Download</span>
-            <span id="net_rx_val" class="text-lg font-mono font-bold text-emerald-400">0 B/s</span>
+    <!-- Network Bandwidth -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="material-card p-6 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-[#E8F0FE] flex items-center justify-center text-[#0B57D0]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                </div>
+                <div>
+                    <span class="block text-sm text-gray-500 font-medium">Live Download</span>
+                    <span id="net_rx_val" class="block text-xl font-bold text-gray-800">0 B/s</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="block text-sm text-gray-500 font-medium">Total Received</span>
+                <span class="block text-lg font-bold text-gray-800">{{ t_rx|format_bytes }}</span>
+            </div>
         </div>
-        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-md flex justify-between items-center">
-            <span class="text-sm font-bold text-gray-400 uppercase">Live Upload</span>
-            <span id="net_tx_val" class="text-lg font-mono font-bold text-rose-400">0 B/s</span>
-        </div>
-        <div class="md:col-span-2 bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-md flex justify-between items-center">
-            <span class="text-sm font-bold text-gray-400 uppercase">Total System Bandwidth</span>
-            <span class="text-lg font-mono font-bold text-white">↓ {{ t_rx|format_bytes }} &nbsp;|&nbsp; ↑ {{ t_tx|format_bytes }}</span>
+        
+        <div class="material-card p-6 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-[#FCE8E6] flex items-center justify-center text-[#B3261E]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                </div>
+                <div>
+                    <span class="block text-sm text-gray-500 font-medium">Live Upload</span>
+                    <span id="net_tx_val" class="block text-xl font-bold text-gray-800">0 B/s</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="block text-sm text-gray-500 font-medium">Total Sent</span>
+                <span class="block text-lg font-bold text-gray-800">{{ t_tx|format_bytes }}</span>
+            </div>
         </div>
     </div>
 </div>
@@ -72,20 +95,19 @@
             // CPU
             document.getElementById('cpu_val').innerText = data.cpu + '%';
             document.getElementById('cpu_bar').style.width = data.cpu + '%';
-            
-            const coresContainer = document.getElementById('cpu_cores_container'); coresContainer.innerHTML = '';
+            const coresContainer = document.getElementById('cpu_cores_container'); 
+            coresContainer.innerHTML = '';
             if (data.cpu_cores) {
                 data.cpu_cores.forEach((coreLoad, index) => {
-                    coresContainer.insertAdjacentHTML('beforeend', `<div class="flex flex-col"><span class="text-[10px] font-bold text-gray-500 mb-1">C${index} <span class="text-gray-300 float-right">${coreLoad.toFixed(0)}%</span></span><div class="w-full bg-gray-900 rounded-full h-1"><div class="bg-gray-400 h-1 rounded-full" style="width: ${coreLoad}%"></div></div></div>`);
+                    coresContainer.insertAdjacentHTML('beforeend', `<div><div class="flex justify-between text-xs text-gray-500 mb-1"><span>Core ${index}</span><span>${coreLoad.toFixed(0)}%</span></div><div class="w-full bg-gray-100 h-1 material-pill"><div class="bg-gray-400 h-1 material-pill" style="width: ${coreLoad}%"></div></div></div>`);
                 });
             }
             
-            // RAM
+            // RAM & Disk
             document.getElementById('ram_val').innerText = data.ram_percent + '%';
             document.getElementById('ram_detail').innerText = data.ram_used + ' / ' + data.ram_total;
             document.getElementById('ram_bar').style.width = data.ram_percent + '%';
             
-            // Disk
             document.getElementById('disk_val').innerText = data.disk_percent + '%';
             document.getElementById('disk_detail').innerText = data.disk_used + ' / ' + data.disk_total;
             document.getElementById('disk_bar').style.width = data.disk_percent + '%';

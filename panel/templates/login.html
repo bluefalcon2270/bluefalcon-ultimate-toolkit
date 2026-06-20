@@ -1,10 +1,36 @@
-<!DOCTYPE html><html lang="en"><head><title>Login | BlueFalcon OpenVPN Panel</title><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-gray-900 text-gray-200 min-h-screen flex items-center justify-center p-6">
-<div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-sm border border-gray-700">
-<h1 class="text-2xl font-bold text-emerald-400 mb-6 text-center">🦅 BlueFalcon OpenVPN<br><span class="text-lg text-gray-400">Panel Login</span></h1>
-{% if error %}<p class="text-red-400 text-sm text-center mb-4">{{ error }}</p>{% endif %}
-<form action="/login" method="POST" class="space-y-4">
-<input type="text" name="username" placeholder="Username" required class="w-full bg-gray-900 border border-gray-600 rounded-md py-2 px-3 text-white">
-<input type="password" name="password" placeholder="Password" required class="w-full bg-gray-900 border border-gray-600 rounded-md py-2 px-3 text-white">
-<button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg">Authenticate</button>
-</form></div></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Login | BlueFalcon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #F4F7F6; }
+        .material-card { background: #FFFFFF; border-radius: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03); }
+        .input-field { width: 100%; padding: 0.85rem 1.25rem; background-color: #F8F9FA; border: 1px solid #E5E7EB; border-radius: 12px; outline: none; transition: all 0.2s; }
+        .input-field:focus { border-color: #0B57D0; box-shadow: 0 0 0 2px rgba(11, 87, 208, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-md material-card p-10 text-center border border-gray-100">
+        <h1 class="text-3xl font-bold text-[#0B57D0] mb-2 tracking-tight">BlueFalcon</h1>
+        <p class="text-gray-500 mb-8 font-medium">Sign in to manage your node</p>
+        
+        {% if error %}
+            <div class="bg-[#FCE8E6] text-[#B3261E] px-4 py-3 rounded-xl text-sm font-medium mb-6">{{ error }}</div>
+        {% endif %}
+        
+        <form action="/login" method="POST" class="space-y-5 text-left">
+            <div>
+                <input type="text" name="username" placeholder="Username" required class="input-field">
+            </div>
+            <div>
+                <input type="password" name="password" placeholder="Password" required class="input-field">
+            </div>
+            <button type="submit" class="w-full bg-[#0B57D0] hover:bg-[#0842A0] text-white font-medium py-3.5 rounded-xl shadow-sm transition text-lg mt-2">
+                Sign In
+            </button>
+        </form>
+    </div>
+</body>
+</html>

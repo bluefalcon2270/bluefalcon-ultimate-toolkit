@@ -70,13 +70,8 @@ def sysinfo():
 def index():
     admin = get_db().execute('SELECT * FROM admin').fetchone()
     settings = get_db().execute('SELECT * FROM settings').fetchone()
-    
-    if not admin or not settings or settings['is_installed'] == 0: 
-        return redirect(url_for('wizard'))
-    
-    if 'admin_logged_in' not in session: 
-        return redirect(url_for('login'))
-        
+    if not admin or not settings or settings['is_installed'] == 0: return redirect(url_for('wizard'))
+    if 'admin_logged_in' not in session: return redirect(url_for('login'))
     return redirect(url_for('dashboard'))
 
 # --- Master Setup Wizard ---
@@ -114,12 +109,10 @@ def wizard():
         conn.execute('DELETE FROM warp')
         warp_status = -1 if install_warp else 0 
         conn.execute('INSERT INTO warp (is_installed) VALUES (?)', (warp_status,))
-        
         conn.commit(); conn.close()
         
         if install_warp:
-            with open('/tmp/warp_intent.txt', 'w') as f:
-                f.write(f"{warp_target}\n{warp_license}")
+            with open('/tmp/warp_intent.txt', 'w') as f: f.write(f"{warp_target}\n{warp_license}")
 
         return redirect(url_for('stream_ui'))
     return render_template('wizard.html')
@@ -138,6 +131,9 @@ def install_execute():
         yield "data: 🦅 INITIALIZING BLUEFALCON DEPLOYMENT SEQUENCE\n\n"
         time.sleep(1)
         
+        fix_cmd = "sed -i -E \"s/curl.*ifconfig\\.me|curl.*api\\.ipify\\.org/curl --interface \\$(ip route | awk '\\/default\\/ {print \\$5}' | head -1) -s4 ifconfig.me/g\" /opt/bluefalcon-ultimate-toolkit/panel/scripts/*.sh 2>/dev/null"
+        os.system(fix_cmd)
+        
         yield "data: \n\n"
         yield "data: [OPENVPN] Starting Core Configuration...\n\n"
         process = subprocess.Popen(['bash', f'{APP_DIR}/scripts/core_setup.sh'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
@@ -148,8 +144,7 @@ def install_execute():
             yield "data: \n\n"
             yield "data: [WARP] Starting Cloudflare Engine Deployment...\n\n"
             try:
-                with open('/tmp/warp_intent.txt', 'r') as f:
-                    target, license_key = f.read().splitlines()
+                with open('/tmp/warp_intent.txt', 'r') as f: target, license_key = f.read().splitlines()
             except:
                 target, license_key = "3", "free"
                 
@@ -168,7 +163,6 @@ def install_execute():
         yield "data: \n\n"
         yield "data: 🟢 DEPLOYMENT COMPLETE. REDIRECTING...\n\n"
         yield "data: [DONE]\n\n"
-
     return Response(generate(), mimetype='text/event-stream')
 
 # --- Login & Dashboards ---
@@ -198,7 +192,7 @@ def dashboard():
     _, t_rx, t_tx = get_traffic()
     return render_template('dashboard.html', settings=settings, t_rx=t_rx, t_tx=t_tx)
 
-# --- OpenVPN Management (Split Route) ---
+# --- OpenVPN Management ---
 @app.route('/openvpn', methods=['GET', 'POST'])
 def openvpn_dashboard():
     if 'admin_logged_in' not in session: return redirect(url_for('login'))
@@ -217,6 +211,8 @@ def openvpn_dashboard():
             with open("/etc/openvpn/server/auth/users.db", "w") as f:
                 for u in conn.execute('SELECT system_name, password, exp_days, status FROM users').fetchall():
                     f.write(f"{u['system_name']}:{u['password']}:{u['exp_days']}:{u['status']}\n")
+            fix_cmd = "sed -i -E \"s/curl.*ifconfig\\.me|curl.*api\\.ipify\\.org/curl --interface \\$(ip route | awk '\\/default\\/ {print \\$5}' | head -1) -s4 ifconfig.me/g\" /opt/bluefalcon-ultimate-toolkit/panel/scripts/*.sh 2>/dev/null"
+            os.system(fix_cmd)
             os.system(f"bash {APP_DIR}/scripts/add_user.sh {sys_name} {p}")
         return redirect(url_for('openvpn_dashboard'))
 
@@ -239,7 +235,7 @@ def openvpn_dashboard():
 
 # --- WARP Routing ---
 def get_warp_trace():
-    vps_v4 = os.popen("ip -4 addr show $(ip route | awk '/default/ {print $5}' | head -1) | grep -oP '(?<=inet\s)\d+(\.\d+){3}'").read().strip() or "N/A"
+    vps_v4 = os.popen("curl --interface $(ip route | awk '/default/ {print $5}' | head -1) -s4 ifconfig.me").read().strip() or "N/A"
     vps_v6 = os.popen("hostname -I | awk '{ for(i=1;i<=NF;i++) if($i~/^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{1,4}$/) {print $i; exit} }'").read().strip() or "N/A"
     trace_v4 = os.popen("curl -s4 https://www.cloudflare.com/cdn-cgi/trace --connect-timeout 2").read()
     trace_v6 = os.popen("curl -s6 https://www.cloudflare.com/cdn-cgi/trace --connect-timeout 2").read()
@@ -347,6 +343,9 @@ def sys_settings():
             needs_vpn_restart = True
 
         if needs_vpn_restart: os.system("systemctl restart openvpn-server@server")
+        
+        fix_cmd = "sed -i -E \"s/curl.*ifconfig\\.me|curl.*api\\.ipify\\.org/curl --interface \\$(ip route | awk '\\/default\\/ {print \\$5}' | head -1) -s4 ifconfig.me/g\" /opt/bluefalcon-ultimate-toolkit/panel/scripts/*.sh 2>/dev/null"
+        os.system(fix_cmd)
         for u in conn.execute('SELECT system_name, password FROM users').fetchall(): os.system(f"bash {APP_DIR}/scripts/add_user.sh {u['system_name']} {u['password']}")
 
         if new_panel_port != old_panel_port:
@@ -358,7 +357,7 @@ def sys_settings():
             os.system(f"sed -i 's/:{old_panel_port} /:{new_panel_port} /g' /etc/systemd/system/bluefalcon-panel.service")
             os.system("nohup bash -c 'sleep 1 && systemctl daemon-reload && systemctl restart bluefalcon-panel' >/dev/null 2>&1 &")
             
-        return redirect(url_for('settings'))
+        return redirect(url_for('sys_settings'))
     settings = conn.execute('SELECT * FROM settings').fetchone()
     admin = conn.execute('SELECT * FROM admin').fetchone()
     return render_template('settings.html', settings=settings, admin=admin)

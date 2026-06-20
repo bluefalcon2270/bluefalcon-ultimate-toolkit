@@ -1,66 +1,79 @@
 {% extends 'base.html' %}
-{% block title %}OpenVPN Management | BlueFalcon{% endblock %}
-{% block header_title %}🛡️ OpenVPN Configuration & Clients{% endblock %}
+{% block title %}OpenVPN Engine | BlueFalcon{% endblock %}
+{% block header_title %}OpenVPN Engine{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto space-y-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-md flex justify-between items-center">
-            <span class="text-sm font-bold text-gray-400 uppercase tracking-wider">Engine Protocol</span>
-            <span class="text-lg font-bold text-white uppercase">{{ settings['protocol'] }} <span class="text-gray-500">/ {{ settings['port'] }}</span></span>
-        </div>
-        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-md flex justify-between items-center">
-            <span class="text-sm font-bold text-gray-400 uppercase tracking-wider">Simultaneous Device Limit</span>
-            <span class="text-lg font-bold text-white capitalize">{{ settings['conn_limit'] }}</span>
-        </div>
+<div class="max-w-6xl space-y-6">
+    
+    <!-- Provisioning Card -->
+    <div class="material-card p-6 md:p-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-6">Provision New Client</h2>
+        <form action="/openvpn" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Display Name</label>
+                <input type="text" name="new_user" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] focus:border-[#0B57D0] outline-none transition">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Secure Password</label>
+                <input type="text" name="new_pass" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] focus:border-[#0B57D0] outline-none transition">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Expiry (Days)</label>
+                <input type="number" name="exp_days" value="0" min="0" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] focus:border-[#0B57D0] outline-none transition">
+            </div>
+            <button type="submit" class="w-full bg-[#0B57D0] hover:bg-[#0842A0] text-white font-medium py-3 px-6 rounded-xl transition shadow-sm">
+                Generate Config
+            </button>
+        </form>
     </div>
 
-    <div class="bg-gray-800 rounded-xl border border-gray-700 shadow-md overflow-hidden">
-        <div class="p-6 border-b border-gray-700 bg-gray-900/50">
-            <h3 class="text-lg font-bold text-white mb-4">Provision New Client Profile</h3>
-            <form action="/openvpn" method="POST" class="flex flex-wrap gap-4 items-end">
-                <div><label class="block text-sm font-bold text-gray-400 mb-1">Display Name</label><input type="text" name="new_user" required class="bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white focus:border-emerald-500 outline-none"></div>
-                <div><label class="block text-sm font-bold text-gray-400 mb-1">Secure Password</label><input type="text" name="new_pass" required class="bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white focus:border-emerald-500 outline-none"></div>
-                <div><label class="block text-sm font-bold text-gray-400 mb-1">Expiry (Days)</label><input type="number" name="exp_days" value="0" min="0" required class="bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white w-24 focus:border-emerald-500 outline-none"></div>
-                <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-6 rounded-lg transition">+ Generate Config</button>
-            </form>
+    <!-- Active Users Table -->
+    <div class="material-card overflow-hidden">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <h2 class="text-lg font-semibold text-gray-800">Active Configurations</h2>
+            <div class="flex gap-4 text-sm">
+                <span class="text-gray-500">Protocol: <strong class="text-gray-800 uppercase">{{ settings['protocol'] }}/{{ settings['port'] }}</strong></span>
+                <span class="text-gray-500">Limit: <strong class="text-gray-800 capitalize">{{ settings['conn_limit'] }}</strong></span>
+            </div>
         </div>
-        
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-gray-900/80 text-gray-400 text-xs uppercase tracking-wider border-b border-gray-700">
-                        <th class="p-4 font-bold">User Identity</th>
-                        <th class="p-4 font-bold">Status</th>
-                        <th class="p-4 font-bold">Data Traded</th>
-                        <th class="p-4 font-bold">Access Timer</th>
-                        <th class="p-4 text-right font-bold">Management Actions</th>
+                    <tr class="bg-white text-gray-500 text-sm border-b border-gray-100">
+                        <th class="p-6 font-medium">Client Identity</th>
+                        <th class="p-6 font-medium">Status</th>
+                        <th class="p-6 font-medium">Data Traded</th>
+                        <th class="p-6 font-medium">Access Timer</th>
+                        <th class="p-6 text-right font-medium">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-700/50">
+                <tbody class="divide-y divide-gray-50">
                     {% for user in users %}
-                    <tr class="hover:bg-gray-700/30 transition">
-                        <td class="p-4"><span class="font-bold text-white block">{{ user['display_name'] }}</span><span class="text-xs text-gray-500 font-mono">sys: {{ user['system_name'] }}</span></td>
-                        <td class="p-4">
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="p-6">
+                            <span class="font-semibold text-gray-800 block text-base">{{ user['display_name'] }}</span>
+                            <span class="text-sm text-gray-500">ID: {{ user['system_name'] }}</span>
+                        </td>
+                        <td class="p-6">
                             {% if user['status'] == 'paused' %}
-                                <span class="bg-gray-700 text-gray-300 px-2.5 py-1 rounded-md text-xs font-bold border border-gray-600">⏸ Suspended</span>
+                                <span class="bg-[#FFF8E1] text-[#F57F17] px-3 py-1 material-pill text-sm font-medium">Suspended</span>
                             {% elif stats[user['system_name']]['online'] %}
-                                <span class="bg-emerald-900/30 text-emerald-400 px-2.5 py-1 rounded-md text-xs font-bold border border-emerald-900">● Connected</span>
+                                <span class="bg-[#E6F4EA] text-[#137333] px-3 py-1 material-pill text-sm font-medium">Connected</span>
                             {% else %}
-                                <span class="text-gray-500 text-xs font-bold">Offline</span>
+                                <span class="bg-gray-100 text-gray-600 px-3 py-1 material-pill text-sm font-medium">Offline</span>
                             {% endif %}
                         </td>
-                        <td class="p-4 text-sm font-mono text-gray-300">{{ stats[user['system_name']]['usage']|format_bytes }}</td>
-                        <td class="p-4 text-sm font-bold text-gray-400">
+                        <td class="p-6 text-gray-700">{{ stats[user['system_name']]['usage']|format_bytes }}</td>
+                        <td class="p-6 text-gray-700">
                             {% if user['exp_days'] == 0 %} Unlimited 
-                            {% elif user['exp_days'] < current_time %} <span class="text-red-500">Expired</span> 
+                            {% elif user['exp_days'] < current_time %} <span class="text-[#B3261E] font-medium">Expired</span> 
                             {% else %} {{ ((user['exp_days'] - current_time) / 86400) | round(1) }} Days {% endif %}
                         </td>
-                        <td class="p-4 text-right space-x-2 whitespace-nowrap">
-                            <a href="/toggle/{{ user['system_name'] }}" class="text-gray-400 hover:text-white px-2 py-1 transition font-bold text-sm">{% if user['status'] == 'paused' %}▶ Resume{% else %}⏸ Suspend{% endif %}</a>
-                            <a href="/download/{{ user['system_name'] }}" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition border border-gray-600">Auto Profile</a>
-                            <a href="/download_manual/{{ user['system_name'] }}" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition border border-gray-600">Manual Profile</a>
-                            <a href="/revoke/{{ user['system_name'] }}" onclick="return confirm('Permanently revoke and delete user?')" class="text-red-500 hover:text-red-400 px-2 py-1 transition font-bold text-sm">Revoke</a>
+                        <td class="p-6 text-right space-x-2 whitespace-nowrap">
+                            <a href="/toggle/{{ user['system_name'] }}" class="text-[#0B57D0] hover:bg-[#E8F0FE] px-3 py-2 material-pill font-medium transition">{% if user['status'] == 'paused' %}Resume{% else %}Suspend{% endif %}</a>
+                            <a href="/download/{{ user['system_name'] }}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 material-pill font-medium transition">Auto</a>
+                            <a href="/download_manual/{{ user['system_name'] }}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 material-pill font-medium transition">Manual</a>
+                            <a href="/revoke/{{ user['system_name'] }}" onclick="return confirm('Permanently delete user?')" class="text-[#B3261E] hover:bg-[#FCE8E6] px-3 py-2 material-pill font-medium transition">Revoke</a>
                         </td>
                     </tr>
                     {% endfor %}

@@ -2,7 +2,7 @@
 
 # ==============================================================================
 # BlueFalcon Ultimate Toolkit (God Script)
-# Version: v1.3
+# Version: v2.0
 # Architecture: Optimized for Debian & Ubuntu (Bash/Python/SQLite Stack)
 # ==============================================================================
 
@@ -27,7 +27,7 @@ source "${SCRIPT_DIR}/modules/warp_manager.sh"
 show_main_menu() {
     clear
     echo -e "${BOLD_BLUE}=====================================================${NC}"
-    echo -e "${BOLD_BLUE}       🧰 BlueFalcon Ultimate Toolkit (v1.3) 🧰       ${NC}"
+    echo -e "${BOLD_BLUE}       🧰 BlueFalcon Ultimate Toolkit (v2.0) 🧰       ${NC}"
     echo -e "${BOLD_BLUE}=====================================================${NC}"
     echo ""
     echo "1. System Essentials"
@@ -41,13 +41,6 @@ show_main_menu() {
 main() {
     check_preflight
     
-    # 🚀 Intelligent First-Run Check
-    if [ ! -f "/opt/bluefalcon-ultimate-toolkit/panel/panel.db" ]; then
-        echo -e "\n[ ℹ ] First run detected. Launching Web Panel Deployment..."
-        sleep 2
-        install_panel
-    fi
-
     while true; do
         show_main_menu
         read -rp "Select option: " choice
