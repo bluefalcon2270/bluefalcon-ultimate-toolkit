@@ -8,14 +8,17 @@
 
 set -uo pipefail
 
+# Resolve true directory even when executed from a symlink (/usr/local/bin/bf-ui)
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+
 # --- Load Core Dependencies ---
-source "$(dirname "$0")/core/ui_utils.sh"
-source "$(dirname "$0")/core/preflight.sh"
+source "${SCRIPT_DIR}/core/ui_utils.sh"
+source "${SCRIPT_DIR}/core/preflight.sh"
 
 # --- Load Modules ---
-source "$(dirname "$0")/modules/essential_tools.sh"
-source "$(dirname "$0")/modules/warp_manager.sh"
-source "$(dirname "$0")/modules/panel_manager.sh"
+source "${SCRIPT_DIR}/modules/essential_tools.sh"
+source "${SCRIPT_DIR}/modules/warp_manager.sh"
+source "${SCRIPT_DIR}/modules/panel_manager.sh"
 
 # ==============================================================================
 # --- God Script Main Execution ---
