@@ -5,51 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}BlueFalcon Panel{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans min-h-screen dark:bg-gray-900 dark:text-gray-200 flex">
-
-    <aside class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 fixed h-full flex flex-col shadow-sm z-10">
-        <div class="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-700">
-            <span class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">🦅 BlueFalcon <span class="text-xs text-gray-500 font-normal ml-1">v1.2</span></span>
+<body class="bg-gray-900 text-gray-200 font-sans min-h-screen flex">
+    <aside class="w-64 bg-gray-800 border-r border-gray-700 fixed h-full flex flex-col shadow-xl z-10">
+        <div class="h-16 flex items-center px-6 border-b border-gray-700 bg-gray-900">
+            <span class="text-xl font-extrabold text-emerald-500 tracking-tight">🦅 BlueFalcon <span class="text-xs text-gray-500 font-normal ml-1">v1.3</span></span>
         </div>
         
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-2">Core Services</div>
-            <a href="/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition hover:bg-gray-100 dark:hover:bg-gray-700/50 {% if request.path == '/dashboard' %}bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400{% else %}text-gray-600 dark:text-gray-300{% endif %}">
-                📊 System Dashboard
-            </a>
-            <a href="/warp" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition hover:bg-gray-100 dark:hover:bg-gray-700/50 {% if request.path == '/warp' %}bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-300{% endif %}">
-                ☁️ WARP Routing
-            </a>
+            <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 px-2">Core Services</div>
+            <a href="/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold transition hover:bg-gray-700 {% if request.path == '/dashboard' %}bg-gray-700 text-white{% else %}text-gray-400{% endif %}">📊 Hardware Node</a>
+            <a href="/openvpn" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold transition hover:bg-gray-700 {% if request.path == '/openvpn' %}bg-gray-700 text-white{% else %}text-gray-400{% endif %}">🛡️ OpenVPN Engine</a>
+            <a href="/warp" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold transition hover:bg-gray-700 {% if request.path == '/warp' %}bg-gray-700 text-white{% else %}text-gray-400{% endif %}">☁️ WARP Routing</a>
             
-            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mt-6 mb-2 px-2">System</div>
-            <a href="/logs" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition hover:bg-gray-100 dark:hover:bg-gray-700/50 {% if request.path == '/logs' %}bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white{% else %}text-gray-600 dark:text-gray-300{% endif %}">
-                📋 Log Center
-            </a>
-            <a href="/settings" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition hover:bg-gray-100 dark:hover:bg-gray-700/50 {% if request.path == '/settings' %}bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white{% else %}text-gray-600 dark:text-gray-300{% endif %}">
-                ⚙️ Master Settings
-            </a>
+            <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mt-6 mb-2 px-2">System Maintenance</div>
+            <a href="/logs" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold transition hover:bg-gray-700 {% if request.path == '/logs' %}bg-gray-700 text-white{% else %}text-gray-400{% endif %}">📋 Log Center</a>
+            <a href="/settings" class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-bold transition hover:bg-gray-700 {% if request.path == '/settings' %}bg-gray-700 text-white{% else %}text-gray-400{% endif %}">⚙️ Master Settings</a>
         </nav>
         
-        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
-            <a href="/logout" class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 font-bold rounded-lg transition">
-                Logout
-            </a>
+        <div class="p-4 border-t border-gray-700 bg-gray-900">
+            <a href="/logout" class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-red-900/30 hover:bg-red-900/50 text-red-500 font-bold rounded-lg transition border border-red-900/50">Logout</a>
         </div>
     </aside>
 
     <main class="ml-64 flex-1 flex flex-col min-h-screen">
-        <header class="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-8 shadow-sm">
-            <h1 class="text-lg font-bold text-gray-800 dark:text-white">{% block header_title %}Overview{% endblock %}</h1>
+        <header class="h-16 bg-gray-800 border-b border-gray-700 flex items-center px-8 shadow-sm">
+            <h1 class="text-lg font-bold text-white">{% block header_title %}Overview{% endblock %}</h1>
             {% if settings and settings.server_name %}
                 <div class="ml-auto flex items-center gap-3">
-                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Node:</span>
-                    <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-sm font-bold text-gray-700 dark:text-gray-200">{{ settings.server_name }}</span>
+                    <span class="text-sm font-bold text-gray-500">Active Node:</span>
+                    <span class="px-3 py-1 bg-gray-900 rounded-md text-sm font-bold text-gray-300 border border-gray-700">{{ settings.server_name }}</span>
                 </div>
             {% endif %}
         </header>
-
         <div class="p-8">
             {% block content %}{% endblock %}
         </div>

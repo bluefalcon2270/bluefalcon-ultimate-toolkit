@@ -1,111 +1,66 @@
 {% extends 'base.html' %}
-{% block title %}Dashboard | BlueFalcon{% endblock %}
-{% block header_title %}📊 System Dashboard & OpenVPN Core{% endblock %}
+{% block title %}Node Hardware | BlueFalcon{% endblock %}
+{% block header_title %}📊 Hardware Node Telemetry{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8 p-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-start h-full">
-                <div class="relative w-full max-w-[160px] aspect-[2/1] mt-2">
-                    <canvas id="cpuChart"></canvas>
-                    <div class="absolute inset-0 flex items-end justify-center pb-1"><span class="text-xl font-bold text-emerald-500" id="cpu_val">--%</span></div>
-                </div>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-4 font-bold tracking-wider mb-2">CPU</p>
-                <div id="cpu_cores_container" class="w-full mt-auto grid grid-cols-2 gap-x-3 gap-y-2"></div>
+<div class="max-w-6xl mx-auto space-y-6">
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-md">
+            <div class="flex justify-between items-end mb-3">
+                <span class="text-sm font-bold text-gray-400 uppercase tracking-wider">CPU Core Allocation</span>
+                <span id="cpu_val" class="text-xl font-bold text-white">0.0%</span>
             </div>
-            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-start h-full">
-                <div class="relative w-full max-w-[160px] aspect-[2/1] mt-2">
-                    <canvas id="ramChart"></canvas>
-                    <div class="absolute inset-0 flex items-end justify-center pb-1"><span class="text-xl font-bold text-blue-500" id="ram_val">--%</span></div>
-                </div>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-4 font-bold tracking-wider">RAM</p>
-                <p class="text-xs text-gray-500 mt-1 font-mono" id="ram_detail">-- / --</p>
+            <div class="w-full bg-gray-900 h-2 rounded-full overflow-hidden border border-gray-700">
+                <div id="cpu_bar" class="bg-emerald-500 h-full transition-all duration-500 ease-out" style="width: 0%"></div>
             </div>
-            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-start h-full">
-                <div class="relative w-full max-w-[160px] aspect-[2/1] mt-2">
-                    <canvas id="diskChart"></canvas>
-                    <div class="absolute inset-0 flex items-end justify-center pb-1"><span class="text-xl font-bold text-purple-500" id="disk_val">--%</span></div>
+            <div id="cpu_cores_container" class="w-full mt-4 grid grid-cols-4 gap-2"></div>
+        </div>
+
+        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-md">
+            <div class="flex justify-between items-end mb-3">
+                <span class="text-sm font-bold text-gray-400 uppercase tracking-wider">Memory Utilization</span>
+                <div class="text-right">
+                    <span id="ram_val" class="text-xl font-bold text-white block">0.0%</span>
+                    <span id="ram_detail" class="text-xs font-mono text-gray-500">0 MB / 0 GB</span>
                 </div>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-4 font-bold tracking-wider">STORAGE</p>
-                <p class="text-xs text-gray-500 mt-1 font-mono" id="disk_detail">-- / --</p>
             </div>
-            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center h-full">
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 font-bold tracking-wider">NETWORK TRAFFIC</p>
-                <div class="flex flex-col gap-3 w-full px-4">
-                    <div class="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 flex justify-between items-center shadow-sm"><span class="text-emerald-500 font-bold">↓ DL</span><span class="text-emerald-600 dark:text-emerald-400 font-mono font-bold" id="net_rx_val">0 KB/s</span></div>
-                    <div class="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 flex justify-between items-center shadow-sm"><span class="text-rose-500 font-bold">↑ UL</span><span class="text-rose-600 dark:text-rose-400 font-mono font-bold" id="net_tx_val">0 KB/s</span></div>
+            <div class="w-full bg-gray-900 h-2 rounded-full overflow-hidden border border-gray-700">
+                <div id="ram_bar" class="bg-blue-500 h-full transition-all duration-500 ease-out" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-md">
+            <div class="flex justify-between items-end mb-3">
+                <span class="text-sm font-bold text-gray-400 uppercase tracking-wider">Disk Capacity</span>
+                <div class="text-right">
+                    <span id="disk_val" class="text-xl font-bold text-white block">0.0%</span>
+                    <span id="disk_detail" class="text-xs font-mono text-gray-500">0 GB / 0 GB</span>
                 </div>
+            </div>
+            <div class="w-full bg-gray-900 h-2 rounded-full overflow-hidden border border-gray-700">
+                <div id="disk_bar" class="bg-purple-500 h-full transition-all duration-500 ease-out" style="width: 0%"></div>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm"><h3 class="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase">Protocol</h3><p class="text-xl text-gray-800 dark:text-white mt-1 uppercase">{{ settings['protocol'] }} <span class="text-emerald-500">/ {{ settings['port'] }}</span></p></div>
-        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm"><h3 class="text-gray-500 dark:text-gray-400 text-sm font-bold uppercase">Device Limit</h3><p class="text-xl text-gray-800 dark:text-white mt-1 capitalize">{{ settings['conn_limit'] }}</p></div>
-        <div class="md:col-span-2 bg-emerald-50 dark:bg-emerald-900/20 p-5 rounded-2xl border border-emerald-100 dark:border-emerald-900/50 shadow-sm"><h3 class="text-emerald-700 dark:text-emerald-400/80 text-sm font-bold uppercase">Total Server Data Passed</h3><p class="text-xl text-emerald-600 dark:text-emerald-400 mt-1 font-bold">↓ {{ t_rx|format_bytes }} &nbsp; ↑ {{ t_tx|format_bytes }}</p></div>
-    </div>
-
-    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Provision New Client</h3>
-            <form action="/dashboard" method="POST" class="flex flex-wrap gap-4 items-end">
-                <div><label class="block text-sm font-bold text-gray-600 dark:text-gray-400 mb-1">Display Name</label><input type="text" name="new_user" required class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 text-gray-800 dark:text-white"></div>
-                <div><label class="block text-sm font-bold text-gray-600 dark:text-gray-400 mb-1">Password</label><input type="text" name="new_pass" required class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 text-gray-800 dark:text-white"></div>
-                <div><label class="block text-sm font-bold text-gray-600 dark:text-gray-400 mb-1">Expiry (Days)</label><input type="number" name="exp_days" value="0" min="0" required class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 text-gray-800 dark:text-white w-24"></div>
-                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-lg transition shadow-sm">+ Generate Profile</button>
-            </form>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-md flex justify-between items-center">
+            <span class="text-sm font-bold text-gray-400 uppercase">Live Download</span>
+            <span id="net_rx_val" class="text-lg font-mono font-bold text-emerald-400">0 B/s</span>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
-                        <th class="p-4 font-bold">User</th>
-                        <th class="p-4 font-bold">Status</th>
-                        <th class="p-4 font-bold">Data Usage</th>
-                        <th class="p-4 font-bold">Time Left</th>
-                        <th class="p-4 text-right font-bold">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                    {% for user in users %}
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
-                        <td class="p-4"><span class="font-bold text-gray-800 dark:text-white block">{{ user['display_name'] }}</span><span class="text-xs text-gray-500 dark:text-gray-400 font-mono">sys: {{ user['system_name'] }}</span></td>
-                        <td class="p-4">
-                            {% if user['status'] == 'paused' %}
-                                <span class="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 px-2.5 py-1 rounded-full text-xs font-bold border border-orange-200 dark:border-transparent">⏸ Paused</span>
-                            {% elif stats[user['system_name']]['online'] %}
-                                <span class="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-2.5 py-1 rounded-full text-xs font-bold border border-green-200 dark:border-transparent">● Online</span>
-                            {% else %}
-                                <span class="bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 px-2.5 py-1 rounded-full text-xs font-bold border border-gray-200 dark:border-transparent">Offline</span>
-                            {% endif %}
-                        </td>
-                        <td class="p-4 text-sm font-medium text-gray-600 dark:text-gray-300">{{ stats[user['system_name']]['usage']|format_bytes }}</td>
-                        <td class="p-4 text-sm font-medium text-gray-600 dark:text-gray-400">
-                            {% if user['exp_days'] == 0 %} Unlimited 
-                            {% elif user['exp_days'] < current_time %} <span class="text-red-500 dark:text-red-400 font-bold">Expired</span> 
-                            {% else %} {{ ((user['exp_days'] - current_time) / 86400) | round(1) }} Days {% endif %}
-                        </td>
-                        <td class="p-4 text-right space-x-2 whitespace-nowrap">
-                            <a href="/toggle/{{ user['system_name'] }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white px-3 py-1.5 rounded-lg text-sm font-bold transition border border-gray-200 dark:border-transparent">{% if user['status'] == 'paused' %}▶ Resume{% else %}⏸ Pause{% endif %}</a>
-                            <a href="/download/{{ user['system_name'] }}" class="bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-600 dark:hover:bg-blue-500 dark:text-white border border-blue-200 dark:border-transparent px-3 py-1.5 rounded-lg text-sm font-bold transition">Auto-Login</a>
-                            <a href="/download_manual/{{ user['system_name'] }}" class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-600 dark:hover:bg-indigo-500 dark:text-white border border-indigo-200 dark:border-transparent px-3 py-1.5 rounded-lg text-sm font-bold transition">Manual</a>
-                            <a href="/revoke/{{ user['system_name'] }}" onclick="return confirm('Delete and revoke user forever?')" class="bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-400 border border-red-200 dark:border-transparent px-3 py-1.5 rounded-lg text-sm font-bold transition">Revoke</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-md flex justify-between items-center">
+            <span class="text-sm font-bold text-gray-400 uppercase">Live Upload</span>
+            <span id="net_tx_val" class="text-lg font-mono font-bold text-rose-400">0 B/s</span>
+        </div>
+        <div class="md:col-span-2 bg-gray-800 p-5 rounded-xl border border-gray-700 shadow-md flex justify-between items-center">
+            <span class="text-sm font-bold text-gray-400 uppercase">Total System Bandwidth</span>
+            <span class="text-lg font-mono font-bold text-white">↓ {{ t_rx|format_bytes }} &nbsp;|&nbsp; ↑ {{ t_tx|format_bytes }}</span>
         </div>
     </div>
 </div>
 
 <script>
-    const chartOptions = { responsive: true, maintainAspectRatio: false, cutout: '82%', circumference: 180, rotation: -90, plugins: { tooltip: { enabled: false }, legend: { display: false } }, animation: { duration: 0 } };
-    const createDonut = (ctxId, color) => new Chart(document.getElementById(ctxId).getContext('2d'), { type: 'doughnut', data: { datasets: [{ data: [0, 100], backgroundColor: [color, 'rgba(156, 163, 175, 0.2)'], borderWidth: 0, borderRadius: 2 }] }, options: chartOptions });
-    const cpuChart = createDonut('cpuChart', '#10b981');
-    const ramChart = createDonut('ramChart', '#3b82f6');
-    const diskChart = createDonut('diskChart', '#a855f7');
     let lastRx = 0, lastTx = 0, firstPoll = true;
     function formatSpeed(bytes) {
         if (bytes < 1024) return bytes + " B/s";
@@ -114,26 +69,34 @@
     }
     setInterval(() => {
         fetch('/api/sysinfo').then(r => r.json()).then(data => {
+            // CPU
             document.getElementById('cpu_val').innerText = data.cpu + '%';
-            cpuChart.data.datasets[0].data = [data.cpu, 100 - data.cpu]; cpuChart.update();
+            document.getElementById('cpu_bar').style.width = data.cpu + '%';
+            
             const coresContainer = document.getElementById('cpu_cores_container'); coresContainer.innerHTML = '';
-            if (data.cpu_cores && data.cpu_cores.length > 0) {
+            if (data.cpu_cores) {
                 data.cpu_cores.forEach((coreLoad, index) => {
-                    coresContainer.insertAdjacentHTML('beforeend', `<div class="flex flex-col"><div class="flex justify-between text-[10px] font-bold text-gray-500 mb-0.5"><span>C${index}</span><span class="text-emerald-500">${coreLoad.toFixed(1)}%</span></div><div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5"><div class="bg-emerald-500 h-1.5 rounded-full" style="width: ${coreLoad}%"></div></div></div>`);
+                    coresContainer.insertAdjacentHTML('beforeend', `<div class="flex flex-col"><span class="text-[10px] font-bold text-gray-500 mb-1">C${index} <span class="text-gray-300 float-right">${coreLoad.toFixed(0)}%</span></span><div class="w-full bg-gray-900 rounded-full h-1"><div class="bg-gray-400 h-1 rounded-full" style="width: ${coreLoad}%"></div></div></div>`);
                 });
             }
+            
+            // RAM
             document.getElementById('ram_val').innerText = data.ram_percent + '%';
             document.getElementById('ram_detail').innerText = data.ram_used + ' / ' + data.ram_total;
-            ramChart.data.datasets[0].data = [data.ram_percent, 100 - data.ram_percent]; ramChart.update();
+            document.getElementById('ram_bar').style.width = data.ram_percent + '%';
+            
+            // Disk
             document.getElementById('disk_val').innerText = data.disk_percent + '%';
             document.getElementById('disk_detail').innerText = data.disk_used + ' / ' + data.disk_total;
-            diskChart.data.datasets[0].data = [data.disk_percent, 100 - data.disk_percent]; diskChart.update();
+            document.getElementById('disk_bar').style.width = data.disk_percent + '%';
+            
+            // Network
             if (!firstPoll) {
                 document.getElementById('net_rx_val').innerText = formatSpeed(Math.max(0, (data.net_rx - lastRx) / 2));
                 document.getElementById('net_tx_val').innerText = formatSpeed(Math.max(0, (data.net_tx - lastTx) / 2));
             }
             lastRx = data.net_rx; lastTx = data.net_tx; firstPoll = false;
-        }).catch(err => console.error("Error fetching sysinfo:", err));
+        });
     }, 2000);
 </script>
 {% endblock %}

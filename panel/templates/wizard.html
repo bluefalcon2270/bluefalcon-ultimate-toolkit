@@ -1,64 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Initialization Wizard | BlueFalcon</title>
+    <title>System Initialization | BlueFalcon</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-gray-200 font-sans min-h-screen flex items-center justify-center p-6">
-    <div class="max-w-4xl w-full bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden">
-        <div class="bg-emerald-600 p-6 text-center">
-            <h1 class="text-3xl font-extrabold text-white tracking-tight">🦅 BlueFalcon Toolkit <span class="text-emerald-200 text-xl font-normal ml-2">v1.2</span></h1>
-            <p class="text-emerald-100 mt-2">Master Initialization Wizard</p>
+    <div class="max-w-4xl w-full bg-gray-800 rounded-xl shadow-2xl border border-gray-700 overflow-hidden">
+        <div class="bg-gray-900 border-b border-gray-700 p-6 text-center">
+            <h1 class="text-2xl font-extrabold text-white tracking-tight">🦅 BlueFalcon System Initialization</h1>
         </div>
         
         <form action="/wizard" method="POST" class="p-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
                 <div class="space-y-4">
-                    <h2 class="text-lg font-bold text-white border-b border-gray-700 pb-2">1. System Settings</h2>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Server Display Name</label><input type="text" name="server_name" value="BlueFalcon Server" required class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white focus:border-emerald-500 outline-none transition"></div>
+                    <h2 class="text-lg font-bold text-white border-b border-gray-700 pb-2">1. Control Plane</h2>
+                    <div><label class="block text-sm font-bold text-gray-400 mb-1">Node Display Name</label><input type="text" name="server_name" value="BlueFalcon Node 1" required class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white focus:border-emerald-500 outline-none"></div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="block text-sm font-medium text-gray-400 mb-1">Admin Username</label><input type="text" name="admin_user" value="admin" required class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white"></div>
-                        <div><label class="block text-sm font-medium text-gray-400 mb-1">Admin Password</label><input type="password" name="admin_pass" value="admin" required class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white"></div>
+                        <div><label class="block text-sm font-bold text-gray-400 mb-1">Admin User</label><input type="text" name="admin_user" value="admin" required class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white"></div>
+                        <div><label class="block text-sm font-bold text-gray-400 mb-1">Admin Pass</label><input type="password" name="admin_pass" value="admin" required class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white"></div>
                     </div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Web Panel Port</label><input type="number" name="panel_port" value="2020" required class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white"></div>
+                    <div><label class="block text-sm font-bold text-gray-400 mb-1">Web UI Port</label><input type="number" name="panel_port" value="2020" required class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white"></div>
                 </div>
 
                 <div class="space-y-4">
                     <h2 class="text-lg font-bold text-white border-b border-gray-700 pb-2">2. OpenVPN Engine</h2>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="block text-sm font-medium text-gray-400 mb-1">Protocol</label>
-                            <select name="protocol" class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white"><option value="udp">UDP</option><option value="tcp">TCP</option></select>
-                        </div>
-                        <div><label class="block text-sm font-medium text-gray-400 mb-1">Port</label><input type="number" name="port" value="1194" required class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white"></div>
+                        <div><label class="block text-sm font-bold text-gray-400 mb-1">Protocol</label><select name="protocol" class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white"><option value="udp">UDP</option><option value="tcp">TCP</option></select></div>
+                        <div><label class="block text-sm font-bold text-gray-400 mb-1">Port</label><input type="number" name="port" value="1194" required class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white"></div>
                     </div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">DNS Resolver</label>
-                        <select name="dns_preset" class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white"><option value="1.1.1.1">Cloudflare (1.1.1.1)</option><option value="8.8.8.8">Google (8.8.8.8)</option><option value="9.9.9.9">Quad9 (9.9.9.9)</option></select>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-gray-400 mb-1">DNS Resolver</label>
+                        <select name="dns_preset" class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white" onchange="const c = document.getElementById('custom_dns_div'); if(this.value==='custom'){c.style.display='grid'; document.getElementById('custom_dns1').required=true;}else{c.style.display='none'; document.getElementById('custom_dns1').required=false;}">
+                            <option value="1.1.1.1">Cloudflare (1.1.1.1)</option>
+                            <option value="8.8.8.8">Google (8.8.8.8)</option>
+                            <option value="9.9.9.9">Quad9 (9.9.9.9)</option>
+                            <option value="custom">Custom IP...</option>
+                        </select>
+                        <div id="custom_dns_div" class="grid grid-cols-2 gap-2 mt-2" style="display: none;">
+                            <input type="text" id="custom_dns1" name="custom_dns1" placeholder="Primary IP" class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white text-sm">
+                            <input type="text" name="custom_dns2" placeholder="Secondary IP (Optional)" class="w-full bg-gray-900 border border-gray-600 rounded-lg py-2 px-3 text-white text-sm">
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="mt-8 border-t border-gray-700 pt-6">
-                <h2 class="text-lg font-bold text-white mb-4">3. Cloudflare WARP Routing</h2>
+                <h2 class="text-lg font-bold text-white mb-4">3. Cloudflare WARP Shielding</h2>
                 <div class="bg-gray-900 p-5 rounded-xl border border-gray-700">
                     <label class="flex items-center cursor-pointer mb-4">
-                        <input type="checkbox" name="install_warp" id="warpToggle" class="sr-only peer" onchange="document.getElementById('warpSettings').style.display = this.checked ? 'block' : 'none';">
-                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 relative"></div>
-                        <span class="ml-3 text-sm font-bold text-gray-300">Deploy Cloudflare WARP Engine</span>
+                        <input type="checkbox" name="install_warp" class="sr-only peer" onchange="document.getElementById('warpSettings').style.display = this.checked ? 'block' : 'none';">
+                        <div class="w-11 h-6 bg-gray-800 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-gray-400 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600 peer-checked:after:bg-white relative border border-gray-600"></div>
+                        <span class="ml-3 text-sm font-bold text-gray-300">Deploy Cloudflare WARP Engine Background Service</span>
                     </label>
-                    
                     <div id="warpSettings" class="space-y-4" style="display: none;">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-sm font-medium text-gray-400 mb-1">Target Network</label>
-                                <select name="warp_target" class="w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-white"><option value="3">IPv4 & IPv6 (Dual-Stack)</option><option value="1">IPv4 Only</option><option value="2">IPv6 Only</option></select>
-                            </div>
-                            <div><label class="block text-sm font-medium text-gray-400 mb-1">License Key (Optional)</label><input type="text" name="warp_license" placeholder="Leave blank for free version..." class="w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-white"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-700 pt-4">
+                            <div><label class="block text-sm font-bold text-gray-500 mb-1">Target Network</label><select name="warp_target" class="w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-white"><option value="3">IPv4 & IPv6 (Dual-Stack)</option><option value="1">IPv4 Only</option><option value="2">IPv6 Only</option></select></div>
+                            <div><label class="block text-sm font-bold text-gray-500 mb-1">License Key (Optional)</label><input type="text" name="warp_license" placeholder="Blank for free version..." class="w-full bg-gray-800 border border-gray-600 rounded-lg py-2 px-3 text-white"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <button type="submit" class="w-full mt-8 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl shadow-lg transition text-lg tracking-wide">🚀 Begin System Initialization</button>
+            <button type="submit" class="w-full mt-8 bg-white hover:bg-gray-200 text-black font-bold py-4 rounded-xl shadow-md transition text-lg tracking-wide">Launch System Deployment Pipeline</button>
         </form>
     </div>
 </body>
