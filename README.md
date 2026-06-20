@@ -4,6 +4,7 @@
 
 **The fast, safe, and modular way to prepare, route, and manage a fresh Linux server.**
 
+![Version](https://img.shields.io/badge/Version-v1.0-blue?style=for-the-badge)
 ![Linux](https://img.shields.io/badge/Platform-Debian%20%7C%20Ubuntu-FCC624?style=for-the-badge&logo=linux&logoColor=black)
 [![Language](https://img.shields.io/badge/Written%20in-Shell/Python-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
@@ -23,6 +24,8 @@ Run this single command with root privileges on your fresh VPS. It acts as an in
 bash <(curl -Ls https://raw.githubusercontent.com/bluefalcon2270/bluefalcon-ultimate-toolkit/main/install.sh)
 ```
 
+Once installed, simply type `bf-ui` from anywhere in your terminal to instantly launch the master control panel!
+
 <br>
 
 ## 🏗️ System Architecture
@@ -35,7 +38,6 @@ The toolkit is structured for maximum maintainability and protocol independence:
 <br>
 
 ## 🌟 Features
-By running the main `setup.sh` launcher, you access a unified master terminal menu with the following capabilities:
 
 ### 1️⃣ Essential Tools
 * **Update System:** Run standard package updates non-interactively.
@@ -50,7 +52,7 @@ By running the main `setup.sh` launcher, you access a unified master terminal me
 ### 3️⃣ Cloudflare WARP
 * **Dual-Stack Routing:** Hide your server's true IP and bypass restrictions by routing IPv4 and/or IPv6 traffic through Cloudflare's WireGuard network (`wgcf`).
 * **WARP+ Support:** Upgrade your connection instantly using a premium license key.
-* **Live Dashboard:** Displays active connection statuses, server IPs, and WARP masking IPs all in real time.
+* **Modern Dashboard:** Displays active connection statuses, server IPs, and WARP masking IPs via modern routing cards in the web panel.
 
 <br>
 

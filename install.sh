@@ -2,6 +2,7 @@
 
 # ==============================================================================
 # BlueFalcon Bootstrapper
+# Version: v1.0
 # ==============================================================================
 
 echo "🦅 Initializing BlueFalcon Ultimate Toolkit..."
@@ -23,7 +24,12 @@ else
     git clone -q https://github.com/bluefalcon2270/bluefalcon-ultimate-toolkit.git
 fi
 
-# 3. Execute the main God Script
+# 3. Create Global Shortcut & Execute
 cd /opt/bluefalcon-ultimate-toolkit
 chmod +x setup.sh
-./setup.sh
+
+# Link the script to the system binary path for global access
+ln -sf /opt/bluefalcon-ultimate-toolkit/setup.sh /usr/local/bin/bf-ui
+
+# Launch the menu using the new global command
+bf-ui
