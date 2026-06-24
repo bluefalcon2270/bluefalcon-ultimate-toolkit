@@ -2,7 +2,7 @@
 
 # ==============================================================================
 # BlueFalcon Ultimate Toolkit (God Script)
-# Version: v2.0
+# Version: v2.3
 # Architecture: Optimized for Debian & Ubuntu (Bash/Python/SQLite Stack)
 # ==============================================================================
 
@@ -27,7 +27,7 @@ source "${SCRIPT_DIR}/modules/warp_manager.sh"
 show_main_menu() {
     clear
     echo -e "${BOLD_BLUE}=====================================================${NC}"
-    echo -e "${BOLD_BLUE}       🧰 BlueFalcon Ultimate Toolkit (v2.0) 🧰       ${NC}"
+    echo -e "${BOLD_BLUE}       🧰 BlueFalcon Ultimate Toolkit (v2.3) 🧰       ${NC}"
     echo -e "${BOLD_BLUE}=====================================================${NC}"
     echo ""
     echo "1. System Essentials"

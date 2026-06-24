@@ -13,37 +13,47 @@ Wgcf_account="/etc/warp/wgcf-account.toml"
 
 install_warp() {
     export DEBIAN_FRONTEND=noninteractive
-    apt-get update -y >/dev/null 2>&1
-    apt-get install -y curl gnupg lsb-release ca-certificates >/dev/null 2>&1
+    echo "[INFO] Updating package repositories..."
+    apt-get update -y
+    
+    echo "[INFO] Installing core network dependencies..."
+    apt-get install -y curl gnupg lsb-release ca-certificates
     
     if ! command -v wgcf >/dev/null 2>&1; then
-        curl -fsSL git.io/wgcf.sh -o /tmp/wgcf.sh >/dev/null 2>&1
-        bash /tmp/wgcf.sh >/dev/null 2>&1
+        echo "[INFO] Downloading WGCF binary..."
+        curl -fsSL git.io/wgcf.sh -o /tmp/wgcf.sh
+        bash /tmp/wgcf.sh
     fi
     
     if ! command -v warp-cli >/dev/null 2>&1; then
+        echo "[INFO] Fetching Cloudflare Repository keys..."
         . /etc/os-release
-        curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg >/dev/null 2>&1
+        curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
         echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/cloudflare-client.list >/dev/null
-        apt-get update -y >/dev/null 2>&1
         
+        echo "[INFO] Installing Cloudflare client & WireGuard..."
+        apt-get update -y
         local dns_pkg="resolvconf"
         if apt-get install -s openresolv >/dev/null 2>&1; then dns_pkg="openresolv"; fi
-        apt-get install cloudflare-warp iproute2 "${dns_pkg}" wireguard-tools -y >/dev/null 2>&1
+        apt-get install cloudflare-warp iproute2 "${dns_pkg}" wireguard-tools -y
     fi
 
     mkdir -p /etc/warp
     cd /etc/warp || exit
+    
     if [[ ! -f "$Wgcf_account" ]]; then 
-        wgcf register --accept-tos >/dev/null 2>&1
+        echo "[INFO] Registering free Cloudflare profile..."
+        wgcf register --accept-tos
     fi
 
     if [ -n "$LICENSE" ] && [ "$LICENSE" != "free" ]; then
+        echo "[INFO] Upgrading profile to WARP+ Premium License..."
         sed -i "s/\(license_key = \).*/\1'${LICENSE}'/" "$Wgcf_account"
-        wgcf update --config "$Wgcf_account" >/dev/null 2>&1
+        wgcf update --config "$Wgcf_account"
     fi
 
-    wgcf generate >/dev/null 2>&1
+    echo "[INFO] Generating WireGuard configuration file..."
+    wgcf generate
     [ -d "/etc/wireguard" ] || mkdir -p "/etc/wireguard"
     
     local PrivateKey=$(grep ^PrivateKey "${Profile_conf}" | cut -d= -f2- | awk '$1=$1')
@@ -85,8 +95,9 @@ AllowedIPs = $( [ "$TARGET" == "1" ] && echo "0.0.0.0/0" || ( [ "$TARGET" == "2"
 Endpoint = engage.cloudflareclient.com:2408
 EOF
 
+    echo "[INFO] Securing routes and enabling Background Service..."
     (crontab -l 2>/dev/null | grep -v "wg-quick@wgcf"; echo "0 4 * * * systemctl restart wg-quick@wgcf;systemctl restart warp-svc") | crontab -
-    systemctl enable --now wg-quick@wgcf >/dev/null 2>&1
+    systemctl enable --now wg-quick@wgcf
 }
 
 toggle_warp() {
@@ -101,10 +112,15 @@ toggle_warp() {
 }
 
 uninstall_warp() {
+    echo "[INFO] Halting WireGuard services..."
     systemctl stop wg-quick@wgcf >/dev/null 2>&1
     systemctl disable wg-quick@wgcf >/dev/null 2>&1
+    
+    echo "[INFO] Purging Cloudflare packages..."
     export DEBIAN_FRONTEND=noninteractive
-    apt-get purge cloudflare-warp -y >/dev/null 2>&1
+    apt-get purge cloudflare-warp -y
+    
+    echo "[INFO] Removing routing rules and config files..."
     rm -rf /etc/warp /etc/wireguard/wgcf* /usr/local/bin/wgcf
     ip link delete wgcf >/dev/null 2>&1
 }

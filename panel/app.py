@@ -235,10 +235,13 @@ def openvpn_dashboard():
 
 # --- WARP Routing ---
 def get_warp_trace():
-    vps_v4 = os.popen("curl --interface $(ip route | awk '/default/ {print $5}' | head -1) -s4 ifconfig.me").read().strip() or "N/A"
-    vps_v6 = os.popen("hostname -I | awk '{ for(i=1;i<=NF;i++) if($i~/^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{1,4}$/) {print $i; exit} }'").read().strip() or "N/A"
-    trace_v4 = os.popen("curl -s4 https://www.cloudflare.com/cdn-cgi/trace --connect-timeout 2").read()
-    trace_v6 = os.popen("curl -s6 https://www.cloudflare.com/cdn-cgi/trace --connect-timeout 2").read()
+    # FAST LOCAL DETECTION: Removes the external curl calls that freeze the panel when WARP routes shift
+    vps_v4 = os.popen("ip -4 addr show $(ip route | awk '/default/ {print $5}' | head -1) 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1 | head -1").read().strip() or "N/A"
+    vps_v6 = os.popen("ip -6 addr show $(ip route | awk '/default/ {print $5}' | head -1) 2>/dev/null | awk '/inet6 / {print $2}' | cut -d/ -f1 | grep -v '^fe80' | head -1").read().strip() or "N/A"
+    
+    # Aggressive Timeouts prevent Gunicorn workers from hanging if WARP connection fails
+    trace_v4 = os.popen("curl -s4 https://www.cloudflare.com/cdn-cgi/trace --connect-timeout 3 --max-time 5").read()
+    trace_v6 = os.popen("curl -s6 https://www.cloudflare.com/cdn-cgi/trace --connect-timeout 3 --max-time 5").read()
     
     def parse(trace):
         status, ip = "off", "------------"
@@ -265,31 +268,53 @@ def warp_dashboard():
 def warp_action(action):
     if 'admin_logged_in' not in session: return redirect(url_for('login'))
     script_path = f"{APP_DIR}/scripts/action.sh"
-    
-    if action == "install":
-        target = request.form.get('target', '3')
-        key = request.form.get('license', 'free')
-        process = subprocess.Popen(['bash', script_path, 'install', target, key])
-        process.wait() # Block until install finishes
-        
-        conn = get_db()
-        conn.execute('UPDATE warp SET is_installed=1')
-        conn.commit()
-        conn.close()
-        
-    elif action == "toggle": 
+    # This route only handles instant toggles now; Install/Uninstall are handled by the stream API below
+    if action == "toggle": 
         os.system(f"bash {script_path} toggle")
-        
-    elif action == "uninstall": 
-        process = subprocess.Popen(['bash', script_path, 'uninstall'])
-        process.wait() # Block until uninstall finishes
-        
-        conn = get_db()
-        conn.execute('UPDATE warp SET is_installed=0')
-        conn.commit()
-        conn.close()
-        
     return redirect(url_for('warp_dashboard'))
+
+@app.route('/api/warp_stream')
+def warp_stream():
+    if 'admin_logged_in' not in session: return Response("Unauthorized", status=401)
+    
+    action = request.args.get('action')
+    target = request.args.get('target', '3')
+    license_key = request.args.get('license', 'free')
+
+    def generate():
+        script_path = f"{APP_DIR}/scripts/action.sh"
+        if action == 'install':
+            yield "data: 🚀 INITIALIZING CLOUDFLARE WARP ENGINE...\n\n"
+            process = subprocess.Popen(['bash', script_path, 'install', target, license_key], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            for line in iter(process.stdout.readline, ''):
+                yield f"data: {line}\n\n"
+            process.stdout.close(); process.wait()
+            
+            conn = get_db()
+            conn.execute('UPDATE warp SET is_installed=1')
+            conn.commit(); conn.close()
+            
+            yield "data: \n\n"
+            yield "data: 🟢 WARP ENGINE DEPLOYED SUCCESSFULLY.\n\n"
+            yield "data: [DONE]\n\n"
+            
+        elif action == 'uninstall':
+            yield "data: 🗑️ PURGING CLOUDFLARE WARP ENGINE...\n\n"
+            process = subprocess.Popen(['bash', script_path, 'uninstall'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            for line in iter(process.stdout.readline, ''):
+                yield f"data: {line}\n\n"
+            process.stdout.close(); process.wait()
+            
+            conn = get_db()
+            conn.execute('UPDATE warp SET is_installed=0')
+            conn.commit(); conn.close()
+            
+            yield "data: \n\n"
+            yield "data: 🔴 WARP ENGINE PURGED.\n\n"
+            yield "data: [DONE]\n\n"
+            
+    return Response(generate(), mimetype='text/event-stream')
+
 
 # --- Log Center ---
 @app.route('/logs')
