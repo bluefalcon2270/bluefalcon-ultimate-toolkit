@@ -59,8 +59,9 @@ DNS = 8.8.8.8,8.8.4.4,2001:4860:4860::8888,2001:4860:4860::8844
 MTU = ${MTU}
 EOF
 
-    local IPv4_addr=$(hostname -I | awk '{print $1}')
-    local IPv6_addr=$(hostname -I | awk '{ for(i=1;i<=NF;i++) if($i~/^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{1,4}$/) {print $i; exit} }')
+    local DEFAULT_IF=$(ip route | awk '/default/ {print $5}' | head -1)
+    local IPv4_addr=$(ip -4 addr show "$DEFAULT_IF" | awk '/inet / {print $2}' | cut -d/ -f1 | head -1)
+    local IPv6_addr=$(ip -6 addr show "$DEFAULT_IF" | awk '/inet6 / {print $2}' | cut -d/ -f1 | grep -v '^fe80' | head -1)
 
     if [ "$TARGET" == "1" ] || [ "$TARGET" == "3" ]; then
         cat <<EOF >>${WGCF_conf}

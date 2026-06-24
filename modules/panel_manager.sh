@@ -66,11 +66,11 @@ EOF
 uninstall_panel() {
     clear
     echo ""
-    read -rp "Uninstall Web Panel & OpenVPN? All user data will be lost. (y/N): " confirm
+    read -rp "Uninstall Web Panel ONLY? (OpenVPN & WARP will remain intact) (y/N): " confirm
     if [[ "${confirm,,}" == "y" ]]; then
         echo ""
-        CURRENT_LOG="${LOG_FILE}" run_with_spinner "Removing files, services, and packages" bash -c "systemctl stop bluefalcon-panel openvpn-server@server; systemctl disable bluefalcon-panel openvpn-server@server; apt-get remove --purge -y openvpn iptables-persistent python3-psutil; rm -rf ${APP_DIR} /etc/openvpn /etc/systemd/system/bluefalcon-panel.service /var/log/bluefalcon-panel /var/log/openvpn /etc/cron.daily/bluefalcon-panel-expiry; systemctl daemon-reload"
-        echo -e "\n[ ${GREEN}✔${NC} ] System cleanly wiped."
+        CURRENT_LOG="${LOG_FILE}" run_with_spinner "Removing Web Panel service" bash -c "systemctl stop bluefalcon-panel 2>/dev/null; systemctl disable bluefalcon-panel 2>/dev/null; rm -f /etc/systemd/system/bluefalcon-panel.service /etc/cron.daily/bluefalcon-panel-expiry; systemctl daemon-reload"
+        echo -e "\n[ ${GREEN}✔${NC} ] Web Panel safely disabled and removed. Your VPN engines are still running."
     else
         echo -e "\n[ ${YELLOW}✖${NC} ] Uninstallation canceled."
     fi
@@ -81,7 +81,7 @@ manage_panel() {
     while true; do
         clear
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
-        echo -e "${BOLD_BLUE}                Web Panel Management                 ${NC}"
+        echo -e "${BOLD_BLUE}                    Web Panel Management                 ${NC}"
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
         
         IPV4=$(ip -4 addr show $(ip route | awk '/default/ {print $5}' | head -1) | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
@@ -107,7 +107,7 @@ manage_panel() {
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
         echo ""
         echo "1. Install Web Panel"
-        echo "2. Uninstall Web Panel & VPN"
+        echo "2. Uninstall Web Panel"
         echo "3. View Installation Logs"
         echo "4. View Web Panel Logs"
         echo "0. Return"

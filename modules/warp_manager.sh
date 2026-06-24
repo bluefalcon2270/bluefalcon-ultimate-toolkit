@@ -61,8 +61,9 @@ DNS = 8.8.8.8,8.8.4.4,2001:4860:4860::8888,2001:4860:4860::8844
 MTU = ${MTU}
 EOF
 
-    local IPv4_addr=$(hostname -I | awk '{print $1}')
-    local IPv6_addr=$(hostname -I | awk '{ for(i=1;i<=NF;i++) if($i~/^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{1,4}$/) {print $i; exit} }')
+    local DEFAULT_IF=$(ip route | awk '/default/ {print $5}' | head -1)
+    local IPv4_addr=$(ip -4 addr show "$DEFAULT_IF" | awk '/inet / {print $2}' | cut -d/ -f1 | head -1)
+    local IPv6_addr=$(ip -6 addr show "$DEFAULT_IF" | awk '/inet6 / {print $2}' | cut -d/ -f1 | grep -v '^fe80' | head -1)
 
     case $1 in
         1)
@@ -164,10 +165,11 @@ uninstall_warp() {
 }
 
 draw_warp_dashboard() {
-    local VPS_IPv4_Int=$(hostname -I | awk '{print $1}')
+    local DEFAULT_IF=$(ip route | awk '/default/ {print $5}' | head -1)
+    local VPS_IPv4_Int=$(ip -4 addr show "$DEFAULT_IF" | awk '/inet / {print $2}' | cut -d/ -f1 | head -1)
     [ -z "$VPS_IPv4_Int" ] && VPS_IPv4_Int="N/A"
     
-    local VPS_IPv6_Int=$(hostname -I | awk '{ for(i=1;i<=NF;i++) if($i~/^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{1,4}$/) {print $i; exit} }')
+    local VPS_IPv6_Int=$(ip -6 addr show "$DEFAULT_IF" | awk '/inet6 / {print $2}' | cut -d/ -f1 | grep -v '^fe80' | head -1)
     [ -z "$VPS_IPv6_Int" ] && VPS_IPv6_Int="N/A"
 
     local WARP_IPv4_Status=$(curl -s4 ${CF_Trace_URL} --connect-timeout 2 | grep warp | cut -d= -f2 || echo "off")
