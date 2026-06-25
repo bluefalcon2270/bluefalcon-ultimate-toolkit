@@ -3,7 +3,7 @@
 # ==============================================================================
 
 # --- Constants & Configuration ---
-readonly SCRIPT_VERSION="v2.8"
+readonly SCRIPT_VERSION="v3.0"
 readonly APP_DIR="/opt/bluefalcon-ultimate-toolkit"
 readonly LOG_FILE="/var/log/bluefalcon_toolkit.log"
 readonly WARP_LOG="/var/log/bluefalcon_warp.log"

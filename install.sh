@@ -2,7 +2,7 @@
 
 # ==============================================================================
 # BlueFalcon Bootstrapper
-# Version: v1.0
+# Version: ${SCRIPT_VERSION}
 # ==============================================================================
 
 echo "🦅 Initializing BlueFalcon Ultimate Toolkit..."

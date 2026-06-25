@@ -88,7 +88,7 @@ function userCards() {
   const users = window.APP_DATA?.users || []
   if (users.length === 0) return '<p class="text-ink-faint py-4">No users found.</p>'
 
-  const bg = { active: 'bg-emerald-100 text-emerald-600', inactive: 'bg-rose-100 text-rose-600', default: 'bg-blue-100 text-brand-blue' }
+  const bg = { active: 'bg-emerald-500/15 text-emerald-400', inactive: 'bg-rose-500/15 text-rose-400', default: 'bg-brand-blue/15 text-brand-blue' }
   return users.map((u, i) => `
     <div class="user-card anim-pop" data-searchable style="animation-delay:${i * 0.05}s">
       <div class="flex items-center gap-3">
@@ -113,7 +113,7 @@ function transactionsTable(full = false) {
     ['#LOG-9817', 'K', 'Kevin H.', 'amber', '3.7 GB', '2026-06-23 11:20', 'success', 'Connected', 'chip-ok'],
     ['#LOG-9816', 'F', 'Fiona N.', 'sky', '0.6 GB', '2026-06-23 08:55', 'pending', 'Idle', 'chip-info'],
   ]
-  const bg = { blue: 'bg-blue-100 text-brand-blue', purple: 'bg-violet-100 text-brand-purple', green: 'bg-emerald-100 text-emerald-600', rose: 'bg-rose-100 text-rose-600', amber: 'bg-amber-100 text-amber-600', sky: 'bg-sky-100 text-sky-600' }
+  const bg = { blue: 'bg-brand-blue/15 text-brand-blue', purple: 'bg-brand-purple/15 text-brand-purple', green: 'bg-emerald-500/15 text-emerald-400', rose: 'bg-rose-500/15 text-rose-400', amber: 'bg-amber-500/15 text-amber-400', sky: 'bg-sky-500/15 text-sky-400' }
   const extra = full ? rows : rows
   const cell = (label, html, extraClass = '') => `<td class="data-cell px-4 py-3.5 ${extraClass}" data-label="${label}">${html}</td>`
   return `

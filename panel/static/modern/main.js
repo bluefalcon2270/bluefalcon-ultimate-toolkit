@@ -1,4 +1,4 @@
-import './style.css'
+// Removed Vite CSS import for native browser ES module compatibility
 import { icons, tabIcons } from './icons.js'
 import { pages, pageMeta } from './pages.js'
 
@@ -170,8 +170,8 @@ function showToast(msg, type = 'success') {
 function initModals() {
   const bd = document.getElementById('modal-backdrop')
   const mod = document.getElementById('modal-tx')
-  const op = () => { bd.classList.remove('hidden'); mod.classList.remove('hidden') }
-  const cl = () => { bd.classList.add('hidden'); mod.classList.add('hidden') }
+  const op = () => { if (bd && mod) { bd.classList.remove('hidden'); mod.classList.remove('hidden') } }
+  const cl = () => { if (bd && mod) { bd.classList.add('hidden'); mod.classList.add('hidden') } }
 
   document.getElementById('btn-new-tx')?.addEventListener('click', op)
   document.getElementById('fab-new-tx')?.addEventListener('click', op)
@@ -181,6 +181,50 @@ function initModals() {
   document.getElementById('form-tx')?.addEventListener('submit', (e) => {
     // Form submits normally to /openvpn
     showToast('Provisioning client...')
+  })
+
+  // Global event delegation for dynamic elements injected by pages.js
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest('button, a')
+    if (!target) return
+
+    // Dynamic 'New Client' button in the Users tab
+    if (target.id === 'btn-add-user') {
+      op()
+    }
+
+    // Dynamic Tabs
+    if (target.matches('[data-tab]')) {
+      const tabId = target.getAttribute('data-tab')
+      const tabContainer = target.closest('.tabs')
+      if (tabContainer) {
+        tabContainer.querySelectorAll('[data-tab]').forEach(t => t.classList.remove('tab-on'))
+        target.classList.add('tab-on')
+        // Filter table rows if inside transactions table
+        const table = document.getElementById('table')
+        if (table) {
+          table.querySelectorAll('tbody tr').forEach(row => {
+            if (tabId === 'all') row.style.display = ''
+            else if (row.getAttribute('data-status') === tabId) row.style.display = ''
+            else row.style.display = 'none'
+          })
+        }
+      }
+    }
+
+    // Dynamic Theme Chips
+    if (target.matches('.theme-chip')) {
+      const themeContainer = target.closest('div')
+      if (themeContainer) {
+        themeContainer.querySelectorAll('.theme-chip').forEach(t => t.classList.remove('theme-chip-on'))
+        target.classList.add('theme-chip-on')
+      }
+    }
+    
+    // Dynamic Settings Save Button
+    if (target.id === 'btn-save-settings') {
+      showToast('Settings saved successfully!')
+    }
   })
 }
 

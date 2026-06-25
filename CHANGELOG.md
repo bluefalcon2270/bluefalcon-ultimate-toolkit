@@ -1,5 +1,15 @@
 # Changelog
 
+## [v3.0] - 2026-06-25
+### Fixed
+- **Javascript Functionality**: Removed an invalid Vite CSS import in `main.js` that crashed the main bundle natively in browsers, and implemented global event delegation to ensure dynamically loaded elements (Tabs, Buttons, Modals) register clicks reliably.
+### Changed
+- **Premium Dark Mode**: Completely overhauled the UI from a bright palette to a sleek dark mode. Unified all Tailwind surface and ink configurations, inverted hardcoded CSS variables, and preserved the native glassmorphism glow.
+
+## [v2.9] - 2026-06-25
+### Changed
+- **Version Cleanups**: Replaced all remaining hardcoded version strings in file header comments (e.g. `install.sh`) with `${SCRIPT_VERSION}` to maintain a single source of truth, leaving only `setup.sh` with the fixed version label in its header.
+
 ## [v2.8] - 2026-06-25
 ### Changed
 - **Dynamic Versioning**: Refactored `setup.sh` and the Flask backend (`app.py`, `index.html`) to dynamically extract and display the central `${SCRIPT_VERSION}` variable instead of relying on hardcoded strings, ensuring visual consistency across all menus and the Web Panel.

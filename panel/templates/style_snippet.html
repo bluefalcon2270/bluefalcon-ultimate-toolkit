@@ -2,7 +2,7 @@
 @layer base {
   body {
     @apply font-sans antialiased text-ink;
-    background: #f4f7fc;
+    background: #0F0F11;
     min-height: 100vh;
   }
 }
@@ -10,7 +10,7 @@
 @layer components {
   .ambient {
     @apply pointer-events-none fixed inset-0 z-0 overflow-hidden;
-    background: linear-gradient(160deg, #f8faff 0%, #eef4ff 40%, #fdf4ff 100%);
+    background: linear-gradient(160deg, #0F0F11 0%, #131314 40%, #161618 100%);
   }
 
   .orb {
@@ -42,7 +42,7 @@
   }
 
   .panel {
-    @apply relative overflow-hidden rounded-[28px] border border-white/80 bg-white/75 shadow-card;
+    @apply relative overflow-hidden rounded-[28px] border border-white/80 bg-surface-card/75 shadow-card;
     -webkit-backdrop-filter: blur(24px) saturate(1.2);
     backdrop-filter: blur(24px) saturate(1.2);
   }
@@ -50,7 +50,7 @@
   .panel::before {
     content: '';
     @apply pointer-events-none absolute inset-0 rounded-[inherit];
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, transparent 45%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 45%);
   }
 
   .app-layout {
@@ -67,7 +67,7 @@
 
   .sidebar-panel {
     @apply panel flex w-full max-w-[min(100%,320px)] shrink-0 flex-col p-4 sm:p-5 lg:w-[280px] lg:max-w-none lg:min-h-[calc(100vh-3rem)];
-    background: #ffffff;
+    background: #131314;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -86,7 +86,7 @@
       height: 100dvh;
       height: 100svh;
       overflow: hidden;
-      background: #ffffff;
+      background: #131314;
     }
     .sidebar-drawer .sidebar-head {
       padding-top: max(1.25rem, calc(env(safe-area-inset-top, 0px) + 0.75rem));
@@ -116,7 +116,7 @@
     @apply relative z-[1] flex items-center gap-3 rounded-2xl px-3 py-2.5 text-[13px] font-medium text-ink-soft transition-all duration-300 ease-out;
   }
   .nav-link:hover {
-    @apply bg-white/90 text-ink shadow-soft;
+    @apply bg-surface-card/90 text-ink shadow-soft;
     transform: translateX(-2px);
   }
   .nav-link-active {
@@ -160,12 +160,12 @@
   }
 
   .profile-btn {
-    @apply flex items-center gap-2 rounded-2xl border border-slate-200/80 bg-white/90 py-1 pr-1 pl-2 shadow-soft transition-all duration-300 sm:pl-3;
+    @apply flex items-center gap-2 rounded-2xl border border-white/10/80 bg-surface-card/90 py-1 pr-1 pl-2 shadow-soft transition-all duration-300 sm:pl-3;
     min-height: 44px;
   }
 
   .search-panel {
-    @apply absolute right-0 top-[calc(100%+8px)] z-[100] w-[min(300px,calc(100vw-2rem))] rounded-2xl border border-slate-200/90 bg-white/95 p-3 shadow-card;
+    @apply absolute right-0 top-[calc(100%+8px)] z-[100] w-[min(300px,calc(100vw-2rem))] rounded-2xl border border-white/10/90 bg-surface-card/95 p-3 shadow-card;
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     animation: dropdown-in 0.25s ease-out;
@@ -174,10 +174,10 @@
     display: block;
   }
   .search-panel-field {
-    @apply flex items-center gap-2 rounded-2xl border border-slate-200/80 bg-slate-50/90 px-3 py-0.5 transition-all duration-300;
+    @apply flex items-center gap-2 rounded-2xl border border-white/10/80 bg-surface-muted/90 px-3 py-0.5 transition-all duration-300;
   }
   .search-panel-field:focus-within {
-    @apply border-brand-blue/35 bg-white ring-4 ring-brand-blue/10;
+    @apply border-brand-blue/35 bg-surface-card ring-4 ring-brand-blue/10;
   }
   .search-panel-ico {
     @apply shrink-0 text-ink-faint;
@@ -192,14 +192,14 @@
     @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-ink-faint transition-colors duration-200;
   }
   .search-panel-clear:hover {
-    @apply bg-slate-100 text-ink;
+    @apply bg-surface-muted text-ink;
   }
   .search-panel-hint {
     @apply mt-2 px-1 text-[10px] text-ink-faint;
   }
 
   .btn-ghost {
-    @apply relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-2xl border border-slate-200/80 bg-white/90 p-2.5 text-ink-soft shadow-soft transition-all duration-300;
+    @apply relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-2xl border border-white/10/80 bg-surface-card/90 p-2.5 text-ink-soft shadow-soft transition-all duration-300;
   }
   .btn-ghost:hover {
     @apply border-brand-blue/30 text-brand-blue;
@@ -272,7 +272,7 @@
   .chip-info { @apply border-sky-200 bg-sky-50 text-sky-700; }
 
   .tabs {
-    @apply inline-flex max-w-full gap-1 rounded-2xl border border-slate-200/80 bg-surface-muted/80 p-1;
+    @apply inline-flex max-w-full gap-1 rounded-2xl border border-white/10/80 bg-surface-muted/80 p-1;
   }
 
   .tabs-scroll {
@@ -289,13 +289,13 @@
   .tab {
     @apply inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[12px] font-medium text-ink-soft transition-all duration-300;
   }
-  .tab:hover { @apply bg-white text-ink; }
+  .tab:hover { @apply bg-surface-card text-ink; }
   .tab-on {
-    @apply bg-white font-semibold text-brand-blue shadow-soft;
+    @apply bg-surface-card font-semibold text-brand-blue shadow-soft;
   }
 
   .table-scroll {
-    @apply overflow-x-auto rounded-2xl border border-slate-100 bg-white/60;
+    @apply overflow-x-auto rounded-2xl border border-white/5 bg-surface-card/60;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -355,7 +355,7 @@
   }
 
   .user-dot {
-    @apply flex h-9 w-9 items-center justify-center rounded-xl text-[11px] font-bold ring-2 ring-white;
+    @apply flex h-9 w-9 items-center justify-center rounded-xl text-[11px] font-bold ring-2 ring-surface-card;
   }
 
   .avatar {
@@ -458,7 +458,7 @@
     @apply relative z-40;
   }
   .dropdown-panel {
-    @apply absolute right-0 top-[calc(100%+8px)] z-[100] max-h-[min(70vh,400px)] min-w-[min(280px,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-slate-200/90 bg-white/95 p-2 shadow-card;
+    @apply absolute right-0 top-[calc(100%+8px)] z-[100] max-h-[min(70vh,400px)] min-w-[min(280px,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-white/10/90 bg-surface-card/95 p-2 shadow-card;
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     animation: dropdown-in 0.25s ease-out;
@@ -497,7 +497,7 @@
   }
   .dropdown-item:hover { @apply bg-surface-muted text-brand-blue; }
   .dropdown-action {
-    @apply mt-1 w-full rounded-xl border-t border-slate-100 py-2.5 text-center text-[12px] font-semibold text-brand-blue transition-colors;
+    @apply mt-1 w-full rounded-xl border-t border-white/5 py-2.5 text-center text-[12px] font-semibold text-brand-blue transition-colors;
   }
   .dropdown-action:hover { @apply bg-brand-blue/5; }
 
@@ -520,7 +520,7 @@
     display: none;
   }
   .modal {
-    @apply relative z-[70] max-h-[min(90dvh,560px)] w-full max-w-[420px] overflow-y-auto rounded-[24px] border border-white/80 bg-white/95 p-0 opacity-0 shadow-card;
+    @apply relative z-[70] max-h-[min(90dvh,560px)] w-full max-w-[420px] overflow-y-auto rounded-[24px] border border-white/80 bg-surface-card/95 p-0 opacity-0 shadow-card;
     transform: scale(0.9) translateY(12px);
     transition:
       opacity 0.3s ease-out,
@@ -533,14 +533,14 @@
     transform: scale(1) translateY(0);
   }
   .modal-head {
-    @apply flex items-center justify-between border-b border-slate-100 bg-white/95 px-4 py-4 sm:px-5 sm:rounded-t-[24px];
+    @apply flex items-center justify-between border-b border-white/5 bg-surface-card/95 px-4 py-4 sm:px-5 sm:rounded-t-[24px];
   }
   .modal-body {
     @apply px-4 py-4 sm:px-5;
   }
 
   .input-field {
-    @apply w-full rounded-2xl border border-slate-200/80 bg-white px-4 py-2.5 text-[13px] text-ink transition-all duration-300;
+    @apply w-full rounded-2xl border border-white/10/80 bg-surface-card px-4 py-2.5 text-[13px] text-ink transition-all duration-300;
   }
   .input-field:focus {
     @apply border-brand-blue/40 outline-none ring-4 ring-brand-blue/10;
@@ -557,7 +557,7 @@
   .toast--warn { background: linear-gradient(135deg, #f59e0b, #d97706); }
 
   .user-card {
-    @apply rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-soft transition-all duration-300;
+    @apply rounded-2xl border border-white/5 bg-surface-card/80 p-4 shadow-soft transition-all duration-300;
   }
   .user-card:hover {
     transform: translateY(-4px);
@@ -572,7 +572,7 @@
     animation: bar-grow 0.8s ease-out var(--d, 0s) backwards;
   }
   .progress-track {
-    @apply h-2 overflow-hidden rounded-full bg-slate-100;
+    @apply h-2 overflow-hidden rounded-full bg-surface-muted;
   }
   .progress-fill {
     @apply h-full rounded-full transition-all duration-700;
@@ -581,7 +581,7 @@
     animation: progress-grow 1s ease-out backwards;
   }
   .mini-stat {
-    @apply rounded-2xl border border-slate-100 bg-surface-muted/80 p-4 text-center transition-transform duration-300;
+    @apply rounded-2xl border border-white/5 bg-surface-muted/80 p-4 text-center transition-transform duration-300;
   }
   .mini-stat:hover { transform: scale(1.03); }
 
@@ -594,7 +594,7 @@
   }
   .toggle-ui::after {
     content: '';
-    @apply absolute right-1 top-1 h-5 w-5 rounded-full bg-white shadow-soft transition-all duration-300;
+    @apply absolute right-1 top-1 h-5 w-5 rounded-full bg-surface-card shadow-soft transition-all duration-300;
   }
   .toggle-input:checked + .toggle-ui {
     @apply bg-brand-blue;
@@ -604,7 +604,7 @@
   }
 
   .theme-chip {
-    @apply rounded-xl border border-slate-200 px-4 py-2 text-[13px] font-medium text-ink-soft transition-all duration-300;
+    @apply rounded-xl border border-white/10 px-4 py-2 text-[13px] font-medium text-ink-soft transition-all duration-300;
   }
   .theme-chip:hover { @apply border-brand-blue/30 text-brand-blue; }
   .theme-chip-on {
@@ -633,12 +633,12 @@
     backdrop-filter: none;
   }
   .panel {
-    @apply bg-white/95;
+    @apply bg-surface-card/95;
   }
   .search-panel,
   .dropdown-panel,
   .modal {
-    @apply bg-white;
+    @apply bg-surface-card;
   }
 }
 
@@ -685,7 +685,7 @@
   .data-table--responsive .data-row {
     display: block;
     width: 100%;
-    @apply rounded-2xl border border-slate-100 bg-white/90 p-3 shadow-soft;
+    @apply rounded-2xl border border-white/5 bg-surface-card/90 p-3 shadow-soft;
   }
 
   .data-table--responsive .data-row:hover {
@@ -706,7 +706,7 @@
   }
 
   .data-table--responsive .data-cell.col-actions {
-    @apply justify-end border-t border-slate-100 pt-3 mt-1;
+    @apply justify-end border-t border-white/5 pt-3 mt-1;
   }
 
   .data-table--responsive .data-cell:first-child {
