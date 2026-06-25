@@ -416,7 +416,7 @@ def preferences():
 
     app_version = "v2.5"
     try:
-        with open("../CHANGELOG.md", "r") as f:
+        with open(f"{APP_DIR}/CHANGELOG.md", "r") as f:
             first_line = f.readline()
             if "VERSION=" in first_line:
                 app_version = "v" + first_line.split('"')[1]
