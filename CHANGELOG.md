@@ -1,8 +1,19 @@
-VERSION="2.7"
+VERSION="2.9"
 
 # Changelog
 
-## [v2.7] - 2026-06-27
+## [v2.9] - 2026-06-27
+### Fixed
+- **Version Display Bug**: Fixed path resolution in `app.py` so the About tab dynamically reads the current version.
+### Changed
+- **WARP UI**: Realigned True Server IP and WARP IP with perfectly centered text and right-aligned status circles. Removed top color bars.
+- **OpenVPN UI**: Redesigned structure based on user mockup (Settings banner, inline "Add User" horizontal form, and dark-theme clients table).
+
+## [v2.8] - 2026-06-26
+### Added
+- `.agents` directory to `.gitignore` to prevent leaking local AI context.
+
+## [v2.7] - 2026-06-26
 ### Added
 - **UI Overhaul**: Complete UI overhaul for WARP, OpenVPN, and Preferences tabs.
 - **Server Configuration**: Added Server Name configuration in Preferences.
