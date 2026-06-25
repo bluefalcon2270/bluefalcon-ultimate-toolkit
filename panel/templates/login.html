@@ -1,35 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Login | BlueFalcon</title>
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Login | BlueFalcon Panel</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='modern/favicon.svg') }}" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0F0F11 !important; color: #F3F4F6 !important; }
-        .material-card { background: #1C1C1E !important; border-radius: 24px; border: 1px solid #2C2C2E !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5) !important; }
-        .input-field { width: 100%; padding: 0.85rem 1.25rem; background-color: #2C2C2E !important; border: 1px solid #3A3A3C !important; color: #F3F4F6 !important; border-radius: 12px; outline: none; transition: all 0.2s; }
-        .input-field:focus { border-color: #A8C7FA !important; box-shadow: 0 0 0 2px rgba(168,199,250,0.1) !important; }
-        h1 { color: #A8C7FA !important; }
-        p { color: #9CA3AF !important; }
-        .bg-\\[\\#0B57D0\\] { background-color: #A8C7FA !important; color: #0F0F11 !important; font-weight: 700 !important; }
-        .hover\\:bg-\\[\\#0842A0\\]:hover { background-color: #8AB4F8 !important; }
-        .bg-\\[\\#FCE8E6\\] { background-color: #3B1A1A !important; color: #F28B82 !important; }
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              surface: { DEFAULT: '#f8faff', card: '#ffffff', muted: '#eef2f9' },
+              ink: { DEFAULT: '#0f172a', soft: '#475569', faint: '#94a3b8' },
+              brand: { blue: '#2563eb', purple: '#7c3aed', pink: '#ec4899', green: '#10b981', orange: '#f59e0b', cyan: '#06b6d4' }
+            },
+            boxShadow: { soft: '0 4px 24px rgba(15, 23, 42, 0.06)', card: '0 8px 32px rgba(15, 23, 42, 0.08)' }
+          }
+        }
+      }
+    </script>
+    <style type="text/tailwindcss">
+      {% include 'style_snippet.html' %}
     </style>
-</head>
-<body class="min-h-screen flex items-center justify-center p-6">
-    <div class="w-full max-w-md material-card p-10 text-center">
-        <h1 class="text-3xl font-bold mb-2 tracking-tight">BlueFalcon</h1>
-        <p class="mb-8 font-medium">Sign in to manage your node</p>
+  </head>
+  <body class="min-h-screen flex items-center justify-center p-6 text-left relative overflow-hidden">
+    <div class="ambient" aria-hidden="true">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+
+    <div class="panel w-full max-w-md p-8 sm:p-10 relative z-10 text-center anim-scale-in">
+        <div class="flex justify-center mb-4">
+            <div class="logo-box">BF</div>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold mb-2 tracking-tight text-ink">BlueFalcon</h1>
+        <p class="mb-8 font-medium text-ink-soft text-sm sm:text-base">Sign in to your control panel</p>
         
         {% if error %}
-            <div class="bg-[#FCE8E6] px-4 py-3 rounded-xl text-sm font-medium mb-6">{{ error }}</div>
+            <div class="chip chip-fail w-full justify-center mb-6 py-2 text-sm">
+                <span class="font-bold">{{ error }}</span>
+            </div>
         {% endif %}
         
-        <form action="/login" method="POST" class="space-y-5 text-left">
-            <div><input type="text" name="username" placeholder="Username" required class="input-field"></div>
-            <div><input type="password" name="password" placeholder="Password" required class="input-field"></div>
-            <button type="submit" class="w-full bg-[#0B57D0] hover:bg-[#0842A0] py-3.5 rounded-xl shadow-sm transition text-lg mt-2">Sign In</button>
+        <form action="/login" method="POST" class="space-y-4 text-left">
+            <label class="block">
+                <span class="mb-1 block text-[12px] text-ink-faint">Username</span>
+                <input type="text" name="username" placeholder="admin" required class="input-field" autocomplete="username">
+            </label>
+            <label class="block">
+                <span class="mb-1 block text-[12px] text-ink-faint">Password</span>
+                <input type="password" name="password" placeholder="••••••••" required class="input-field" autocomplete="current-password">
+            </label>
+            <button type="submit" class="btn-fill w-full justify-center mt-6 py-3 text-[14px]">Secure Login</button>
         </form>
     </div>
-</body>
+  </body>
 </html>

@@ -1,62 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Setup | BlueFalcon</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='modern/favicon.svg') }}" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #0F0F11 !important; color: #F3F4F6 !important; }
-        .material-card { background: #1C1C1E !important; border-radius: 24px; border: 1px solid #2C2C2E !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5) !important; }
-        .input-field { width: 100%; padding: 0.75rem 1rem; background-color: #2C2C2E !important; border: 1px solid #3A3A3C !important; color: #F3F4F6 !important; border-radius: 12px; outline: none; transition: all 0.2s; }
-        .input-field:focus { border-color: #A8C7FA !important; box-shadow: 0 0 0 2px rgba(168,199,250,0.1) !important; }
-        .bg-white { background-color: #1C1C1E !important; }
-        .border-gray-100, .border-b, .border-t { border-color: #2C2C2E !important; }
-        h1, h2, .text-gray-900, .text-gray-800 { color: #F3F4F6 !important; }
-        p, label, .text-gray-500, .text-gray-600 { color: #9CA3AF !important; }
-        .bg-\\[\\#E8F0FE\\] { background-color: #1A2B4C !important; color: #A8C7FA !important; }
-        .bg-\\[\\#0B57D0\\] { background-color: #A8C7FA !important; color: #0F0F11 !important; font-weight: 700 !important; }
-        .hover\\:bg-\\[\\#0842A0\\]:hover { background-color: #8AB4F8 !important; }
-        .bg-gray-50 { background-color: #1F1F22 !important; }
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              surface: { DEFAULT: '#f8faff', card: '#ffffff', muted: '#eef2f9' },
+              ink: { DEFAULT: '#0f172a', soft: '#475569', faint: '#94a3b8' },
+              brand: { blue: '#2563eb', purple: '#7c3aed', pink: '#ec4899', green: '#10b981', orange: '#f59e0b', cyan: '#06b6d4' }
+            },
+            boxShadow: { soft: '0 4px 24px rgba(15, 23, 42, 0.06)', card: '0 8px 32px rgba(15, 23, 42, 0.08)' }
+          }
+        }
+      }
+    </script>
+    <style type="text/tailwindcss">
+      {% include 'style_snippet.html' %}
     </style>
-</head>
-<body class="min-h-screen flex items-center justify-center p-6">
-    <div class="max-w-4xl w-full material-card overflow-hidden">
-        <div class="bg-white px-10 py-8 border-b flex items-center justify-between">
+  </head>
+  <body class="min-h-screen flex items-center justify-center p-4 sm:p-6 text-left relative overflow-hidden">
+    <div class="ambient" aria-hidden="true">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+
+    <div class="panel max-w-4xl w-full relative z-10 anim-scale-in p-0 overflow-visible">
+        <div class="border-b border-slate-100 px-6 sm:px-10 py-6 sm:py-8 flex items-center justify-between bg-white/50 rounded-t-[20px] sm:rounded-t-[28px]">
             <div>
-                <h1 class="text-2xl font-bold">System Initialization</h1>
-                <p class="mt-1">Configure your new deployment.</p>
+                <h1 class="text-xl sm:text-2xl font-bold text-ink">System Initialization</h1>
+                <p class="mt-1 text-sm text-ink-faint">Configure your new deployment.</p>
             </div>
-            <span class="bg-[#E8F0FE] px-4 py-1.5 rounded-full text-sm font-semibold">Step 1 of 1</span>
+            <span class="chip chip-info px-3 py-1.5 text-xs">Step 1 of 1</span>
         </div>
         
-        <form action="/wizard" method="POST" class="p-10">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div class="space-y-5">
-                    <h2 class="text-lg font-semibold">Control Plane</h2>
-                    <div><label class="block text-sm font-medium mb-1.5">Node Name</label><input type="text" name="server_name" value="BlueFalcon Node" required class="input-field"></div>
+        <form action="/wizard" method="POST" class="px-6 sm:px-10 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10">
+                <div class="space-y-4">
+                    <h2 class="text-base font-bold text-ink border-b border-slate-100 pb-2">Control Plane</h2>
+                    <label class="block"><span class="mb-1 block text-[12px] text-ink-faint">Node Name</span><input type="text" name="server_name" value="BlueFalcon Node" required class="input-field"></label>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="block text-sm font-medium mb-1.5">Admin User</label><input type="text" name="admin_user" value="admin" required class="input-field"></div>
-                        <div><label class="block text-sm font-medium mb-1.5">Admin Pass</label><input type="password" name="admin_pass" value="admin" required class="input-field"></div>
+                        <label class="block"><span class="mb-1 block text-[12px] text-ink-faint">Admin User</span><input type="text" name="admin_user" value="admin" required class="input-field"></label>
+                        <label class="block"><span class="mb-1 block text-[12px] text-ink-faint">Admin Pass</span><input type="password" name="admin_pass" value="admin" required class="input-field"></label>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="block text-sm font-medium mb-1.5">Web UI Port</label><input type="number" name="panel_port" value="2020" required class="input-field"></div>
-                        <div><label class="block text-sm font-medium mb-1.5">True Server IP (Public)</label><input type="text" name="public_ip" value="{{ server_ip }}" required class="input-field"></div>
+                        <label class="block"><span class="mb-1 block text-[12px] text-ink-faint">Web UI Port</span><input type="number" name="panel_port" value="2020" required class="input-field"></label>
+                        <label class="block"><span class="mb-1 block text-[12px] text-ink-faint">Server IP</span><input type="text" name="public_ip" value="{{ server_ip }}" required class="input-field"></label>
                     </div>
                 </div>
 
-                <div class="space-y-5">
-                    <h2 class="text-lg font-semibold">OpenVPN Engine</h2>
+                <div class="space-y-4">
+                    <h2 class="text-base font-bold text-ink border-b border-slate-100 pb-2">OpenVPN Engine</h2>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="block text-sm font-medium mb-1.5">Protocol</label><select name="protocol" class="input-field"><option value="udp">UDP</option><option value="tcp">TCP</option></select></div>
-                        <div><label class="block text-sm font-medium mb-1.5">Port</label><input type="number" name="port" value="1194" required class="input-field"></div>
+                        <label class="block"><span class="mb-1 block text-[12px] text-ink-faint">Protocol</span><select name="protocol" class="input-field"><option value="udp">UDP</option><option value="tcp">TCP</option></select></label>
+                        <label class="block"><span class="mb-1 block text-[12px] text-ink-faint">Port</span><input type="number" name="port" value="1194" required class="input-field"></label>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1.5">DNS Resolver</label>
+                        <label class="block"><span class="mb-1 block text-[12px] text-ink-faint">DNS Resolver</span>
                         <select name="dns_preset" class="input-field" onchange="const c = document.getElementById('cd_div'); if(this.value==='custom'){c.style.display='grid'; document.getElementById('cd1').required=true;}else{c.style.display='none'; document.getElementById('cd1').required=false;}">
                             <option value="1.1.1.1">Cloudflare (1.1.1.1)</option>
                             <option value="8.8.8.8">Google (8.8.8.8)</option>
                             <option value="custom">Custom IP...</option>
                         </select>
+                        </label>
                         <div id="cd_div" class="grid grid-cols-2 gap-3 mt-3" style="display: none;">
                             <input type="text" id="cd1" name="custom_dns1" placeholder="Primary IP" class="input-field text-sm">
                             <input type="text" name="custom_dns2" placeholder="Secondary IP" class="input-field text-sm">
@@ -65,25 +77,25 @@
                 </div>
             </div>
 
-            <div class="mt-10 pt-8 border-t">
-                <h2 class="text-lg font-semibold mb-4">Cloudflare WARP Shielding</h2>
-                <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                    <label class="flex items-center cursor-pointer mb-2">
-                        <input type="checkbox" name="install_warp" class="sr-only peer" onchange="document.getElementById('w_set').style.display = this.checked ? 'block' : 'none';">
-                        <div class="w-11 h-6 bg-[#3A3A3C] rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#A8C7FA] relative transition-colors"></div>
-                        <span class="ml-3 text-sm font-semibold text-gray-800">Deploy background service</span>
+            <div class="mt-8 pt-6 border-t border-slate-100">
+                <h2 class="text-base font-bold text-ink mb-3">Cloudflare WARP Shielding</h2>
+                <div class="p-4 sm:p-5 rounded-2xl border border-slate-100 bg-surface-muted/50">
+                    <label class="toggle-row cursor-pointer flex items-center mb-0 p-0 hover:bg-transparent">
+                        <span class="text-sm font-semibold text-ink">Deploy background service</span>
+                        <input type="checkbox" name="install_warp" class="toggle-input" onchange="document.getElementById('w_set').style.display = this.checked ? 'block' : 'none';">
+                        <span class="toggle-ui"></span>
                     </label>
-                    <div id="w_set" class="mt-5 space-y-4" style="display: none;">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-sm font-medium mb-1.5">Network Architecture</label><select name="warp_target" class="input-field"><option value="3">Dual-Stack</option><option value="1">IPv4 Only</option><option value="2">IPv6 Only</option></select></div>
-                            <div><label class="block text-sm font-medium mb-1.5">License Key</label><input type="text" name="warp_license" placeholder="Optional" class="input-field"></div>
+                    <div id="w_set" class="mt-4 space-y-4" style="display: none;">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <label class="block"><span class="mb-1 block text-[12px] text-ink-faint">Network Architecture</span><select name="warp_target" class="input-field"><option value="3">Dual-Stack</option><option value="1">IPv4 Only</option><option value="2">IPv6 Only</option></select></label>
+                            <label class="block"><span class="mb-1 block text-[12px] text-ink-faint">License Key</span><input type="text" name="warp_license" placeholder="Optional" class="input-field"></label>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <button type="submit" class="w-full mt-10 bg-[#0B57D0] hover:bg-[#0842A0] text-white font-medium py-4 rounded-xl shadow-sm transition text-lg">Initialize Deployment</button>
+            <button type="submit" class="btn-fill w-full justify-center mt-8 py-3.5 text-[15px]">Initialize Deployment</button>
         </form>
     </div>
-</body>
+  </body>
 </html>

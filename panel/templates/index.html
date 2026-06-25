@@ -32,7 +32,9 @@
         ]
       };
     </script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='modern/style.css') }}" />
+    <style type="text/tailwindcss">
+      {% include 'style_snippet.html' %}
+    </style>
   </head>
   <body class="min-h-screen overflow-x-hidden pb-safe text-left">
     <div class="ambient" aria-hidden="true">

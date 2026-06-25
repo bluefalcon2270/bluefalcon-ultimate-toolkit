@@ -1,5 +1,13 @@
 # Changelog
 
+## [v2.7] - 2026-06-25
+### Fixed
+- **Tailwind Rendering**: Fixed a critical bug where the main SPA interface lost styling by migrating `style.css` to a Jinja-injected template block, allowing the Tailwind CDN to correctly parse custom `@apply` directives.
+- **Unified Aesthetics**: Rewrote the Setup Wizard (`wizard.html`), Deployment Stream (`stream.html`), and Login (`login.html`) pages using the Modern Panel's glassmorphism and animated components to ensure a seamless UI experience end-to-end.
+
+### Changed
+- **Terminal Consolidation**: Removed the redundant "View Installation Logs" option from the Web Panel Management CLI menu, strictly enforcing the new Log Center as the single source of truth.
+
 ## [v2.6] - 2026-06-25
 ### Added
 - **Modern Panel UI**: Completely replaced the old web interface with a modern, animated Single-Page Application (SPA) designed with Vite, Tailwind CSS, and vanilla JS.
