@@ -1,5 +1,9 @@
 # Changelog
 
+## [v2.8] - 2026-06-25
+### Changed
+- **Dynamic Versioning**: Refactored `setup.sh` and the Flask backend (`app.py`, `index.html`) to dynamically extract and display the central `${SCRIPT_VERSION}` variable instead of relying on hardcoded strings, ensuring visual consistency across all menus and the Web Panel.
+
 ## [v2.7] - 2026-06-25
 ### Fixed
 - **Tailwind Rendering**: Fixed a critical bug where the main SPA interface lost styling by migrating `style.css` to a Jinja-injected template block, allowing the Tailwind CDN to correctly parse custom `@apply` directives.

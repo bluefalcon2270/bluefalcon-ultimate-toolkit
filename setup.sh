@@ -2,7 +2,7 @@
 
 # ==============================================================================
 # BlueFalcon Ultimate Toolkit (God Script)
-# Version: v2.7
+# Version: v2.8
 # Architecture: Optimized for Debian & Ubuntu (Bash/Python/SQLite Stack)
 # ==============================================================================
 
@@ -29,7 +29,7 @@ source "${SCRIPT_DIR}/modules/logs_manager.sh"
 show_main_menu() {
     clear
     echo -e "${BOLD_BLUE}=====================================================${NC}"
-    echo -e "${BOLD_BLUE}       🧰 BlueFalcon Ultimate Toolkit (v2.5) 🧰       ${NC}"
+    echo -e "${BOLD_BLUE}       🧰 BlueFalcon Ultimate Toolkit (${SCRIPT_VERSION}) 🧰       ${NC}"
     echo -e "${BOLD_BLUE}=====================================================${NC}"
     echo ""
     echo "1. Web Panel"

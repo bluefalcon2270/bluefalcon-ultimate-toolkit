@@ -13,6 +13,20 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
+def get_app_version():
+    try:
+        with open(f'{APP_DIR}/core/ui_utils.sh', 'r') as f:
+            for line in f:
+                if line.startswith('readonly SCRIPT_VERSION='):
+                    return line.split('=')[1].strip('"\'\n')
+    except:
+        pass
+    return "v2.8"
+
+@app.context_processor
+def inject_version():
+    return dict(app_version=get_app_version())
+
 def init_db():
     conn = get_db()
     conn.execute('CREATE TABLE IF NOT EXISTS admin (username TEXT, password TEXT)')
