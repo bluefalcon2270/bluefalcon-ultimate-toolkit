@@ -1,0 +1,23 @@
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        screens: { xs: '480px' },
+        colors: {
+          surface: { DEFAULT: '#f8faff', card: '#ffffff', muted: '#eef2f9' },
+          ink: { DEFAULT: '#0f172a', soft: '#475569', faint: '#94a3b8' },
+          brand: { blue: '#2563eb', purple: '#7c3aed', pink: '#ec4899', green: '#10b981', orange: '#f59e0b', cyan: '#06b6d4' }
+        },
+        boxShadow: { 
+            soft: '0 4px 24px rgba(15, 23, 42, 0.06)', 
+            card: '0 8px 32px rgba(15, 23, 42, 0.08)',
+            glow: '0 0 24px rgba(37, 99, 235, 0.35)'
+        }
+      }
+    }
+  }
+</script>
+<style type="text/tailwindcss">
+  {% include 'style_snippet.html' %}
+</style>
