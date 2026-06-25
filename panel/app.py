@@ -326,17 +326,22 @@ def warp_stream():
 @app.route('/logs')
 def logs_viewer():
     if 'admin_logged_in' not in session: return redirect(url_for('login'))
-    log_type = request.args.get('type', 'panel')
+    log_type = request.args.get('type', 'unified')
     conn = get_db()
     settings = conn.execute('SELECT server_name FROM settings').fetchone()
     conn.close()
 
     logs = ""
     try:
-        if log_type == 'panel': logs = os.popen("journalctl -u bluefalcon-panel -n 100 --no-pager").read()
+        if log_type == 'unified': logs = os.popen("journalctl -u bluefalcon-panel -u openvpn-server@server -u wg-quick@wgcf -n 100 --no-pager").read()
+        elif log_type == 'panel': logs = os.popen("journalctl -u bluefalcon-panel -n 100 --no-pager").read()
         elif log_type == 'openvpn': logs = os.popen("journalctl -u openvpn-server@server -n 100 --no-pager").read()
         elif log_type == 'warp': logs = os.popen("journalctl -u wg-quick@wgcf -n 100 --no-pager").read()
-        elif log_type == 'system': logs = os.popen("tail -n 100 /var/log/syslog 2>/dev/null || tail -n 100 /var/log/messages").read()
+        elif log_type == 'auth': logs = os.popen("tail -n 100 /var/log/auth.log 2>/dev/null").read()
+        elif log_type == 'ufw': logs = os.popen("journalctl -k | grep UFW | tail -n 100").read()
+        elif log_type == 'kernel': logs = os.popen("journalctl -k -n 100 --no-pager").read()
+        elif log_type == 'pkg': logs = os.popen("tail -n 100 /var/log/dpkg.log 2>/dev/null").read()
+        elif log_type == 'cron': logs = os.popen("journalctl -u cron -n 100 --no-pager").read()
     except Exception as e: logs = f"Error reading logs: {e}"
     return render_template('logs.html', logs=logs, current_type=log_type, settings=settings)
 
