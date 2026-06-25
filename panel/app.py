@@ -322,34 +322,12 @@ def warp_stream():
             
     return Response(generate(), mimetype='text/event-stream')
 
-# --- Log Center ---
-@app.route('/logs')
-def logs_viewer():
-    if 'admin_logged_in' not in session: return redirect(url_for('login'))
-    log_type = request.args.get('type', 'unified')
-    conn = get_db()
-    settings = conn.execute('SELECT server_name FROM settings').fetchone()
-    conn.close()
-
-    logs = ""
-    try:
-        if log_type == 'unified': logs = os.popen("journalctl -u bluefalcon-panel -u openvpn-server@server -u wg-quick@wgcf -n 100 --no-pager").read()
-        elif log_type == 'panel': logs = os.popen("journalctl -u bluefalcon-panel -n 100 --no-pager").read()
-        elif log_type == 'openvpn': logs = os.popen("journalctl -u openvpn-server@server -n 100 --no-pager").read()
-        elif log_type == 'warp': logs = os.popen("journalctl -u wg-quick@wgcf -n 100 --no-pager").read()
-        elif log_type == 'auth': logs = os.popen("tail -n 100 /var/log/auth.log 2>/dev/null").read()
-        elif log_type == 'ufw': logs = os.popen("journalctl -k | grep UFW | tail -n 100").read()
-        elif log_type == 'kernel': logs = os.popen("journalctl -k -n 100 --no-pager").read()
-        elif log_type == 'pkg': logs = os.popen("tail -n 100 /var/log/dpkg.log 2>/dev/null").read()
-        elif log_type == 'cron': logs = os.popen("journalctl -u cron -n 100 --no-pager").read()
-    except Exception as e: logs = f"Error reading logs: {e}"
-    return render_template('logs.html', logs=logs, current_type=log_type, settings=settings)
-
-# --- General Handlers ---
-@app.route('/settings', methods=['GET', 'POST'])
-def sys_settings():
+# --- Preferences (Settings, Logs, About) ---
+@app.route('/preferences', methods=['GET', 'POST'])
+def preferences():
     if 'admin_logged_in' not in session: return redirect(url_for('login'))
     conn = get_db()
+    
     if request.method == 'POST':
         curr_settings = conn.execute('SELECT * FROM settings').fetchone()
         old_panel_port = curr_settings['panel_port']
@@ -413,10 +391,37 @@ def sys_settings():
             os.system(f"sed -i 's/:{old_panel_port} /:{new_panel_port} /g' /etc/systemd/system/bluefalcon-panel.service")
             os.system("nohup bash -c 'sleep 1 && systemctl daemon-reload && systemctl restart bluefalcon-panel' >/dev/null 2>&1 &")
             
-        return redirect(url_for('sys_settings'))
+        return redirect(url_for('preferences', tab='settings'))
+        
     settings = conn.execute('SELECT * FROM settings').fetchone()
     admin = conn.execute('SELECT * FROM admin').fetchone()
-    return render_template('settings.html', settings=settings, admin=admin)
+    
+    log_type = request.args.get('log_type', 'unified')
+    active_tab = request.args.get('tab', 'settings')
+    
+    logs = ""
+    if active_tab == 'logs':
+        try:
+            if log_type == 'unified': logs = os.popen("journalctl -u bluefalcon-panel -u openvpn-server@server -u wg-quick@wgcf -n 100 --no-pager").read()
+            elif log_type == 'panel': logs = os.popen("journalctl -u bluefalcon-panel -n 100 --no-pager").read()
+            elif log_type == 'openvpn': logs = os.popen("journalctl -u openvpn-server@server -n 100 --no-pager").read()
+            elif log_type == 'warp': logs = os.popen("journalctl -u wg-quick@wgcf -n 100 --no-pager").read()
+            elif log_type == 'auth': logs = os.popen("tail -n 100 /var/log/auth.log 2>/dev/null").read()
+            elif log_type == 'ufw': logs = os.popen("journalctl -k | grep UFW | tail -n 100").read()
+            elif log_type == 'kernel': logs = os.popen("journalctl -k -n 100 --no-pager").read()
+            elif log_type == 'pkg': logs = os.popen("tail -n 100 /var/log/dpkg.log 2>/dev/null").read()
+            elif log_type == 'cron': logs = os.popen("journalctl -u cron -n 100 --no-pager").read()
+        except Exception as e: logs = f"Error reading logs: {e}"
+
+    app_version = "v2.5"
+    try:
+        with open("../CHANGELOG.md", "r") as f:
+            first_line = f.readline()
+            if "VERSION=" in first_line:
+                app_version = "v" + first_line.split('"')[1]
+    except: pass
+    
+    return render_template('preferences.html', settings=settings, admin=admin, logs=logs, current_type=log_type, active_tab=active_tab, app_version=app_version)
 
 @app.route('/toggle/<sys_name>')
 def toggle(sys_name):

@@ -1,0 +1,23 @@
+# Python & Flask
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Panel Database
+panel/panel.db
+
+# Logs
+*.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/

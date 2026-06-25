@@ -81,7 +81,7 @@ manage_panel() {
     while true; do
         clear
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
-        echo -e "${BOLD_BLUE}                    Web Panel Management                 ${NC}"
+        echo -e "${BOLD_BLUE}           Web Panel Management (${BF_VERSION})              ${NC}"
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
         
         IPV4=$(ip -4 addr show $(ip route | awk '/default/ {print $5}' | head -1) | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
@@ -108,7 +108,6 @@ manage_panel() {
         echo ""
         echo "1. Install Web Panel"
         echo "2. Uninstall Web Panel"
-        echo "3. View Installation Logs"
         echo "0. Return"
         echo ""
         
@@ -116,13 +115,6 @@ manage_panel() {
         case "$p_choice" in
             1) install_panel ;;
             2) uninstall_panel ;;
-            3) 
-                clear
-                echo -e "${BOLD_BLUE}--- Installation Logs ---${NC}\nStreaming last 50 lines. Press Ctrl+C to exit.\n"
-                trap 'true' SIGINT
-                tail -n 50 -f "${LOG_FILE}"
-                trap cleanup SIGINT SIGTERM
-                ;;
             0) break ;;
             *) echo -e "\n[ ${RED}✖${NC} ] Invalid input." ; sleep 1.5 ;;
         esac

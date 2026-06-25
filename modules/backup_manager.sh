@@ -92,7 +92,7 @@ manage_backup() {
     while true; do
         clear
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
-        echo -e "${BOLD_BLUE}              Backup & Restore Management            ${NC}"
+        echo -e "${BOLD_BLUE}        Backup & Restore Management (${BF_VERSION})         ${NC}"
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
         echo ""
         echo "1. Create Backup"

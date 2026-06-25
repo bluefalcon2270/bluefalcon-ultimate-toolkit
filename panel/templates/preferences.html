@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Preferences | BF Panel{% endblock %}
+{% block header_title %}Preferences{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto h-[75vh] flex flex-col">
+    <!-- Tabs Navigation -->
+    <div class="flex border-b border-gray-800 mb-6 space-x-8">
+        <a href="/preferences?tab=settings" class="py-4 px-2 border-b-2 transition-colors font-medium text-sm tracking-wide {% if active_tab == 'settings' %}border-[#A8C7FA] text-[#A8C7FA]{% else %}border-transparent text-gray-500 hover:text-gray-300{% endif %}">Master Settings</a>
+        <a href="/preferences?tab=logs" class="py-4 px-2 border-b-2 transition-colors font-medium text-sm tracking-wide {% if active_tab == 'logs' %}border-[#A8C7FA] text-[#A8C7FA]{% else %}border-transparent text-gray-500 hover:text-gray-300{% endif %}">Log Center</a>
+        <a href="/preferences?tab=about" class="py-4 px-2 border-b-2 transition-colors font-medium text-sm tracking-wide {% if active_tab == 'about' %}border-[#A8C7FA] text-[#A8C7FA]{% else %}border-transparent text-gray-500 hover:text-gray-300{% endif %}">About</a>
+    </div>
+
+    <!-- Settings Tab Content -->
+    {% if active_tab == 'settings' %}
+    <div class="max-w-3xl overflow-y-auto pr-2 pb-10">
+        <form action="/preferences?tab=settings" method="POST" class="space-y-6">
+            <div class="material-card p-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6">VPN Network Parameters</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Protocol</label>
+                        <select name="vpn_protocol" class="w-full px-4 py-3 rounded-xl outline-none input-field">
+                            <option value="udp" {% if settings['protocol'] == 'udp' %}selected{% endif %}>UDP</option>
+                            <option value="tcp" {% if settings['protocol'] == 'tcp' %}selected{% endif %}>TCP</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Port</label>
+                        <input type="number" name="vpn_port" value="{{ settings['port'] }}" class="w-full px-4 py-3 rounded-xl outline-none input-field">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Device Limit</label>
+                        <select name="conn_limit" class="w-full px-4 py-3 rounded-xl outline-none input-field">
+                            <option value="1" {% if settings['conn_limit'] == '1' %}selected{% endif %}>1 Device</option>
+                            <option value="unlimited" {% if settings['conn_limit'] == 'unlimited' %}selected{% endif %}>Unlimited</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">DNS Resolver</label>
+                        <select name="dns_preset" class="w-full px-4 py-3 rounded-xl outline-none mb-3 input-field" onchange="const c=document.getElementById('custom_dns_div'); if(this.value==='custom'){c.style.display='grid'; document.getElementById('cd1').required=true;}else{c.style.display='none'; document.getElementById('cd1').required=false;}">
+                            <option value="1.1.1.1" {% if settings['dns'] == '1.1.1.1' %}selected{% endif %}>Cloudflare</option>
+                            <option value="8.8.8.8" {% if settings['dns'] == '8.8.8.8' %}selected{% endif %}>Google</option>
+                            <option value="9.9.9.9" {% if settings['dns'] == '9.9.9.9' %}selected{% endif %}>Quad9</option>
+                            <option value="custom" {% if settings['dns'] not in ['1.1.1.1','8.8.8.8','9.9.9.9','94.140.14.14'] %}selected{% endif %}>Custom IP...</option>
+                        </select>
+                        <div id="custom_dns_div" class="grid grid-cols-2 gap-4" style="display: {% if settings['dns'] not in ['1.1.1.1','8.8.8.8','9.9.9.9','94.140.14.14'] %}grid{% else %}none{% endif %};">
+                            <input type="text" id="cd1" name="custom_dns1" value="{{ settings['dns'] if settings['dns'] not in ['1.1.1.1','8.8.8.8','9.9.9.9','94.140.14.14'] else '' }}" placeholder="Primary DNS" class="w-full px-4 py-3 rounded-xl outline-none input-field">
+                            <input type="text" name="custom_dns2" value="{{ settings['dns2'] if settings['dns2'] else '' }}" placeholder="Secondary DNS" class="w-full px-4 py-3 rounded-xl outline-none input-field">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="material-card p-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6">Panel Configuration</h2>
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Web Panel Port</label>
+                            <input type="number" name="panel_port" value="{{ settings['panel_port'] }}" class="w-full px-4 py-3 rounded-xl outline-none input-field">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">True Public IP (For configs)</label>
+                            <input type="text" name="public_ip" value="{{ settings['public_ip'] }}" class="w-full px-4 py-3 rounded-xl outline-none input-field">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Admin Username</label>
+                            <input type="text" name="admin_user" value="{{ admin['username'] }}" required class="w-full px-4 py-3 rounded-xl outline-none input-field">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                            <input type="password" name="admin_pass" placeholder="Enter new password" required class="w-full px-4 py-3 rounded-xl outline-none input-field">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-[#A8C7FA] hover:bg-[#8AB4F8] text-[#0F0F11] font-bold py-4 rounded-xl shadow-sm transition text-lg">Save Configuration</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Logs Tab Content -->
+    {% if active_tab == 'logs' %}
+    <div class="flex-1 flex flex-col min-h-0">
+        <!-- Dropdown Navigation -->
+        <div class="mb-4 w-64 relative shrink-0">
+            <select onchange="window.location.href='/preferences?tab=logs&log_type=' + this.value" class="input-field w-full px-4 py-3 rounded-xl font-medium appearance-none cursor-pointer">
+                <option value="unified" {% if current_type == 'unified' %}selected{% endif %}>Unified Master Stream</option>
+                <option value="panel" {% if current_type == 'panel' %}selected{% endif %}>Web Panel Core</option>
+                <option value="openvpn" {% if current_type == 'openvpn' %}selected{% endif %}>OpenVPN Service</option>
+                <option value="warp" {% if current_type == 'warp' %}selected{% endif %}>WARP Shield</option>
+                <option value="auth" {% if current_type == 'auth' %}selected{% endif %}>Security & Auth</option>
+                <option value="ufw" {% if current_type == 'ufw' %}selected{% endif %}>Firewall (UFW)</option>
+                <option value="kernel" {% if current_type == 'kernel' %}selected{% endif %}>Kernel & Network</option>
+                <option value="pkg" {% if current_type == 'pkg' %}selected{% endif %}>Package Manager (APT)</option>
+                <option value="cron" {% if current_type == 'cron' %}selected{% endif %}>Cron Tasks</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+        </div>
+        <!-- Terminal Output -->
+        <div class="flex-1 bg-[#131314] rounded-3xl shadow-md overflow-hidden flex flex-col border border-gray-800">
+            <div class="bg-[#1F1F22] px-6 py-3 flex items-center justify-between border-b border-gray-800 shrink-0">
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Live Output Buffer</span>
+                <a href="/preferences?tab=logs&log_type={{ current_type }}" class="text-xs font-medium text-[#A8C7FA] hover:text-white transition">Refresh Stream</a>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 h-full max-h-full">
+                <pre class="text-[#A8C7FA] font-mono text-sm whitespace-pre-wrap leading-relaxed">{{ logs }}</pre>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- About Tab Content -->
+    {% if active_tab == 'about' %}
+    <div class="max-w-2xl material-card p-10 flex flex-col items-center text-center">
+        <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-[#A8C7FA] to-[#0B57D0] flex items-center justify-center mb-6">
+            <svg class="w-10 h-10 text-[#0F0F11]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.381z" clip-rule="evenodd"></path></svg>
+        </div>
+        <h2 class="text-3xl font-bold tracking-tight mb-2">BlueFalcon Ultimate Toolkit</h2>
+        <p class="text-gray-400 text-lg mb-8">Version: <span class="text-[#A8C7FA] font-medium">{{ app_version }}</span></p>
+        
+        <div class="bg-[#1F1F22] rounded-2xl p-6 w-full mb-8 border border-gray-800">
+            <p class="text-gray-300">Developed with ❤️ by <span class="font-bold text-white">BlueFalcon2270</span></p>
+            <p class="text-sm text-gray-500 mt-2">The fast, safe, and modular way to prepare, route, and manage a fresh Linux server.</p>
+        </div>
+        
+        <a href="https://github.com/bluefalcon2270/bluefalcon-ultimate-toolkit" target="_blank" rel="noopener noreferrer" class="material-pill inline-flex items-center gap-3 px-8 py-3 bg-[#2C2C2E] hover:bg-[#3A3A3C] transition-colors border border-gray-800 text-white font-medium">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
+            View on GitHub
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

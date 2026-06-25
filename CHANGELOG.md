@@ -1,4 +1,17 @@
+VERSION="2.6"
+
 # Changelog
+
+## [v2.6] - 2026-06-26
+### Added
+- **Unified Preferences Page**: Combined Settings and Logs into a unified 'Preferences' page with an 'About' tab.
+- **Centralized Versioning**: Project version is now centrally defined in `CHANGELOG.md` and read by all Bash and Python scripts.
+- **`.gitignore`**: Added strict ignoring for `panel.db`, log files, and Python cache.
+- **CLI Logging Enhancement**: All main CLI scripts now output the Toolkit version dynamically on launch.
+
+### Changed
+- **Web Panel Sidebar**: Removed categorized groupings and renamed the header to a stylized 'BF Panel'.
+- **Panel CLI Menu**: Removed redundant 'View Installation Logs' option to centralize all logging to the unified Log Center.
 
 ## [v2.5] - 2026-06-25
 ### Added

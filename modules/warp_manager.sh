@@ -197,7 +197,7 @@ draw_warp_dashboard() {
     fi
 
     echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
-    echo -e "${BOLD_BLUE}                    Cloudflare WARP                  ${NC}"
+    echo -e "${BOLD_BLUE}              Cloudflare WARP (${BF_VERSION})              ${NC}"
     echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
     echo -e " VPS  (IPv4) : ${v4_vps_out}"
     echo -e " WARP (IPv4) : ${v4_warp_out}\n"

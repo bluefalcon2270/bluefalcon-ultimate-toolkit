@@ -29,7 +29,7 @@ source "${SCRIPT_DIR}/modules/logs_manager.sh"
 show_main_menu() {
     clear
     echo -e "${BOLD_BLUE}=====================================================${NC}"
-    echo -e "${BOLD_BLUE}       🧰 BlueFalcon Ultimate Toolkit (v2.5) 🧰       ${NC}"
+    echo -e "${BOLD_BLUE}       🧰 BlueFalcon Ultimate Toolkit (${BF_VERSION}) 🧰       ${NC}"
     echo -e "${BOLD_BLUE}=====================================================${NC}"
     echo ""
     echo "1. Web Panel"

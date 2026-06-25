@@ -2,10 +2,10 @@
 
 # ==============================================================================
 # BlueFalcon Bootstrapper
-# Version: v1.0
 # ==============================================================================
 
-echo "🦅 Initializing BlueFalcon Ultimate Toolkit..."
+BF_VERSION="v$(curl -s https://raw.githubusercontent.com/bluefalcon2270/bluefalcon-ultimate-toolkit/main/CHANGELOG.md | head -n 1 | grep -oP '(?<=").*?(?=")')"
+echo "🦅 Initializing BlueFalcon Ultimate Toolkit (${BF_VERSION:-latest})..."
 
 # 1. Silently install dependencies
 export DEBIAN_FRONTEND=noninteractive

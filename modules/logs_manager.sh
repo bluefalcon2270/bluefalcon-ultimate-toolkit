@@ -47,7 +47,7 @@ manage_logs() {
     while true; do
         clear
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
-        echo -e "${BOLD_BLUE}                   Log Center                        ${NC}"
+        echo -e "${BOLD_BLUE}              Log Center (${BF_VERSION})                   ${NC}"
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
         echo ""
         echo "1. Unified Master Stream (Panel + OpenVPN + WARP)"

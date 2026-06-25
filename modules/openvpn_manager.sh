@@ -137,7 +137,7 @@ manage_openvpn() {
     while true; do
         clear
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
-        echo -e "${BOLD_BLUE}                OpenVPN Management                   ${NC}"
+        echo -e "${BOLD_BLUE}           OpenVPN Management (${BF_VERSION})              ${NC}"
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
         if systemctl is-active --quiet openvpn-server@server; then echo -e " OpenVPN Core:        [ ${GREEN}✔${NC} ] Active"; else echo -e " OpenVPN Core:        [ ${RED}✖${NC} ] Offline"; fi
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"

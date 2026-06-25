@@ -198,7 +198,7 @@ manage_essential() {
     while true; do
         clear
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
-        echo -e "${BOLD_BLUE}                   Essential Tools                   ${NC}"
+        echo -e "${BOLD_BLUE}              Essential Tools (${BF_VERSION})              ${NC}"
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
         echo ""
         echo "1. Update System"
