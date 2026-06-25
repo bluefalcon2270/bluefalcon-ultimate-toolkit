@@ -1,11 +1,16 @@
 #!/bin/bash
 u=$1; p=$2
 readonly APP_DIR="/opt/bluefalcon-ultimate-toolkit"
-IPV4=$(curl -s -4 ifconfig.me)
+
+# Fetch True IP from Database to avoid WARP hijacks
+IPV4=$(sqlite3 "${APP_DIR}/panel.db" "SELECT public_ip FROM settings LIMIT 1;")
+if [ -z "$IPV4" ]; then IPV4=$(curl -s -4 ifconfig.me); fi
+
 PROTOCOL=$(sqlite3 "${APP_DIR}/panel.db" "SELECT protocol FROM settings LIMIT 1;")
 PORT=$(sqlite3 "${APP_DIR}/panel.db" "SELECT port FROM settings LIMIT 1;")
 cd "${APP_DIR}/easy-rsa"
 ./easyrsa --batch build-client-full "$u" nopass > /dev/null 2>&1
+
 cat > "${APP_DIR}/configs/${u}.ovpn" << EOCONF
 client
 dev tun
@@ -37,6 +42,7 @@ $(sed -n '/BEGIN PRIVATE KEY/,/END PRIVATE KEY/p' pki/private/${u}.key)
 $(cat /etc/openvpn/server/tc.key)
 </tls-crypt>
 EOCONF
+
 cat > "${APP_DIR}/configs/${u}_manual.ovpn" << EOCONF
 client
 dev tun

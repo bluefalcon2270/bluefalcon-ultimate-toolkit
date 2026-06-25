@@ -19,8 +19,10 @@ else
     cd "${APP_DIR}/easy-rsa"
 fi
 echo " - Authority Certificates built [OK]"
-echo "[INFO] Generating Diffie-Hellman Parameters (Takes ~1 minute)..."
-if [ ! -f "/etc/openvpn/server/dh.pem" ]; then openssl dhparam -out /etc/openvpn/server/dh.pem 2048 > /dev/null 2>&1; fi
+
+echo "[INFO] Generating Diffie-Hellman Parameters (Fast Method)..."
+if [ ! -f "/etc/openvpn/server/dh.pem" ]; then openssl dhparam -dsaparam -out /etc/openvpn/server/dh.pem 2048 > /dev/null 2>&1; fi
+
 mkdir -p /etc/openvpn/server/auth
 cp pki/ca.crt pki/issued/server.crt pki/private/server.key pki/crl.pem /etc/openvpn/server/
 if [ ! -f "/etc/openvpn/server/tc.key" ]; then openvpn --genkey secret /etc/openvpn/server/tc.key; fi

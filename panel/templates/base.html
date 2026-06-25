@@ -7,17 +7,51 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #F4F7F6; color: #1F2937; }
-        .material-card { background: #FFFFFF; border-radius: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03); }
+        
+        /* Material Design Dark Mode Core Injection */
+        body { font-family: 'Inter', sans-serif; background-color: #0F0F11 !important; color: #F3F4F6 !important; }
+        .material-card { background: #1C1C1E !important; border: 1px solid #2C2C2E !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5) !important; border-radius: 24px; }
         .material-pill { border-radius: 9999px; }
-        .nav-link.active { background-color: #D3E3FD; color: #041E49; font-weight: 600; }
-        .nav-link:not(.active) { color: #4B5563; }
-        .nav-link:not(.active):hover { background-color: #E5E7EB; }
+        .input-field, input, select { background-color: #2C2C2E !important; border: 1px solid #3A3A3C !important; color: #F3F4F6 !important; outline: none; transition: all 0.2s; }
+        .input-field:focus, input:focus, select:focus { border-color: #A8C7FA !important; box-shadow: 0 0 0 2px rgba(168,199,250,0.1) !important; }
+        
+        /* Layout Elements */
+        aside, header { background-color: #0F0F11 !important; border-color: #2C2C2E !important; }
+        .nav-link:not(.active) { color: #9CA3AF !important; }
+        .nav-link:not(.active):hover { background-color: #1F1F22 !important; color: #F3F4F6 !important; }
+        .nav-link.active { background-color: #1A2B4C !important; color: #A8C7FA !important; font-weight: 600; }
+        
+        /* Typography Overrides */
+        h1, h2, h3, h4, h5, h6, .text-gray-800, .text-gray-900 { color: #F3F4F6 !important; }
+        .text-gray-700, .text-gray-600 { color: #D1D5DB !important; }
+        .text-gray-500 { color: #9CA3AF !important; }
+        
+        /* Background & Border Overrides */
+        .bg-white { background-color: #1C1C1E !important; }
+        .bg-gray-50 { background-color: #1F1F22 !important; }
+        .bg-gray-100 { background-color: #2C2C2E !important; }
+        .border-gray-100, .border-gray-200 { border-color: #2C2C2E !important; }
+        
+        /* Tables */
+        table tr { border-color: #2C2C2E !important; }
+        table tr:hover { background-color: #1F1F22 !important; }
+        table th { background-color: #1C1C1E !important; color: #9CA3AF !important; }
+        table td { color: #D1D5DB !important; }
+        
+        /* Highlight Status Pills */
+        .bg-\\[\\#E8F0FE\\] { background-color: #1A2B4C !important; color: #A8C7FA !important; }
+        .bg-\\[\\#FCE8E6\\] { background-color: #3B1A1A !important; color: #F28B82 !important; }
+        .bg-\\[\\#E6F4EA\\] { background-color: #14331C !important; color: #81C995 !important; }
+        .bg-\\[\\#FFF8E1\\] { background-color: #3D2E15 !important; color: #FDE293 !important; }
+        
+        /* Buttons & Brand Colors */
+        .text-\\[\\#0B57D0\\] { color: #A8C7FA !important; }
+        .bg-\\[\\#0B57D0\\] { background-color: #A8C7FA !important; color: #0F0F11 !important; font-weight: 700 !important; }
+        .hover\\:bg-\\[\\#0842A0\\]:hover { background-color: #8AB4F8 !important; }
     </style>
 </head>
 <body class="min-h-screen flex">
-    <!-- Fixed Left Sidebar (Material Design Drawer) -->
-    <aside class="w-72 bg-[#F4F7F6] border-r border-gray-200 fixed h-full flex flex-col z-10 p-4">
+    <aside class="w-72 border-r fixed h-full flex flex-col z-10 p-4">
         <div class="h-16 flex items-center px-4 mb-4">
             <span class="text-2xl font-bold text-[#0B57D0] tracking-tight">BlueFalcon</span>
         </div>
@@ -51,20 +85,19 @@
         </nav>
         
         <div class="mt-auto pt-4">
-            <a href="/logout" class="flex items-center gap-4 px-5 py-3.5 material-pill text-red-600 hover:bg-red-50 font-medium transition-colors">
+            <a href="/logout" class="flex items-center gap-4 px-5 py-3.5 material-pill text-[#F28B82] hover:bg-[#3B1A1A] font-medium transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                 Logout
             </a>
         </div>
     </aside>
 
-    <!-- Main Content Area -->
-    <main class="ml-72 flex-1 flex flex-col">
-        <header class="h-20 flex items-center px-8 justify-between">
+    <main class="ml-72 flex-1 flex flex-col border-l border-gray-200">
+        <header class="h-20 flex items-center px-8 justify-between border-b border-gray-200">
             <h1 class="text-2xl font-semibold text-gray-800">{% block header_title %}Overview{% endblock %}</h1>
             {% if settings and settings.server_name %}
-                <div class="bg-white material-pill px-4 py-2 shadow-sm flex items-center gap-2 border border-gray-100">
-                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                <div class="bg-white material-pill px-4 py-2 flex items-center gap-2 border border-gray-100">
+                    <div class="w-2 h-2 rounded-full bg-[#81C995]"></div>
                     <span class="text-sm font-medium text-gray-700">{{ settings.server_name }}</span>
                 </div>
             {% endif %}

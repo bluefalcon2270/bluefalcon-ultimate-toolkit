@@ -17,6 +17,13 @@ def init_db():
     conn = get_db()
     conn.execute('CREATE TABLE IF NOT EXISTS admin (username TEXT, password TEXT)')
     conn.execute('CREATE TABLE IF NOT EXISTS settings (server_name TEXT, protocol TEXT, port INTEGER, dns TEXT, dns2 TEXT, conn_limit TEXT, panel_port INTEGER, is_installed INTEGER DEFAULT 0)')
+    
+    # v2.4 Migration: Safely add public_ip column if it doesn't exist
+    try:
+        conn.execute('ALTER TABLE settings ADD COLUMN public_ip TEXT')
+    except sqlite3.OperationalError:
+        pass 
+
     conn.execute('CREATE TABLE IF NOT EXISTS users (display_name TEXT, system_name TEXT, password TEXT, exp_days INTEGER, status TEXT, rx INTEGER DEFAULT 0, tx INTEGER DEFAULT 0)')
     conn.execute('CREATE TABLE IF NOT EXISTS warp (is_installed INTEGER DEFAULT 0)')
     conn.commit()
@@ -83,6 +90,7 @@ def wizard():
         admin_user = request.form.get('admin_user', 'admin')
         admin_pass = request.form.get('admin_pass', 'admin')
         panel_port = int(request.form.get('panel_port', 2020))
+        public_ip = request.form.get('public_ip', '127.0.0.1')
         
         selected_protocol = request.form.get('protocol', 'udp')
         selected_port = int(request.form.get('port', 1194))
@@ -103,8 +111,8 @@ def wizard():
         conn.execute('INSERT INTO admin (username, password) VALUES (?, ?)', (admin_user, admin_pass))
         
         conn.execute('DELETE FROM settings')
-        conn.execute('INSERT INTO settings (server_name, protocol, port, dns, dns2, conn_limit, panel_port, is_installed) VALUES (?, ?, ?, ?, ?, ?, ?, 0)', 
-                    (server_name, selected_protocol, selected_port, dns1, dns2, conn_limit, panel_port))
+        conn.execute('INSERT INTO settings (server_name, protocol, port, dns, dns2, conn_limit, panel_port, is_installed, public_ip) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?)', 
+                    (server_name, selected_protocol, selected_port, dns1, dns2, conn_limit, panel_port, public_ip))
         
         conn.execute('DELETE FROM warp')
         warp_status = -1 if install_warp else 0 
@@ -115,7 +123,9 @@ def wizard():
             with open('/tmp/warp_intent.txt', 'w') as f: f.write(f"{warp_target}\n{warp_license}")
 
         return redirect(url_for('stream_ui'))
-    return render_template('wizard.html')
+    
+    server_ip = os.popen("curl -s4 ifconfig.me --connect-timeout 2").read().strip()
+    return render_template('wizard.html', server_ip=server_ip)
 
 @app.route('/stream_ui')
 def stream_ui():
@@ -211,8 +221,6 @@ def openvpn_dashboard():
             with open("/etc/openvpn/server/auth/users.db", "w") as f:
                 for u in conn.execute('SELECT system_name, password, exp_days, status FROM users').fetchall():
                     f.write(f"{u['system_name']}:{u['password']}:{u['exp_days']}:{u['status']}\n")
-            fix_cmd = "sed -i -E \"s/curl.*ifconfig\\.me|curl.*api\\.ipify\\.org/curl --interface \\$(ip route | awk '\\/default\\/ {print \\$5}' | head -1) -s4 ifconfig.me/g\" /opt/bluefalcon-ultimate-toolkit/panel/scripts/*.sh 2>/dev/null"
-            os.system(fix_cmd)
             os.system(f"bash {APP_DIR}/scripts/add_user.sh {sys_name} {p}")
         return redirect(url_for('openvpn_dashboard'))
 
@@ -235,11 +243,9 @@ def openvpn_dashboard():
 
 # --- WARP Routing ---
 def get_warp_trace():
-    # FAST LOCAL DETECTION: Removes the external curl calls that freeze the panel when WARP routes shift
     vps_v4 = os.popen("ip -4 addr show $(ip route | awk '/default/ {print $5}' | head -1) 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1 | head -1").read().strip() or "N/A"
     vps_v6 = os.popen("ip -6 addr show $(ip route | awk '/default/ {print $5}' | head -1) 2>/dev/null | awk '/inet6 / {print $2}' | cut -d/ -f1 | grep -v '^fe80' | head -1").read().strip() or "N/A"
     
-    # Aggressive Timeouts prevent Gunicorn workers from hanging if WARP connection fails
     trace_v4 = os.popen("curl -s4 https://www.cloudflare.com/cdn-cgi/trace --connect-timeout 3 --max-time 5").read()
     trace_v6 = os.popen("curl -s6 https://www.cloudflare.com/cdn-cgi/trace --connect-timeout 3 --max-time 5").read()
     
@@ -268,7 +274,6 @@ def warp_dashboard():
 def warp_action(action):
     if 'admin_logged_in' not in session: return redirect(url_for('login'))
     script_path = f"{APP_DIR}/scripts/action.sh"
-    # This route only handles instant toggles now; Install/Uninstall are handled by the stream API below
     if action == "toggle": 
         os.system(f"bash {script_path} toggle")
     return redirect(url_for('warp_dashboard'))
@@ -315,7 +320,6 @@ def warp_stream():
             
     return Response(generate(), mimetype='text/event-stream')
 
-
 # --- Log Center ---
 @app.route('/logs')
 def logs_viewer():
@@ -353,8 +357,9 @@ def sys_settings():
         new_panel_port = int(request.form.get('panel_port'))
         new_vpn_port = int(request.form.get('vpn_port'))
         new_vpn_proto = request.form.get('vpn_protocol')
+        new_public_ip = request.form.get('public_ip', curr_settings['public_ip'])
         
-        conn.execute('UPDATE settings SET dns=?, dns2=?, conn_limit=?, panel_port=?, port=?, protocol=?', (dns1, dns2, new_limit, new_panel_port, new_vpn_port, new_vpn_proto))
+        conn.execute('UPDATE settings SET dns=?, dns2=?, conn_limit=?, panel_port=?, port=?, protocol=?, public_ip=?', (dns1, dns2, new_limit, new_panel_port, new_vpn_port, new_vpn_proto, new_public_ip))
         if request.form.get('admin_user') and request.form.get('admin_pass'):
             conn.execute('DELETE FROM admin')
             conn.execute('INSERT INTO admin (username, password) VALUES (?, ?)', (request.form['admin_user'], request.form['admin_pass']))
@@ -386,8 +391,6 @@ def sys_settings():
 
         if needs_vpn_restart: os.system("systemctl restart openvpn-server@server")
         
-        fix_cmd = "sed -i -E \"s/curl.*ifconfig\\.me|curl.*api\\.ipify\\.org/curl --interface \\$(ip route | awk '\\/default\\/ {print \\$5}' | head -1) -s4 ifconfig.me/g\" /opt/bluefalcon-ultimate-toolkit/panel/scripts/*.sh 2>/dev/null"
-        os.system(fix_cmd)
         for u in conn.execute('SELECT system_name, password FROM users').fetchall(): os.system(f"bash {APP_DIR}/scripts/add_user.sh {u['system_name']} {u['password']}")
 
         if new_panel_port != old_panel_port:

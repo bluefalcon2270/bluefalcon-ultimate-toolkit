@@ -11,33 +11,33 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Protocol</label>
-                    <select name="vpn_protocol" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                    <select name="vpn_protocol" class="w-full px-4 py-3 rounded-xl outline-none input-field">
                         <option value="udp" {% if settings['protocol'] == 'udp' %}selected{% endif %}>UDP</option>
                         <option value="tcp" {% if settings['protocol'] == 'tcp' %}selected{% endif %}>TCP</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Port</label>
-                    <input type="number" name="vpn_port" value="{{ settings['port'] }}" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                    <input type="number" name="vpn_port" value="{{ settings['port'] }}" class="w-full px-4 py-3 rounded-xl outline-none input-field">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Device Limit</label>
-                    <select name="conn_limit" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                    <select name="conn_limit" class="w-full px-4 py-3 rounded-xl outline-none input-field">
                         <option value="1" {% if settings['conn_limit'] == '1' %}selected{% endif %}>1 Device</option>
                         <option value="unlimited" {% if settings['conn_limit'] == 'unlimited' %}selected{% endif %}>Unlimited</option>
                     </select>
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2">DNS Resolver</label>
-                    <select name="dns_preset" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none mb-3" onchange="const c=document.getElementById('custom_dns_div'); if(this.value==='custom'){c.style.display='grid'; document.getElementById('cd1').required=true;}else{c.style.display='none'; document.getElementById('cd1').required=false;}">
+                    <select name="dns_preset" class="w-full px-4 py-3 rounded-xl outline-none mb-3 input-field" onchange="const c=document.getElementById('custom_dns_div'); if(this.value==='custom'){c.style.display='grid'; document.getElementById('cd1').required=true;}else{c.style.display='none'; document.getElementById('cd1').required=false;}">
                         <option value="1.1.1.1" {% if settings['dns'] == '1.1.1.1' %}selected{% endif %}>Cloudflare</option>
                         <option value="8.8.8.8" {% if settings['dns'] == '8.8.8.8' %}selected{% endif %}>Google</option>
                         <option value="9.9.9.9" {% if settings['dns'] == '9.9.9.9' %}selected{% endif %}>Quad9</option>
                         <option value="custom" {% if settings['dns'] not in ['1.1.1.1','8.8.8.8','9.9.9.9','94.140.14.14'] %}selected{% endif %}>Custom IP...</option>
                     </select>
                     <div id="custom_dns_div" class="grid grid-cols-2 gap-4" style="display: {% if settings['dns'] not in ['1.1.1.1','8.8.8.8','9.9.9.9','94.140.14.14'] %}grid{% else %}none{% endif %};">
-                        <input type="text" id="cd1" name="custom_dns1" value="{{ settings['dns'] if settings['dns'] not in ['1.1.1.1','8.8.8.8','9.9.9.9','94.140.14.14'] else '' }}" placeholder="Primary DNS" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
-                        <input type="text" name="custom_dns2" value="{{ settings['dns2'] if settings['dns2'] else '' }}" placeholder="Secondary DNS" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                        <input type="text" id="cd1" name="custom_dns1" value="{{ settings['dns'] if settings['dns'] not in ['1.1.1.1','8.8.8.8','9.9.9.9','94.140.14.14'] else '' }}" placeholder="Primary DNS" class="w-full px-4 py-3 rounded-xl outline-none input-field">
+                        <input type="text" name="custom_dns2" value="{{ settings['dns2'] if settings['dns2'] else '' }}" placeholder="Secondary DNS" class="w-full px-4 py-3 rounded-xl outline-none input-field">
                     </div>
                 </div>
             </div>
@@ -46,18 +46,24 @@
         <div class="material-card p-8">
             <h2 class="text-xl font-semibold text-gray-800 mb-6">Panel Configuration</h2>
             <div class="space-y-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Web Panel Port</label>
-                    <input type="number" name="panel_port" value="{{ settings['panel_port'] }}" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Web Panel Port</label>
+                        <input type="number" name="panel_port" value="{{ settings['panel_port'] }}" class="w-full px-4 py-3 rounded-xl outline-none input-field">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">True Public IP (For configs)</label>
+                        <input type="text" name="public_ip" value="{{ settings['public_ip'] }}" class="w-full px-4 py-3 rounded-xl outline-none input-field">
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Admin Username</label>
-                        <input type="text" name="admin_user" value="{{ admin['username'] }}" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                        <input type="text" name="admin_user" value="{{ admin['username'] }}" required class="w-full px-4 py-3 rounded-xl outline-none input-field">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
-                        <input type="password" name="admin_pass" placeholder="Enter new password" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                        <input type="password" name="admin_pass" placeholder="Enter new password" required class="w-full px-4 py-3 rounded-xl outline-none input-field">
                     </div>
                 </div>
             </div>

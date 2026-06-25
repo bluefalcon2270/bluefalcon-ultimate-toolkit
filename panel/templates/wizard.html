@@ -5,44 +5,53 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #F4F7F6; }
-        .material-card { background: #FFFFFF; border-radius: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03); }
-        .input-field { width: 100%; padding: 0.75rem 1rem; background-color: #F8F9FA; border: 1px solid #E5E7EB; border-radius: 12px; outline: none; transition: all 0.2s; }
-        .input-field:focus { border-color: #0B57D0; box-shadow: 0 0 0 2px rgba(11, 87, 208, 0.1); }
+        body { font-family: 'Inter', sans-serif; background-color: #0F0F11 !important; color: #F3F4F6 !important; }
+        .material-card { background: #1C1C1E !important; border-radius: 24px; border: 1px solid #2C2C2E !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5) !important; }
+        .input-field { width: 100%; padding: 0.75rem 1rem; background-color: #2C2C2E !important; border: 1px solid #3A3A3C !important; color: #F3F4F6 !important; border-radius: 12px; outline: none; transition: all 0.2s; }
+        .input-field:focus { border-color: #A8C7FA !important; box-shadow: 0 0 0 2px rgba(168,199,250,0.1) !important; }
+        .bg-white { background-color: #1C1C1E !important; }
+        .border-gray-100, .border-b, .border-t { border-color: #2C2C2E !important; }
+        h1, h2, .text-gray-900, .text-gray-800 { color: #F3F4F6 !important; }
+        p, label, .text-gray-500, .text-gray-600 { color: #9CA3AF !important; }
+        .bg-\\[\\#E8F0FE\\] { background-color: #1A2B4C !important; color: #A8C7FA !important; }
+        .bg-\\[\\#0B57D0\\] { background-color: #A8C7FA !important; color: #0F0F11 !important; font-weight: 700 !important; }
+        .hover\\:bg-\\[\\#0842A0\\]:hover { background-color: #8AB4F8 !important; }
+        .bg-gray-50 { background-color: #1F1F22 !important; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-6">
-    <div class="max-w-4xl w-full material-card overflow-hidden border border-gray-100">
-        <div class="bg-white px-10 py-8 border-b border-gray-100 flex items-center justify-between">
+    <div class="max-w-4xl w-full material-card overflow-hidden">
+        <div class="bg-white px-10 py-8 border-b flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">System Initialization</h1>
-                <p class="text-gray-500 mt-1">Configure your new deployment.</p>
+                <h1 class="text-2xl font-bold">System Initialization</h1>
+                <p class="mt-1">Configure your new deployment.</p>
             </div>
-            <span class="bg-[#E8F0FE] text-[#0B57D0] px-4 py-1.5 rounded-full text-sm font-semibold">Step 1 of 1</span>
+            <span class="bg-[#E8F0FE] px-4 py-1.5 rounded-full text-sm font-semibold">Step 1 of 1</span>
         </div>
         
         <form action="/wizard" method="POST" class="p-10">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <!-- System Config -->
                 <div class="space-y-5">
-                    <h2 class="text-lg font-semibold text-gray-800">Control Plane</h2>
-                    <div><label class="block text-sm font-medium text-gray-600 mb-1.5">Node Name</label><input type="text" name="server_name" value="BlueFalcon Node" required class="input-field"></div>
+                    <h2 class="text-lg font-semibold">Control Plane</h2>
+                    <div><label class="block text-sm font-medium mb-1.5">Node Name</label><input type="text" name="server_name" value="BlueFalcon Node" required class="input-field"></div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="block text-sm font-medium text-gray-600 mb-1.5">Admin User</label><input type="text" name="admin_user" value="admin" required class="input-field"></div>
-                        <div><label class="block text-sm font-medium text-gray-600 mb-1.5">Admin Pass</label><input type="password" name="admin_pass" value="admin" required class="input-field"></div>
+                        <div><label class="block text-sm font-medium mb-1.5">Admin User</label><input type="text" name="admin_user" value="admin" required class="input-field"></div>
+                        <div><label class="block text-sm font-medium mb-1.5">Admin Pass</label><input type="password" name="admin_pass" value="admin" required class="input-field"></div>
                     </div>
-                    <div><label class="block text-sm font-medium text-gray-600 mb-1.5">Web UI Port</label><input type="number" name="panel_port" value="2020" required class="input-field"></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-medium mb-1.5">Web UI Port</label><input type="number" name="panel_port" value="2020" required class="input-field"></div>
+                        <div><label class="block text-sm font-medium mb-1.5">True Server IP (Public)</label><input type="text" name="public_ip" value="{{ server_ip }}" required class="input-field"></div>
+                    </div>
                 </div>
 
-                <!-- OpenVPN Config -->
                 <div class="space-y-5">
-                    <h2 class="text-lg font-semibold text-gray-800">OpenVPN Engine</h2>
+                    <h2 class="text-lg font-semibold">OpenVPN Engine</h2>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="block text-sm font-medium text-gray-600 mb-1.5">Protocol</label><select name="protocol" class="input-field"><option value="udp">UDP</option><option value="tcp">TCP</option></select></div>
-                        <div><label class="block text-sm font-medium text-gray-600 mb-1.5">Port</label><input type="number" name="port" value="1194" required class="input-field"></div>
+                        <div><label class="block text-sm font-medium mb-1.5">Protocol</label><select name="protocol" class="input-field"><option value="udp">UDP</option><option value="tcp">TCP</option></select></div>
+                        <div><label class="block text-sm font-medium mb-1.5">Port</label><input type="number" name="port" value="1194" required class="input-field"></div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1.5">DNS Resolver</label>
+                        <label class="block text-sm font-medium mb-1.5">DNS Resolver</label>
                         <select name="dns_preset" class="input-field" onchange="const c = document.getElementById('cd_div'); if(this.value==='custom'){c.style.display='grid'; document.getElementById('cd1').required=true;}else{c.style.display='none'; document.getElementById('cd1').required=false;}">
                             <option value="1.1.1.1">Cloudflare (1.1.1.1)</option>
                             <option value="8.8.8.8">Google (8.8.8.8)</option>
@@ -56,19 +65,18 @@
                 </div>
             </div>
 
-            <!-- WARP Config -->
-            <div class="mt-10 pt-8 border-t border-gray-100">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">Cloudflare WARP Shielding</h2>
+            <div class="mt-10 pt-8 border-t">
+                <h2 class="text-lg font-semibold mb-4">Cloudflare WARP Shielding</h2>
                 <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100">
                     <label class="flex items-center cursor-pointer mb-2">
                         <input type="checkbox" name="install_warp" class="sr-only peer" onchange="document.getElementById('w_set').style.display = this.checked ? 'block' : 'none';">
-                        <div class="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0B57D0] relative transition-colors"></div>
+                        <div class="w-11 h-6 bg-[#3A3A3C] rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#A8C7FA] relative transition-colors"></div>
                         <span class="ml-3 text-sm font-semibold text-gray-800">Deploy background service</span>
                     </label>
                     <div id="w_set" class="mt-5 space-y-4" style="display: none;">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-sm font-medium text-gray-600 mb-1.5">Network Architecture</label><select name="warp_target" class="input-field"><option value="3">Dual-Stack</option><option value="1">IPv4 Only</option><option value="2">IPv6 Only</option></select></div>
-                            <div><label class="block text-sm font-medium text-gray-600 mb-1.5">License Key</label><input type="text" name="warp_license" placeholder="Optional" class="input-field"></div>
+                            <div><label class="block text-sm font-medium mb-1.5">Network Architecture</label><select name="warp_target" class="input-field"><option value="3">Dual-Stack</option><option value="1">IPv4 Only</option><option value="2">IPv6 Only</option></select></div>
+                            <div><label class="block text-sm font-medium mb-1.5">License Key</label><input type="text" name="warp_license" placeholder="Optional" class="input-field"></div>
                         </div>
                     </div>
                 </div>
