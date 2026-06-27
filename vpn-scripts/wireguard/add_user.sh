@@ -4,6 +4,7 @@
 # Usage: ./add_user.sh <client_name> <exp_days>
 # ==============================================================================
 set -e
+umask 077
 
 CLIENT_NAME=$1
 EXP_DAYS=$2

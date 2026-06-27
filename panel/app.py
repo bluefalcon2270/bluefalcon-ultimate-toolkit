@@ -67,6 +67,19 @@ def init_db():
     conn.execute('CREATE TABLE IF NOT EXISTS users (display_name TEXT, system_name TEXT, password TEXT, exp_days INTEGER, status TEXT, rx INTEGER DEFAULT 0, tx INTEGER DEFAULT 0)')
     conn.execute('CREATE TABLE IF NOT EXISTS wg_users (display_name TEXT, system_name TEXT, pub_key TEXT, ip_address TEXT, exp_days INTEGER, status TEXT, rx INTEGER DEFAULT 0, tx INTEGER DEFAULT 0)')
     conn.execute('CREATE TABLE IF NOT EXISTS warp (is_installed INTEGER DEFAULT 0)')
+    
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM settings WHERE server_name='openvpn'")
+    if cursor.fetchone()[0] == 0:
+        conn.execute("INSERT INTO settings (server_name, protocol, port, dns, dns2, conn_limit, panel_port, is_installed) VALUES ('openvpn', 'udp', 1194, '8.8.8.8', '8.8.4.4', '1', 5000, 0)")
+        
+    cursor.execute("SELECT COUNT(*) FROM settings WHERE server_name='wireguard'")
+    if cursor.fetchone()[0] == 0:
+        conn.execute("INSERT INTO settings (server_name, protocol, port, dns, dns2, conn_limit, panel_port, is_installed) VALUES ('wireguard', 'udp', 51820, '8.8.8.8', '8.8.4.4', '1', 5000, 0)")
+        
+    cursor.execute("SELECT COUNT(*) FROM warp")
+    if cursor.fetchone()[0] == 0:
+        conn.execute("INSERT INTO warp (is_installed) VALUES (0)")
     conn.commit()
     conn.close()
 
@@ -202,7 +215,7 @@ def install_execute():
         if ovpn_pending:
             yield "data: \n\n"
             yield "data: [OPENVPN] Starting Core Configuration...\n\n"
-            process = subprocess.Popen(['bash', f'{APP_DIR}/scripts/core_setup.sh'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            process = subprocess.Popen(['bash', f'{APP_DIR}/vpn-scripts/openvpn/core_setup.sh'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             for line in iter(process.stdout.readline, ''): yield f"data: {line}\n\n"
             process.stdout.close(); process.wait()
             
@@ -233,7 +246,7 @@ def install_execute():
             except:
                 target, license_key = "3", "free"
                 
-            process2 = subprocess.Popen(['bash', f'{APP_DIR}/scripts/action.sh', 'install', target, license_key], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            process2 = subprocess.Popen(['bash', f'{APP_DIR}/vpn-scripts/warp/action.sh', 'install', target, license_key], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             for line in iter(process2.stdout.readline, ''): yield f"data: {line}\n\n"
             process2.stdout.close(); process2.wait()
             
@@ -321,7 +334,7 @@ def run_ovpn_task(protocol, port, dns1, dns2):
     # We must update the DB first, then run core_setup.sh
     with open(log_file, 'w') as f:
         process = subprocess.Popen(
-            ['bash', f'{APP_DIR}/scripts/core_setup.sh'],
+            ['bash', f'{APP_DIR}/vpn-scripts/openvpn/core_setup.sh'],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
         )
         for line in iter(process.stdout.readline, ''):
