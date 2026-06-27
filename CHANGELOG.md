@@ -1,6 +1,13 @@
-VERSION="3.3"
+VERSION="3.4"
 
 # Changelog
+
+## [v3.4] - 2026-06-28
+### Added
+- **ANSI Color Rendering**: All terminal outputs (System Tools, WARP, Backup) now render colored output identical to the CLI menu — bold blue headers, green checkmarks, red errors.
+- **Auto-scroll Toggle**: Every terminal in the panel now has a green toggle switch. When ON, the terminal auto-scrolls to the newest line. When OFF, you can freely scroll to read previous output without being interrupted.
+- **Styled Scrollbar**: All terminals now have a thin, dark-styled scrollbar that is always visible.
+- **`install_packages` action**: System Packages tab now installs all missing packages via the live terminal.
 
 ## [v3.3] - 2026-06-28
 ### Changed

@@ -98,9 +98,9 @@
                 <option value="panel" {% if current_type == 'panel' %}selected{% endif %}>Web Panel Core</option>
                 <option value="openvpn" {% if current_type == 'openvpn' %}selected{% endif %}>OpenVPN Service</option>
                 <option value="warp" {% if current_type == 'warp' %}selected{% endif %}>WARP Shield</option>
-                <option value="auth" {% if current_type == 'auth' %}selected{% endif %}>Security & Auth</option>
+                <option value="auth" {% if current_type == 'auth' %}selected{% endif %}>Security &amp; Auth</option>
                 <option value="ufw" {% if current_type == 'ufw' %}selected{% endif %}>Firewall (UFW)</option>
-                <option value="kernel" {% if current_type == 'kernel' %}selected{% endif %}>Kernel & Network</option>
+                <option value="kernel" {% if current_type == 'kernel' %}selected{% endif %}>Kernel &amp; Network</option>
                 <option value="pkg" {% if current_type == 'pkg' %}selected{% endif %}>Package Manager (APT)</option>
                 <option value="cron" {% if current_type == 'cron' %}selected{% endif %}>Cron Tasks</option>
             </select>
@@ -112,13 +112,31 @@
         <div class="flex-1 bg-[#131314] rounded-3xl shadow-md overflow-hidden flex flex-col border border-gray-800">
             <div class="bg-[#1F1F22] px-6 py-3 flex items-center justify-between border-b border-gray-800 shrink-0">
                 <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Live Output Buffer</span>
-                <a href="/preferences?tab=logs&log_type={{ current_type }}" class="text-xs font-medium text-[#A8C7FA] hover:text-white transition">Refresh Stream</a>
+                <div class="flex items-center gap-4">
+                    <a href="/preferences?tab=logs&log_type={{ current_type }}" class="text-xs font-medium text-[#A8C7FA] hover:text-white transition">Refresh Stream</a>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">Auto-scroll</span>
+                        <button id="logScrollToggle" class="scroll-toggle on" onclick="toggleLogScroll(this)" title="Toggle auto-scroll"><span class="thumb"></span></button>
+                    </div>
+                </div>
             </div>
-            <div class="p-6 overflow-y-auto flex-1 h-full max-h-full">
-                <pre class="text-[#A8C7FA] font-mono text-sm whitespace-pre-wrap leading-relaxed">{{ logs }}</pre>
+            <div class="p-6 overflow-hidden flex-1 h-full max-h-full">
+                <pre id="logOutput" class="term-scroll text-[#A8C7FA] font-mono text-sm h-full whitespace-pre-wrap leading-relaxed">{{ logs }}</pre>
             </div>
         </div>
     </div>
+    <script>
+        let logAutoScroll = true;
+        function toggleLogScroll(btn) {
+            logAutoScroll = !logAutoScroll;
+            btn.classList.toggle('on', logAutoScroll);
+            btn.classList.toggle('off', !logAutoScroll);
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const log = document.getElementById('logOutput');
+            if (log && logAutoScroll) requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
+        });
+    </script>
     {% endif %}
 
     <!-- Backup & Restore Tab -->
@@ -186,20 +204,32 @@
         </div>
         <!-- Terminal -->
         <div class="material-card p-5 flex-1 flex flex-col">
-            <div class="flex items-center gap-2 mb-3">
-                <span id="backupSpinner" class="hidden">
-                    <svg class="animate-spin h-4 w-4 text-[#34A853]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                </span>
-                <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M4 17h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                <h3 class="text-sm font-bold text-white">Backup Terminal</h3>
+            <div class="flex items-center justify-between gap-3 mb-3">
+                <div class="flex items-center gap-2">
+                    <span id="backupSpinner" class="hidden">
+                        <svg class="animate-spin h-4 w-4 text-[#34A853]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </span>
+                    <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M4 17h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    <h3 class="text-sm font-bold text-white">Backup Terminal</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-500">Auto-scroll</span>
+                    <button id="backupScrollToggle" class="scroll-toggle on" onclick="toggleBackupScroll(this)" title="Toggle auto-scroll"><span class="thumb"></span></button>
+                </div>
             </div>
             <div class="bg-[#0F0F11] rounded-xl border border-[#2C2C2E] shadow-inner flex-1">
-                <pre id="backupLogOutput" class="p-4 text-[#A8C7FA] font-mono text-sm min-h-[220px] h-full overflow-y-auto whitespace-pre-wrap leading-relaxed">BlueFalcon OS > Backup vault ready.</pre>
+                <pre id="backupLogOutput" class="term-scroll p-4 text-[#A8C7FA] font-mono text-sm min-h-[220px] h-full whitespace-pre-wrap leading-relaxed">BlueFalcon OS &gt; Backup vault ready.</pre>
             </div>
         </div>
     </div>
     <script>
         let backupPoll = null;
+        let backupAutoScroll = true;
+        function toggleBackupScroll(btn) {
+            backupAutoScroll = !backupAutoScroll;
+            btn.classList.toggle('on', backupAutoScroll);
+            btn.classList.toggle('off', !backupAutoScroll);
+        }
         function runBackupAction(event, action) {
             event.preventDefault();
             fetch('/api/system_action?action=' + action, { method: 'POST' }).then(() => startBackupPolling());
@@ -213,11 +243,14 @@
         function startBackupPolling() {
             document.getElementById('backupSpinner').classList.remove('hidden');
             const log = document.getElementById('backupLogOutput');
-            log.textContent = '';
+            log.innerHTML = '';
             if (backupPoll) clearInterval(backupPoll);
             backupPoll = setInterval(() => {
                 fetch('/api/system_log').then(r => r.json()).then(data => {
-                    if (data.log) { log.textContent = data.log; log.scrollTop = log.scrollHeight; }
+                    if (data.log) {
+                        log.innerHTML = data.log;
+                        if (backupAutoScroll) requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
+                    }
                     if (data.status === 'done') {
                         clearInterval(backupPoll);
                         document.getElementById('backupSpinner').classList.add('hidden');
@@ -228,8 +261,9 @@
         }
         document.addEventListener('DOMContentLoaded', () => {
             fetch('/api/system_log').then(r => r.json()).then(data => {
+                const log = document.getElementById('backupLogOutput');
                 if (data.status === 'running') startBackupPolling();
-                else if (data.log) document.getElementById('backupLogOutput').textContent = data.log;
+                else if (data.log) { log.innerHTML = data.log; requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; }); }
             });
         });
     </script>

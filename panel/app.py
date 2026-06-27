@@ -8,6 +8,46 @@ APP_DIR = '/opt/bluefalcon-ultimate-toolkit'
 DB_PATH = f'{APP_DIR}/panel.db'
 LOG_PATH = '/var/log/openvpn/status.log'
 
+# ANSI escape → HTML converter for terminal output
+_ANSI_MAP = {
+    '31': 'color:#F28B82', '91': 'color:#F28B82',
+    '32': 'color:#34A853', '92': 'color:#81C995',
+    '33': 'color:#FDD663', '93': 'color:#FDD663',
+    '34': 'color:#A8C7FA', '94': 'color:#A8C7FA',
+    '35': 'color:#D4A8F5', '36': 'color:#6FC3F7',
+    '37': 'color:#E8EAED', '0':  '', '':   '',
+}
+def ansi_to_html(text):
+    text = text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    open_spans = [0]
+    def repl(m):
+        codes = m.group(1).split(';')
+        # reset
+        if codes[0] in ('0', '') and len(codes) == 1:
+            closed = '</span>' * open_spans[0]
+            open_spans[0] = 0
+            return closed
+        parts = []
+        for c in codes:
+            if c == '1': parts.append('font-weight:bold')
+            elif c in _ANSI_MAP and _ANSI_MAP[c]: parts.append(_ANSI_MAP[c])
+        if parts:
+            open_spans[0] += 1
+            return f'<span style="{";".join(parts)}">'
+        return ''
+    result = re.sub(r'\x1b\[([0-9;]*)m', repl, text)
+    result = re.sub(r'\x1b(?:\[[^a-zA-Z]*[a-zA-Z]|.)', '', result)
+    result += '</span>' * open_spans[0]
+    return result
+
+# ANSI color shortcuts for Python-written log messages
+_BB  = '\x1b[1;34m'  # bold blue
+_GRN = '\x1b[0;32m'  # green
+_RED = '\x1b[0;31m'  # red
+_YLW = '\x1b[0;33m'  # yellow
+_CYN = '\x1b[0;36m'  # cyan
+_NC  = '\x1b[0m'     # reset
+
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -335,7 +375,7 @@ def warp_log():
         if "[DONE]" in content:
             status = "done"
             content = content.replace("[DONE]\n", "")
-        return jsonify({"log": content, "status": status})
+        return jsonify({"log": ansi_to_html(content), "status": status})
     except:
         return jsonify({"log": "", "status": "not_running"})
 
@@ -347,19 +387,50 @@ def run_system_task(action, payload=None):
     log_file = '/tmp/system_task.log'
     with open(log_file, 'w') as f:
         if action == 'update_system':
-            f.write("🚀 STARTING FULL SYSTEM UPDATE...\n\n")
+            f.write(f"🚀 {_BB}STARTING FULL SYSTEM UPDATE...{_NC}\n\n")
+            f.write(f"{_BB}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{_NC}\n")
+            f.write(f"{_BB}  Updating Package Repositories{_NC}\n")
+            f.write(f"{_BB}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{_NC}\n\n")
             f.flush()
             process = subprocess.Popen(
-                'apt update -y && apt upgrade -y',
+                'DEBIAN_FRONTEND=noninteractive apt-get update -y',
                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
             )
             for line in iter(process.stdout.readline, ''):
                 f.write(line); f.flush()
             process.wait()
-            f.write("\n\n🟢 SYSTEM UPDATE COMPLETE.\n\n")
+            f.write(f"\n{_BB}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{_NC}\n")
+            f.write(f"{_BB}  Upgrading Packages{_NC}\n")
+            f.write(f"{_BB}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{_NC}\n\n")
+            f.flush()
+            process = subprocess.Popen(
+                'DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"',
+                shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+            )
+            for line in iter(process.stdout.readline, ''):
+                f.write(line); f.flush()
+            process.wait()
+            f.write(f"\n[ {_GRN}✔{_NC} ] System update and upgrade complete.\n\n")
+
+        elif action == 'install_packages':
+            pkgs = ['curl','wget','git','htop','unzip','zip','nano','net-tools',
+                    'tmux','screen','socat','cron','ufw','iptables','nftables','qrencode','dnsutils']
+            f.write(f"📦 {_BB}INSTALLING SYSTEM PACKAGES...{_NC}\n\n")
+            f.write(f"{_BB}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{_NC}\n\n")
+            f.flush()
+            process = subprocess.Popen(
+                f'DEBIAN_FRONTEND=noninteractive apt-get install -y {" ".join(pkgs)}',
+                shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+            )
+            for line in iter(process.stdout.readline, ''):
+                f.write(line); f.flush()
+            process.wait()
+            f.write(f"\n[ {_GRN}✔{_NC} ] Package installation complete.\n\n")
 
         elif action == 'create_backup':
-            f.write("📦 CREATING SYSTEM BACKUP...\n\n"); f.flush()
+            f.write(f"📦 {_BB}CREATING SYSTEM BACKUP...{_NC}\n\n")
+            f.write(f"{_BB}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{_NC}\n\n")
+            f.flush()
             timestamp = time.strftime("%Y%m%d_%H%M%S")
             backup_dir = "/var/backups/bluefalcon"
             os.makedirs(backup_dir, exist_ok=True)
@@ -369,9 +440,9 @@ def run_system_task(action, payload=None):
             if os.path.exists(f"{APP_DIR}/panel.db"): paths.append(f"{APP_DIR}/panel.db")
             if os.path.exists("/etc/wireguard"): paths.append("/etc/wireguard")
             if not paths:
-                f.write("⚠️  No configurations found to backup.\n\n")
+                f.write(f"[ {_YLW}!{_NC} ] No configurations found to backup.\n\n")
             else:
-                f.write(f"Backing up: {', '.join(paths)}\n\n")
+                f.write(f"Paths: {_CYN}{', '.join(paths)}{_NC}\n\n")
                 process = subprocess.Popen(
                     f"tar -czvf {backup_file} {' '.join(paths)}",
                     shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
@@ -381,15 +452,17 @@ def run_system_task(action, payload=None):
                 process.wait()
                 if process.returncode == 0:
                     size = os.path.getsize(backup_file) / (1024 * 1024)
-                    f.write(f"\n\n🟢 BACKUP CREATED SUCCESSFULLY\nFile: {backup_file}\nSize: {size:.2f} MB\n\n")
+                    f.write(f"\n[ {_GRN}✔{_NC} ] Backup created: {_CYN}{backup_file}{_NC} ({size:.2f} MB)\n\n")
                 else:
-                    f.write("\n\n🔴 BACKUP FAILED.\n\n")
+                    f.write(f"\n[ {_RED}✖{_NC} ] Backup FAILED.\n\n")
 
         elif action == 'restore_backup':
-            f.write(f"🔄 RESTORING BACKUP: {payload}...\n\n"); f.flush()
+            f.write(f"🔄 {_BB}RESTORING BACKUP: {payload}...{_NC}\n\n")
+            f.write(f"{_BB}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{_NC}\n\n")
+            f.flush()
             backup_file = f"/var/backups/bluefalcon/{payload}"
             if not os.path.exists(backup_file):
-                f.write("🔴 Error: Backup file not found.\n\n")
+                f.write(f"[ {_RED}✖{_NC} ] Backup file not found.\n\n")
             else:
                 process = subprocess.Popen(
                     f"tar -xzvf {backup_file} -C /",
@@ -398,10 +471,10 @@ def run_system_task(action, payload=None):
                 for line in iter(process.stdout.readline, ''):
                     f.write(line); f.flush()
                 process.wait()
-                f.write("\nRestarting services...\n")
+                f.write(f"\n{_BB}Restarting services...{_NC}\n")
                 os.system("systemctl restart openvpn-server@server 2>/dev/null")
                 os.system("systemctl restart bluefalcon-panel 2>/dev/null")
-                f.write("\n🟢 RESTORE COMPLETED SUCCESSFULLY.\n\n")
+                f.write(f"[ {_GRN}✔{_NC} ] Restore completed successfully.\n\n")
 
         f.write("[DONE]\n")
 
@@ -453,7 +526,7 @@ def system_log():
             content = f.read()
         status = "done" if "[DONE]" in content else "running"
         content = content.replace("[DONE]\n", "")
-        return jsonify({"log": content, "status": status})
+        return jsonify({"log": ansi_to_html(content), "status": status})
     except:
         return jsonify({"log": "", "status": "not_running"})
 

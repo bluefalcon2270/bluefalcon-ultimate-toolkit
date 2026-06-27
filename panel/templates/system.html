@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}System Tools | BF Panel{% endblock %}
 {% block header_title %}System Tools{% endblock %}
 
@@ -13,28 +13,32 @@
 
     <!-- UPDATE SYSTEM TAB -->
     {% if active_tab == 'update' %}
-    <div class="flex-1 flex flex-col gap-6 overflow-y-auto">
-        <div class="material-card p-6">
-            <h2 class="text-base font-bold text-white mb-1">Update All Packages</h2>
-            <p class="text-sm text-gray-500 mb-5">Runs <code class="text-[#A8C7FA] bg-[#1C1C1E] px-1.5 py-0.5 rounded text-xs">apt update && apt upgrade -y</code> on the server. Output streams live in the terminal below.</p>
-            <form onsubmit="runSystemAction(event, 'update_system')">
-                <button type="submit" id="updateBtn" class="flex items-center gap-2 bg-[#1E3A5F] hover:bg-[#0B57D0] text-[#A8C7FA] hover:text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all border border-[#2A4A7F]">
+    <div class="flex-1 flex flex-col gap-5 min-h-0">
+        <div class="material-card p-5 shrink-0">
+            <h2 class="text-sm font-bold text-white mb-1">Update All Packages</h2>
+            <p class="text-xs text-gray-500 mb-4">Runs <code class="text-[#A8C7FA] bg-[#111113] px-1.5 py-0.5 rounded">apt-get update && apt-get upgrade -y</code></p>
+            <form onsubmit="runSysAction(event,'update_system')">
+                <button type="submit" class="flex items-center gap-2 bg-[#1E3A5F] hover:bg-[#0B57D0] text-[#A8C7FA] hover:text-white px-5 py-2 rounded-xl font-bold text-sm transition-all border border-[#2A4A7F]">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                     Run System Update
                 </button>
             </form>
         </div>
         <!-- Terminal -->
-        <div class="material-card p-5 flex-1 flex flex-col">
-            <div class="flex items-center gap-2 mb-3">
-                <span id="sysTerminalSpinner" class="hidden">
-                    <svg class="animate-spin h-4 w-4 text-[#34A853]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                </span>
-                <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M4 17h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                <h3 class="text-sm font-bold text-white">System Terminal</h3>
+        <div class="material-card p-5 flex-1 flex flex-col min-h-0">
+            <div class="flex items-center justify-between gap-3 mb-3 shrink-0">
+                <div class="flex items-center gap-2">
+                    <span id="sysSpinner" class="hidden"><svg class="animate-spin h-4 w-4 text-[#34A853]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></span>
+                    <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M4 17h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    <span class="text-sm font-bold text-white">Terminal</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-500">Auto-scroll</span>
+                    <button id="scrollToggle" class="scroll-toggle on" onclick="toggleScroll(this)" title="Toggle auto-scroll"><span class="thumb"></span></button>
+                </div>
             </div>
-            <div class="bg-[#0F0F11] rounded-xl border border-[#2C2C2E] shadow-inner flex-1">
-                <pre id="sysLogOutput" class="p-4 text-[#A8C7FA] font-mono text-sm h-full min-h-[320px] overflow-y-auto whitespace-pre-wrap leading-relaxed">BlueFalcon OS > System ready. Waiting for tasks...</pre>
+            <div class="bg-[#0F0F11] rounded-xl border border-[#2C2C2E] shadow-inner flex-1 min-h-0">
+                <pre id="sysLog" class="term-scroll p-4 text-[#A8C7FA] font-mono text-sm h-full whitespace-pre-wrap leading-relaxed">BlueFalcon OS &gt; System ready. Waiting for tasks...</pre>
             </div>
         </div>
     </div>
@@ -42,40 +46,44 @@
 
     <!-- SYSTEM PACKAGES TAB -->
     {% if active_tab == 'packages' %}
-    <div class="flex-1 flex flex-col gap-6 overflow-y-auto">
-        <div class="material-card p-6">
-            <div class="flex items-center justify-between mb-5">
+    <div class="flex-1 flex flex-col gap-5 min-h-0">
+        <div class="material-card p-5 shrink-0">
+            <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h2 class="text-base font-bold text-white mb-1">System Packages</h2>
-                    <p class="text-sm text-gray-500">Status of all required packages. Missing packages will be installed.</p>
+                    <h2 class="text-sm font-bold text-white mb-1">System Packages</h2>
+                    <p class="text-xs text-gray-500">Green = installed, Red = missing</p>
                 </div>
-                <form onsubmit="runSystemAction(event, 'install_packages')">
-                    <button type="submit" class="flex items-center gap-2 bg-[#1E3A5F] hover:bg-[#0B57D0] text-[#A8C7FA] hover:text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all border border-[#2A4A7F]">
+                <form onsubmit="runSysAction(event,'install_packages')">
+                    <button type="submit" class="flex items-center gap-2 bg-[#1E3A5F] hover:bg-[#0B57D0] text-[#A8C7FA] hover:text-white px-5 py-2 rounded-xl font-bold text-sm transition-all border border-[#2A4A7F]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         Install Missing
                     </button>
                 </form>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
                 {% for pkg in packages %}
-                <div class="flex items-center gap-3 bg-[#1C1C1E] border border-[#2C2C2E] rounded-xl px-4 py-3">
-                    <div class="w-2.5 h-2.5 rounded-full flex-shrink-0 {% if pkg.installed %}bg-[#34A853]{% else %}bg-[#F28B82]{% endif %}"></div>
-                    <span class="font-mono text-xs text-gray-300 truncate">{{ pkg.name }}</span>
+                <div class="flex items-center gap-2 bg-[#111113] border border-[#2C2C2E] rounded-lg px-3 py-2">
+                    <div class="w-2 h-2 rounded-full flex-shrink-0 {% if pkg.installed %}bg-[#34A853]{% else %}bg-[#F28B82]{% endif %}"></div>
+                    <span class="font-mono text-xs {% if pkg.installed %}text-gray-300{% else %}text-[#F28B82]{% endif %} truncate">{{ pkg.name }}</span>
                 </div>
                 {% endfor %}
             </div>
         </div>
         <!-- Terminal -->
-        <div class="material-card p-5 flex-1 flex flex-col">
-            <div class="flex items-center gap-2 mb-3">
-                <span id="sysTerminalSpinner" class="hidden">
-                    <svg class="animate-spin h-4 w-4 text-[#34A853]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                </span>
-                <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M4 17h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                <h3 class="text-sm font-bold text-white">System Terminal</h3>
+        <div class="material-card p-5 flex-1 flex flex-col min-h-0">
+            <div class="flex items-center justify-between gap-3 mb-3 shrink-0">
+                <div class="flex items-center gap-2">
+                    <span id="sysSpinner" class="hidden"><svg class="animate-spin h-4 w-4 text-[#34A853]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></span>
+                    <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M4 17h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    <span class="text-sm font-bold text-white">Terminal</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-500">Auto-scroll</span>
+                    <button id="scrollToggle" class="scroll-toggle on" onclick="toggleScroll(this)" title="Toggle auto-scroll"><span class="thumb"></span></button>
+                </div>
             </div>
-            <div class="bg-[#0F0F11] rounded-xl border border-[#2C2C2E] shadow-inner flex-1">
-                <pre id="sysLogOutput" class="p-4 text-[#A8C7FA] font-mono text-sm h-full min-h-[200px] overflow-y-auto whitespace-pre-wrap leading-relaxed">BlueFalcon OS > System ready. Waiting for tasks...</pre>
+            <div class="bg-[#0F0F11] rounded-xl border border-[#2C2C2E] shadow-inner flex-1 min-h-0">
+                <pre id="sysLog" class="term-scroll p-4 text-[#A8C7FA] font-mono text-sm h-full whitespace-pre-wrap leading-relaxed">BlueFalcon OS &gt; System ready. Waiting for tasks...</pre>
             </div>
         </div>
     </div>
@@ -84,53 +92,41 @@
     <!-- SSH SETTINGS TAB -->
     {% if active_tab == 'ssh' %}
     <div class="flex-1 overflow-y-auto">
-        <div class="max-w-2xl space-y-5">
-            <!-- SSH Port -->
+        <div class="max-w-2xl space-y-4">
             <div class="material-card p-6">
-                <h2 class="text-base font-bold text-white mb-4">SSH Port</h2>
+                <h2 class="text-sm font-bold text-white mb-4">SSH Port</h2>
                 <form action="/api/change_ssh" method="POST" class="flex items-end gap-4">
                     <div class="flex-1">
-                        <label class="block text-xs font-semibold text-gray-500 mb-2">Current Port: <span class="text-[#A8C7FA]">{{ ssh_port }}</span></label>
-                        <input type="number" name="ssh_port" value="{{ ssh_port }}" min="1" max="65535"
-                            class="w-full px-4 py-2.5 bg-[#111113] border border-[#3A3A3C] rounded-xl focus:border-[#A8C7FA] outline-none text-sm text-gray-200 transition-all font-mono">
+                        <label class="block text-xs font-semibold text-gray-500 mb-2">Current: <span class="text-[#A8C7FA] font-mono">{{ ssh_port }}</span></label>
+                        <input type="number" name="ssh_port" value="{{ ssh_port }}" min="1" max="65535" class="w-full px-4 py-2.5 bg-[#111113] border border-[#3A3A3C] rounded-xl focus:border-[#A8C7FA] outline-none text-sm text-gray-200 font-mono">
                     </div>
-                    <button type="submit" class="bg-[#1E3A5F] hover:bg-[#0B57D0] text-[#A8C7FA] hover:text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all border border-[#2A4A7F] whitespace-nowrap">
-                        Apply &amp; Restart SSH
-                    </button>
+                    <button type="submit" class="bg-[#1E3A5F] hover:bg-[#0B57D0] text-[#A8C7FA] hover:text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all border border-[#2A4A7F] whitespace-nowrap">Apply &amp; Restart SSH</button>
                 </form>
                 <p class="text-xs text-yellow-400 mt-3">Warning: Changing SSH port restarts the SSH daemon. Reconnect on the new port after applying.</p>
             </div>
-
-            <!-- Auth Methods -->
             <div class="material-card p-6">
-                <h2 class="text-base font-bold text-white mb-4">Authentication Methods</h2>
+                <h2 class="text-sm font-bold text-white mb-4">Authentication Methods</h2>
                 <div class="space-y-3">
-                    <!-- Password Auth -->
-                    <div class="flex items-center justify-between bg-[#1C1C1E] border border-[#2C2C2E] rounded-xl px-5 py-4">
+                    <div class="flex items-center justify-between bg-[#111113] border border-[#2C2C2E] rounded-xl px-5 py-4">
                         <div>
                             <p class="text-sm font-semibold text-gray-200">Password Login</p>
-                            <p class="text-xs text-gray-500 mt-0.5">Allow users to log in with a password</p>
+                            <p class="text-xs text-gray-500 mt-0.5">PasswordAuthentication — currently <span class="font-mono {% if ssh_pw == 'yes' %}text-[#34A853]{% else %}text-[#F28B82]{% endif %}">{{ ssh_pw | upper }}</span></p>
                         </div>
                         <form action="/api/toggle_ssh" method="POST">
                             <input type="hidden" name="key" value="PasswordAuthentication">
                             <input type="hidden" name="current" value="{{ ssh_pw }}">
-                            <button type="submit" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none {% if ssh_pw == 'yes' %}bg-[#34A853]{% else %}bg-gray-600{% endif %}">
-                                <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {% if ssh_pw == 'yes' %}translate-x-6{% else %}translate-x-1{% endif %}"></span>
-                            </button>
+                            <button type="submit" class="scroll-toggle {% if ssh_pw == 'yes' %}on{% else %}off{% endif %}"><span class="thumb"></span></button>
                         </form>
                     </div>
-                    <!-- Pubkey Auth -->
-                    <div class="flex items-center justify-between bg-[#1C1C1E] border border-[#2C2C2E] rounded-xl px-5 py-4">
+                    <div class="flex items-center justify-between bg-[#111113] border border-[#2C2C2E] rounded-xl px-5 py-4">
                         <div>
                             <p class="text-sm font-semibold text-gray-200">SSH Key Login</p>
-                            <p class="text-xs text-gray-500 mt-0.5">Allow users to log in with an SSH key</p>
+                            <p class="text-xs text-gray-500 mt-0.5">PubkeyAuthentication — currently <span class="font-mono {% if ssh_pubkey == 'yes' %}text-[#34A853]{% else %}text-[#F28B82]{% endif %}">{{ ssh_pubkey | upper }}</span></p>
                         </div>
                         <form action="/api/toggle_ssh" method="POST">
                             <input type="hidden" name="key" value="PubkeyAuthentication">
                             <input type="hidden" name="current" value="{{ ssh_pubkey }}">
-                            <button type="submit" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none {% if ssh_pubkey == 'yes' %}bg-[#34A853]{% else %}bg-gray-600{% endif %}">
-                                <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {% if ssh_pubkey == 'yes' %}translate-x-6{% else %}translate-x-1{% endif %}"></span>
-                            </button>
+                            <button type="submit" class="scroll-toggle {% if ssh_pubkey == 'yes' %}on{% else %}off{% endif %}"><span class="thumb"></span></button>
                         </form>
                     </div>
                 </div>
@@ -138,36 +134,42 @@
         </div>
     </div>
     {% endif %}
-
 </div>
 
 <script>
-    let sysPollInterval = null;
+    let sysAutoScroll = true;
+    let sysPoll = null;
 
-    function runSystemAction(event, action) {
-        event.preventDefault();
-        const btn = event.submitter;
-        if (btn) { btn.disabled = true; btn.innerHTML = 'Starting...'; }
-        fetch('/api/system_action?action=' + action, { method: 'POST' })
-            .then(() => startSysPolling());
+    function toggleScroll(btn) {
+        sysAutoScroll = !sysAutoScroll;
+        btn.classList.toggle('on', sysAutoScroll);
+        btn.classList.toggle('off', !sysAutoScroll);
     }
 
-    function startSysPolling() {
-        const spinner = document.getElementById('sysTerminalSpinner');
+    function runSysAction(event, action) {
+        event.preventDefault();
+        const btn = event.submitter;
+        if (btn) { btn.disabled = true; btn.textContent = 'Starting...'; }
+        fetch('/api/system_action?action=' + action, { method: 'POST' })
+            .then(() => startSysPoll());
+    }
+
+    function startSysPoll() {
+        const spinner = document.getElementById('sysSpinner');
         if (spinner) spinner.classList.remove('hidden');
-        const log = document.getElementById('sysLogOutput');
-        if (log) log.textContent = '';
-        if (sysPollInterval) clearInterval(sysPollInterval);
-        sysPollInterval = setInterval(() => {
+        const log = document.getElementById('sysLog');
+        if (log) log.innerHTML = '';
+        if (sysPoll) clearInterval(sysPoll);
+        sysPoll = setInterval(() => {
             fetch('/api/system_log')
                 .then(r => r.json())
                 .then(data => {
                     if (data.log && log) {
-                        log.textContent = data.log;
-                        log.scrollTop = log.scrollHeight;
+                        log.innerHTML = data.log;
+                        if (sysAutoScroll) requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
                     }
                     if (data.status === 'done') {
-                        clearInterval(sysPollInterval);
+                        clearInterval(sysPoll);
                         if (spinner) spinner.classList.add('hidden');
                         setTimeout(() => window.location.reload(), 2000);
                     }
@@ -180,10 +182,10 @@
             .then(r => r.json())
             .then(data => {
                 if (data.status === 'running') {
-                    startSysPolling();
+                    startSysPoll();
                 } else if (data.log) {
-                    const log = document.getElementById('sysLogOutput');
-                    if (log) log.textContent = data.log;
+                    const log = document.getElementById('sysLog');
+                    if (log) { log.innerHTML = data.log; requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; }); }
                 }
             });
     });

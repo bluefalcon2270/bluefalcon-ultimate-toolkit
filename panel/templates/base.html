@@ -48,6 +48,21 @@
         .text-\\[\\#0B57D0\\] { color: #A8C7FA !important; }
         .bg-\\[\\#0B57D0\\] { background-color: #A8C7FA !important; color: #0F0F11 !important; font-weight: 700 !important; }
         .hover\\:bg-\\[\\#0842A0\\]:hover { background-color: #8AB4F8 !important; }
+
+        /* Terminal Scrollbar */
+        .term-scroll { overflow-y: scroll !important; scrollbar-width: thin; scrollbar-color: #3A3A3C #0F0F11; }
+        .term-scroll::-webkit-scrollbar { width: 6px; }
+        .term-scroll::-webkit-scrollbar-track { background: #0F0F11; border-radius: 3px; }
+        .term-scroll::-webkit-scrollbar-thumb { background: #3A3A3C; border-radius: 3px; }
+        .term-scroll::-webkit-scrollbar-thumb:hover { background: #5A5A5C; }
+
+        /* Auto-scroll Toggle */
+        .scroll-toggle { position: relative; display: inline-flex; align-items: center; width: 36px; height: 20px; border-radius: 9999px; cursor: pointer; transition: background-color 0.2s; border: none; outline: none; flex-shrink: 0; }
+        .scroll-toggle .thumb { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: white; transition: transform 0.2s; }
+        .scroll-toggle.on { background: #34A853; }
+        .scroll-toggle.off { background: #4B5563; }
+        .scroll-toggle.on .thumb { transform: translateX(18px); }
+        .scroll-toggle.off .thumb { transform: translateX(3px); }
     </style>
 </head>
 <body class="min-h-screen flex">
