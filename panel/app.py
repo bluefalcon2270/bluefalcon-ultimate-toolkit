@@ -312,6 +312,9 @@ def openvpn_dashboard():
     settings = conn.execute("SELECT * FROM settings WHERE server_name='openvpn'").fetchone()
     conn.close()
     
+    if settings is None:
+        settings = {'is_installed': 0}
+    
     live_traffic, _, _ = get_traffic()
     user_stats = {}
     
@@ -384,8 +387,11 @@ def wireguard():
     if 'admin_logged_in' not in session: return redirect(url_for('login'))
     
     conn = get_db_connection()
-    is_installed = conn.execute("SELECT is_installed FROM settings WHERE server_name='wireguard'").fetchone()[0] == 1
-    wg_port = conn.execute("SELECT port FROM settings WHERE server_name='wireguard'").fetchone()[0]
+    is_installed_row = conn.execute("SELECT is_installed FROM settings WHERE server_name='wireguard'").fetchone()
+    is_installed = is_installed_row[0] == 1 if is_installed_row else False
+    
+    wg_port_row = conn.execute("SELECT port FROM settings WHERE server_name='wireguard'").fetchone()
+    wg_port = wg_port_row[0] if wg_port_row else 51820
     
     users_data = []
     if is_installed:
