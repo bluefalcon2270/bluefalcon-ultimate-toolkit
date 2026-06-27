@@ -9,7 +9,7 @@
     <div class="bg-gradient-to-r from-[#1A2B4C] to-[#0B2559] rounded-2xl p-8 shadow-lg border border-[#2A3B6C] flex justify-between items-center text-[#A8C7FA]">
         <div class="text-xl font-bold tracking-wide">Protocol: <span class="text-white">{{ settings['protocol'] | upper }}</span></div>
         <div class="text-xl font-bold tracking-wide">Port: <span class="text-white">{{ settings['port'] }}</span></div>
-        <div class="text-xl font-bold tracking-wide">Sim...Users: <span class="text-white">{% if settings['conn_limit'] == '1' %}Limited (1){% else %}Unlimited{% endif %}</span></div>
+        <div class="text-xl font-bold tracking-wide">Simultaneous Users: <span class="text-white">{% if settings['conn_limit'] == '1' %}Limited (1){% else %}Unlimited{% endif %}</span></div>
     </div>
 
     <!-- Add New User Form -->

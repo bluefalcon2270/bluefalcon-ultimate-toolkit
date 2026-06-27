@@ -6,74 +6,82 @@
 <div class="max-w-5xl space-y-6">
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- TRUE SERVER IP -->
         <div class="material-card p-6">
-            <h3 class="text-sm font-semibold text-[#0B57D0] uppercase tracking-wider mb-4">True Server IP</h3>
+            <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">True Server IP</h3>
             <div class="space-y-4">
-                <div class="bg-gray-100 rounded-xl p-3 relative flex items-center justify-center border border-gray-100">
-                    <span class="font-mono text-sm text-gray-800">{{ trace.v4_vps }}</span>
-                    <div class="absolute right-4 w-4 h-4 rounded-full border border-gray-500"></div>
+                <div class="bg-[#2C2C2E] rounded-xl p-3 relative flex items-center justify-center border border-[#3A3A3C]">
+                    <span class="font-mono text-sm text-gray-200">{{ trace.v4_vps }}</span>
+                    <div class="absolute right-4 w-4 h-4 rounded-full bg-[#34A853]"></div>
                 </div>
-                <div class="bg-gray-100 rounded-xl p-3 relative flex items-center justify-center border border-gray-100">
-                    <span class="font-mono text-sm text-gray-800 truncate max-w-[80%]">{{ trace.v6_vps }}</span>
-                    <div class="absolute right-4 w-4 h-4 rounded-full border border-gray-500"></div>
+                <div class="bg-[#2C2C2E] rounded-xl p-3 relative flex items-center justify-center border border-[#3A3A3C]">
+                    <span class="font-mono text-sm text-gray-200 truncate max-w-[80%]">{{ trace.v6_vps }}</span>
+                    <div class="absolute right-4 w-4 h-4 rounded-full bg-[#34A853]"></div>
                 </div>
             </div>
         </div>
 
+        <!-- WARP IP -->
         <div class="material-card p-6">
-            <h3 class="text-sm font-semibold text-[#0B57D0] uppercase tracking-wider mb-4">WARP IP</h3>
-            <div class="space-y-4">
-                <div class="bg-gray-100 rounded-xl p-3 relative flex items-center justify-center border border-gray-100">
-                    <span class="font-mono text-sm text-gray-800">{{ trace.v4_warp if is_installed else trace.v4_vps }}</span>
-                    {% if trace.v4_status in ['on', 'plus'] %}
-                        <div class="absolute right-4 w-4 h-4 rounded-full bg-[#34A853]"></div>
-                    {% else %}
-                        <div class="absolute right-4 w-4 h-4 rounded-full border border-gray-500"></div>
-                    {% endif %}
+            <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">WARP IP</h3>
+            {% if is_installed %}
+                <div class="space-y-4">
+                    <div class="bg-[#2C2C2E] rounded-xl p-3 relative flex items-center justify-center border border-[#3A3A3C]">
+                        <span class="font-mono text-sm text-gray-200">{{ trace.v4_warp }}</span>
+                        {% if trace.v4_status in ['on', 'plus'] %}
+                            <div class="absolute right-4 w-4 h-4 rounded-full bg-[#34A853]"></div>
+                        {% else %}
+                            <div class="absolute right-4 w-4 h-4 rounded-full border border-gray-500"></div>
+                        {% endif %}
+                    </div>
+                    <div class="bg-[#2C2C2E] rounded-xl p-3 relative flex items-center justify-center border border-[#3A3A3C]">
+                        <span class="font-mono text-sm text-gray-200 truncate max-w-[80%]">{{ trace.v6_warp }}</span>
+                        {% if trace.v6_status in ['on', 'plus'] %}
+                            <div class="absolute right-4 w-4 h-4 rounded-full bg-[#34A853]"></div>
+                        {% else %}
+                            <div class="absolute right-4 w-4 h-4 rounded-full border border-gray-500"></div>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="bg-gray-100 rounded-xl p-3 relative flex items-center justify-center border border-gray-100">
-                    <span class="font-mono text-sm text-gray-800 truncate max-w-[80%]">{{ trace.v6_warp if is_installed else trace.v6_vps }}</span>
-                    {% if trace.v6_status in ['on', 'plus'] %}
-                        <div class="absolute right-4 w-4 h-4 rounded-full bg-[#34A853]"></div>
-                    {% else %}
-                        <div class="absolute right-4 w-4 h-4 rounded-full border border-gray-500"></div>
-                    {% endif %}
+            {% else %}
+                <div class="h-[120px] flex items-center justify-center border border-dashed border-[#3A3A3C] rounded-xl bg-[#1F1F22]">
+                    <span class="text-gray-500 text-sm font-medium">WARP Not Installed</span>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 
-    <div class="material-card p-4 transition-all" id="warpMainBox">
+    <div class="material-card p-6 transition-all border border-[#2C2C2E]" id="warpMainBox">
         <div id="warpControls">
             {% if is_installed %}
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div>
-                        <h3 class="text-base font-semibold text-gray-800">Engine Controls</h3>
+                        <h3 class="text-base font-bold text-white">Engine Controls</h3>
                     </div>
                     <div class="flex gap-3">
                         {% if trace.v4_status in ['on', 'plus'] or trace.v6_status in ['on', 'plus'] %}
-                            <a href="/warp/action/toggle" class="bg-[#FCE8E6] hover:bg-[#FAD2CF] text-[#B3261E] px-5 py-2 rounded-lg font-medium transition text-sm">Stop</a>
+                            <a href="/warp/action/toggle" style="background-color: #FCE8E6 !important; color: #B3261E !important;" class="hover:opacity-80 px-6 py-2.5 rounded-lg font-bold transition text-sm">Stop</a>
                         {% else %}
-                            <a href="/warp/action/toggle" class="bg-[#E6F4EA] hover:bg-[#CEEAD6] text-[#137333] px-5 py-2 rounded-lg font-medium transition text-sm">Start</a>
+                            <a href="/warp/action/toggle" style="background-color: #E6F4EA !important; color: #137333 !important;" class="hover:opacity-80 px-6 py-2.5 rounded-lg font-bold transition text-sm">Start</a>
                         {% endif %}
-                        <a href="#" onclick="if(confirm('Purge WARP entirely?')) { startWarpStream(event, 'uninstall'); } return false;" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-2 rounded-lg font-medium transition text-sm">Remove WARP From Server</a>
+                        <a href="#" onclick="if(confirm('Purge WARP entirely?')) { startWarpStream(event, 'uninstall'); } return false;" class="bg-[#1F1F22] border border-[#3A3A3C] hover:bg-[#2C2C2E] text-gray-200 px-5 py-2.5 rounded-lg font-bold transition text-sm">Remove WARP From Server</a>
                     </div>
                 </div>
             {% else %}
                 <form id="warpInstallForm" onsubmit="startWarpStream(event, 'install');" class="flex flex-col md:flex-row gap-4 items-end">
                     <div class="flex-1 w-full">
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Target Network</label>
-                        <select name="target" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Target Network</label>
+                        <select name="target" class="w-full px-4 py-2.5 bg-[#1F1F22] border border-[#2C2C2E] rounded-xl focus:border-[#A8C7FA] focus:ring-1 focus:ring-[#A8C7FA] outline-none text-sm text-gray-200 transition-all">
                             <option value="3">Dual-Stack (IPv4 & IPv6)</option>
                             <option value="1">IPv4 Exclusive</option>
                             <option value="2">IPv6 Exclusive</option>
                         </select>
                     </div>
                     <div class="flex-1 w-full">
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">WARP+ Key (Optional)</label>
-                        <input type="text" name="license" placeholder="Leave blank for free tier" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#0B57D0] outline-none">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">WARP+ Key (Optional)</label>
+                        <input type="text" name="license" placeholder="Leave blank for free tier" class="w-full px-4 py-2.5 bg-[#1F1F22] border border-[#2C2C2E] rounded-xl focus:border-[#A8C7FA] focus:ring-1 focus:ring-[#A8C7FA] outline-none text-sm text-gray-200 placeholder-gray-600 transition-all">
                     </div>
-                    <button type="submit" class="bg-[#0B57D0] hover:bg-[#0842A0] text-white px-6 py-2 rounded-lg font-medium transition text-sm h-10">Install</button>
+                    <button type="submit" class="bg-[#0B57D0] hover:bg-[#0842A0] text-white font-bold px-8 py-2.5 rounded-xl transition shadow-sm text-sm h-[42px]">Install</button>
                 </form>
             {% endif %}
         </div>

@@ -1,6 +1,12 @@
-VERSION="2.9"
+VERSION="3.0"
 
 # Changelog
+
+## [v3.0] - 2026-06-27
+### Fixed
+- **OpenVPN Layout Typo**: Corrected 'Sim...Users:' summary text to display 'Simultaneous Users:'.
+- **WARP UI States**: Fixed the active/inactive circle colors and conditional rendering. True Server IPs now properly always display as active (green). Uninstalled WARP now displays a clean placeholder instead of unmasked IPs.
+- **Engine Controls Theme**: Manually mapped the Start/Stop buttons to perfectly match the requested light-pastel mockup styling, overriding global dark mode.
 
 ## [v2.9] - 2026-06-27
 ### Fixed
