@@ -1,6 +1,12 @@
-VERSION="3.1"
+VERSION="3.2"
 
 # Changelog
+
+## [v3.2] - 2026-06-28
+### Added
+- **System Tools (Phase 1)**: Migrated 'Essentials' and 'Backup/Restore' from the CLI to a new dedicated Web Panel tab.
+- **Backup Vault**: Users can now create, restore, download, and delete full system backups directly from the web interface.
+- **Permanent System Terminal**: Added a permanently visible background terminal to execute system updates and restorations in real-time.
 
 ## [v3.1] - 2026-06-28
 ### Added

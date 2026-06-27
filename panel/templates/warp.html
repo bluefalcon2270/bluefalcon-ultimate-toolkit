@@ -96,15 +96,19 @@
             {% endif %}
         </div>
 
-        <div id="warpTerminalContainer" class="hidden">
+        <!-- Permanent Terminal Viewer -->
+        <div id="warpTerminalContainer" class="mt-6">
             <div class="mb-2 flex items-center justify-between">
-                <h3 class="text-sm font-semibold text-gray-800 flex items-center gap-2">
-                    <svg class="animate-spin h-4 w-4 text-[#0B57D0]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    Processing Engine Architecture
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <span id="terminalSpinner" class="hidden">
+                        <svg class="animate-spin h-4 w-4 text-[#34A853]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </span>
+                    <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M4 17h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    System Terminal Logs
                 </h3>
             </div>
-            <div class="bg-[#131314] rounded-xl overflow-hidden border border-gray-200">
-                <pre id="warpLogOutput" class="p-3 text-[#A8C7FA] font-mono text-xs h-40 overflow-y-auto whitespace-pre-wrap leading-relaxed"></pre>
+            <div class="bg-[#0F0F11] rounded-xl overflow-hidden border border-[#2C2C2E] shadow-inner">
+                <pre id="warpLogOutput" class="p-4 text-[#A8C7FA] font-mono text-sm h-96 overflow-y-auto whitespace-pre-wrap leading-relaxed">BlueFalcon OS > System ready. Waiting for tasks...</pre>
             </div>
         </div>
     </div>
@@ -133,7 +137,7 @@
         const controls = document.getElementById('warpControls');
         if (controls) controls.classList.add('hidden');
         
-        document.getElementById('warpTerminalContainer').classList.remove('hidden');
+        document.getElementById('terminalSpinner').classList.remove('hidden');
         const logWindow = document.getElementById('warpLogOutput');
         
         if (pollInterval) clearInterval(pollInterval);
@@ -148,6 +152,7 @@
                     }
                     if (data.status === 'done') {
                         clearInterval(pollInterval);
+                        document.getElementById('terminalSpinner').classList.add('hidden');
                         setTimeout(() => window.location.reload(), 1500);
                     }
                 });
@@ -161,6 +166,9 @@
             .then(data => {
                 if (data.status === 'running') {
                     showTerminalAndPoll();
+                } else if (data.log) {
+                    // Show previous log if it exists but is finished
+                    document.getElementById('warpLogOutput').innerHTML = data.log;
                 }
             });
     });

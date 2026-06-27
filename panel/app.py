@@ -341,6 +341,141 @@ def warp_log():
 
 
 
+
+# --- System Tools ---
+def run_system_task(action, payload=None):
+    log_file = '/tmp/system_task.log'
+    with open(log_file, 'w') as f:
+        if action == 'update_system':
+            f.write("🚀 STARTING FULL SYSTEM UPDATE...\n\n")
+            f.flush()
+            process = subprocess.Popen(
+                'apt update -y && apt upgrade -y',
+                shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+            )
+            for line in iter(process.stdout.readline, ''):
+                f.write(line); f.flush()
+            process.wait()
+            f.write("\n\n🟢 SYSTEM UPDATE COMPLETE.\n\n")
+
+        elif action == 'create_backup':
+            f.write("📦 CREATING SYSTEM BACKUP...\n\n"); f.flush()
+            timestamp = time.strftime("%Y%m%d_%H%M%S")
+            backup_dir = "/var/backups/bluefalcon"
+            os.makedirs(backup_dir, exist_ok=True)
+            backup_file = f"{backup_dir}/bf_backup_{timestamp}.tar.gz"
+            paths = []
+            if os.path.exists("/etc/openvpn/server"): paths.append("/etc/openvpn/server")
+            if os.path.exists(f"{APP_DIR}/panel.db"): paths.append(f"{APP_DIR}/panel.db")
+            if os.path.exists("/etc/wireguard"): paths.append("/etc/wireguard")
+            if not paths:
+                f.write("⚠️  No configurations found to backup.\n\n")
+            else:
+                f.write(f"Backing up: {', '.join(paths)}\n\n")
+                process = subprocess.Popen(
+                    f"tar -czvf {backup_file} {' '.join(paths)}",
+                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+                )
+                for line in iter(process.stdout.readline, ''):
+                    f.write(line); f.flush()
+                process.wait()
+                if process.returncode == 0:
+                    size = os.path.getsize(backup_file) / (1024 * 1024)
+                    f.write(f"\n\n🟢 BACKUP CREATED SUCCESSFULLY\nFile: {backup_file}\nSize: {size:.2f} MB\n\n")
+                else:
+                    f.write("\n\n🔴 BACKUP FAILED.\n\n")
+
+        elif action == 'restore_backup':
+            f.write(f"🔄 RESTORING BACKUP: {payload}...\n\n"); f.flush()
+            backup_file = f"/var/backups/bluefalcon/{payload}"
+            if not os.path.exists(backup_file):
+                f.write("🔴 Error: Backup file not found.\n\n")
+            else:
+                process = subprocess.Popen(
+                    f"tar -xzvf {backup_file} -C /",
+                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+                )
+                for line in iter(process.stdout.readline, ''):
+                    f.write(line); f.flush()
+                process.wait()
+                f.write("\nRestarting services...\n")
+                os.system("systemctl restart openvpn-server@server 2>/dev/null")
+                os.system("systemctl restart bluefalcon-panel 2>/dev/null")
+                f.write("\n🟢 RESTORE COMPLETED SUCCESSFULLY.\n\n")
+
+        f.write("[DONE]\n")
+
+@app.route('/system')
+def system_tools():
+    if 'admin_logged_in' not in session: return redirect(url_for('login'))
+
+    # Get current SSH port
+    ssh_port = "22"
+    try:
+        with open("/etc/ssh/sshd_config", "r") as f:
+            for line in f:
+                if line.strip().startswith("Port "):
+                    ssh_port = line.strip().split()[1]; break
+    except: pass
+
+    # List backups
+    backups = []
+    backup_dir = "/var/backups/bluefalcon"
+    if os.path.exists(backup_dir):
+        for fname in sorted(os.listdir(backup_dir), reverse=True):
+            if fname.endswith('.tar.gz'):
+                path = os.path.join(backup_dir, fname)
+                size = os.path.getsize(path) / (1024 * 1024)
+                date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.path.getmtime(path)))
+                backups.append({"filename": fname, "size": f"{size:.2f} MB", "date": date})
+
+    return render_template('system.html', ssh_port=ssh_port, backups=backups)
+
+@app.route('/api/system_action', methods=['POST'])
+def system_action():
+    if 'admin_logged_in' not in session: return jsonify({"error": "Unauthorized"}), 401
+    action = request.args.get('action') or request.form.get('action')
+    payload = request.form.get('filename')
+    threading.Thread(target=run_system_task, args=(action, payload), daemon=True).start()
+    return jsonify({"status": "started"})
+
+@app.route('/api/system_log')
+def system_log():
+    if 'admin_logged_in' not in session: return jsonify({"error": "Unauthorized"}), 401
+    try:
+        with open('/tmp/system_task.log', 'r') as f:
+            content = f.read()
+        status = "done" if "[DONE]" in content else "running"
+        content = content.replace("[DONE]\n", "")
+        return jsonify({"log": content, "status": status})
+    except:
+        return jsonify({"log": "", "status": "not_running"})
+
+@app.route('/api/change_ssh', methods=['POST'])
+def change_ssh():
+    if 'admin_logged_in' not in session: return redirect(url_for('login'))
+    new_port = request.form.get('ssh_port', '').strip()
+    if new_port.isdigit() and 1 <= int(new_port) <= 65535:
+        os.system(f"sed -i 's/^#*Port .*/Port {new_port}/' /etc/ssh/sshd_config")
+        os.system("systemctl restart sshd 2>/dev/null || service ssh restart 2>/dev/null")
+    return redirect(url_for('system_tools'))
+
+@app.route('/api/delete_backup', methods=['POST'])
+def delete_backup():
+    if 'admin_logged_in' not in session: return redirect(url_for('login'))
+    filename = request.form.get('filename', '')
+    if filename and filename.endswith('.tar.gz'):
+        path = f"/var/backups/bluefalcon/{filename}"
+        if os.path.exists(path): os.remove(path)
+    return redirect(url_for('system_tools'))
+
+@app.route('/download_backup/<filename>')
+def download_backup(filename):
+    if 'admin_logged_in' not in session: return redirect(url_for('login'))
+    path = f"/var/backups/bluefalcon/{filename}"
+    if not os.path.exists(path): return "Backup not found", 404
+    return send_file(path, as_attachment=True)
+
 # --- Preferences (Settings, Logs, About) ---
 @app.route('/preferences', methods=['GET', 'POST'])
 def preferences():
