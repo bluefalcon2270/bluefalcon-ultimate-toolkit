@@ -8,7 +8,7 @@
 
 set -uo pipefail
 
-# Resolve true directory even when executed from a symlink (/usr/local/bin/bf-ui)
+# Resolve true directory even when executed from a symlink (/usr/local/bin/bfp)
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 
 # --- Load Core Dependencies ---

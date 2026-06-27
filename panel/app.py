@@ -408,28 +408,34 @@ def run_system_task(action, payload=None):
 @app.route('/system')
 def system_tools():
     if 'admin_logged_in' not in session: return redirect(url_for('login'))
+    active_tab = request.args.get('tab', 'update')
 
-    # Get current SSH port
-    ssh_port = "22"
-    try:
-        with open("/etc/ssh/sshd_config", "r") as f:
-            for line in f:
-                if line.strip().startswith("Port "):
-                    ssh_port = line.strip().split()[1]; break
-    except: pass
+    # SSH settings via sshd -T
+    def get_ssh(key, default):
+        try:
+            out = os.popen(f"sshd -T 2>/dev/null | grep -i '^{key} '").read().strip()
+            return out.split()[1] if out else default
+        except: return default
 
-    # List backups
-    backups = []
-    backup_dir = "/var/backups/bluefalcon"
-    if os.path.exists(backup_dir):
-        for fname in sorted(os.listdir(backup_dir), reverse=True):
-            if fname.endswith('.tar.gz'):
-                path = os.path.join(backup_dir, fname)
-                size = os.path.getsize(path) / (1024 * 1024)
-                date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.path.getmtime(path)))
-                backups.append({"filename": fname, "size": f"{size:.2f} MB", "date": date})
+    ssh_port   = get_ssh('port', '22')
+    ssh_pw     = get_ssh('passwordauthentication', 'yes')
+    ssh_pubkey = get_ssh('pubkeyauthentication', 'yes')
 
-    return render_template('system.html', ssh_port=ssh_port, backups=backups)
+    # Package list with status
+    std_pkgs = ['curl', 'wget', 'git', 'htop', 'unzip', 'zip', 'nano',
+                'net-tools', 'tmux', 'screen', 'socat', 'cron',
+                'ufw', 'iptables', 'nftables', 'qrencode', 'dnsutils']
+    packages = []
+    for pkg in std_pkgs:
+        installed = os.system(f"dpkg-query -W -f='${{Status}}' {pkg} 2>/dev/null | grep -q 'ok installed'") == 0
+        packages.append({'name': pkg, 'installed': installed})
+    docker_ok = os.system("command -v docker >/dev/null 2>&1") == 0
+    packages.append({'name': 'docker + compose', 'installed': docker_ok})
+
+    return render_template('system.html',
+        active_tab=active_tab,
+        ssh_port=ssh_port, ssh_pw=ssh_pw, ssh_pubkey=ssh_pubkey,
+        packages=packages)
 
 @app.route('/api/system_action', methods=['POST'])
 def system_action():
@@ -457,8 +463,20 @@ def change_ssh():
     new_port = request.form.get('ssh_port', '').strip()
     if new_port.isdigit() and 1 <= int(new_port) <= 65535:
         os.system(f"sed -i 's/^#*Port .*/Port {new_port}/' /etc/ssh/sshd_config")
-        os.system("systemctl restart sshd 2>/dev/null || service ssh restart 2>/dev/null")
-    return redirect(url_for('system_tools'))
+        os.system("sshd -t && (systemctl restart sshd 2>/dev/null || service ssh restart 2>/dev/null)")
+    return redirect(url_for('system_tools', tab='ssh'))
+
+@app.route('/api/toggle_ssh', methods=['POST'])
+def toggle_ssh():
+    if 'admin_logged_in' not in session: return redirect(url_for('login'))
+    key = request.form.get('key', '')
+    current = request.form.get('current', 'yes').lower()
+    new_val = 'no' if current == 'yes' else 'yes'
+    allowed_keys = {'PasswordAuthentication', 'PubkeyAuthentication'}
+    if key in allowed_keys:
+        os.system(f"sed -i 's/^#*{key}.*/{key} {new_val}/' /etc/ssh/sshd_config")
+        os.system("sshd -t && (systemctl restart sshd 2>/dev/null || service ssh restart 2>/dev/null)")
+    return redirect(url_for('system_tools', tab='ssh'))
 
 @app.route('/api/delete_backup', methods=['POST'])
 def delete_backup():
@@ -467,7 +485,7 @@ def delete_backup():
     if filename and filename.endswith('.tar.gz'):
         path = f"/var/backups/bluefalcon/{filename}"
         if os.path.exists(path): os.remove(path)
-    return redirect(url_for('system_tools'))
+    return redirect(url_for('preferences', tab='backup'))
 
 @app.route('/download_backup/<filename>')
 def download_backup(filename):
@@ -568,6 +586,18 @@ def preferences():
             elif log_type == 'cron': logs = os.popen("journalctl -u cron -n 100 --no-pager").read()
         except Exception as e: logs = f"Error reading logs: {e}"
 
+    # Load backups for backup tab
+    backups = []
+    if active_tab == 'backup':
+        backup_dir = "/var/backups/bluefalcon"
+        if os.path.exists(backup_dir):
+            for fname in sorted(os.listdir(backup_dir), reverse=True):
+                if fname.endswith('.tar.gz'):
+                    path = os.path.join(backup_dir, fname)
+                    size = os.path.getsize(path) / (1024 * 1024)
+                    date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.path.getmtime(path)))
+                    backups.append({"filename": fname, "size": f"{size:.2f} MB", "date": date})
+
     app_version = "v2.5"
     try:
         with open(f"{APP_DIR}/CHANGELOG.md", "r") as f:
@@ -576,7 +606,7 @@ def preferences():
                 app_version = "v" + first_line.split('"')[1]
     except: pass
     
-    return render_template('preferences.html', settings=settings, admin=admin, logs=logs, current_type=log_type, active_tab=active_tab, app_version=app_version)
+    return render_template('preferences.html', settings=settings, admin=admin, logs=logs, current_type=log_type, active_tab=active_tab, app_version=app_version, backups=backups)
 
 @app.route('/toggle/<sys_name>')
 def toggle(sys_name):

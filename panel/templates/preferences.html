@@ -8,6 +8,7 @@
     <div class="flex border-b border-gray-800 mb-6 space-x-8">
         <a href="/preferences?tab=settings" class="py-4 px-2 border-b-2 transition-colors font-medium text-sm tracking-wide {% if active_tab == 'settings' %}border-[#A8C7FA] text-[#A8C7FA]{% else %}border-transparent text-gray-500 hover:text-gray-300{% endif %}">Master Settings</a>
         <a href="/preferences?tab=logs" class="py-4 px-2 border-b-2 transition-colors font-medium text-sm tracking-wide {% if active_tab == 'logs' %}border-[#A8C7FA] text-[#A8C7FA]{% else %}border-transparent text-gray-500 hover:text-gray-300{% endif %}">Log Center</a>
+        <a href="/preferences?tab=backup" class="py-4 px-2 border-b-2 transition-colors font-medium text-sm tracking-wide {% if active_tab == 'backup' %}border-[#A8C7FA] text-[#A8C7FA]{% else %}border-transparent text-gray-500 hover:text-gray-300{% endif %}">Backup &amp; Restore</a>
         <a href="/preferences?tab=about" class="py-4 px-2 border-b-2 transition-colors font-medium text-sm tracking-wide {% if active_tab == 'about' %}border-[#A8C7FA] text-[#A8C7FA]{% else %}border-transparent text-gray-500 hover:text-gray-300{% endif %}">About</a>
     </div>
 
@@ -118,6 +119,120 @@
             </div>
         </div>
     </div>
+    {% endif %}
+
+    <!-- Backup & Restore Tab -->
+    {% if active_tab == 'backup' %}
+    <div class="flex-1 flex flex-col min-h-0 overflow-y-auto">
+        <div class="material-card p-6 mb-5">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <h2 class="text-base font-bold text-white">Backup Vault</h2>
+                    <p class="text-sm text-gray-500 mt-0.5">Backups are stored at <code class="text-[#A8C7FA] text-xs">/var/backups/bluefalcon/</code></p>
+                </div>
+                <form onsubmit="runBackupAction(event, 'create_backup')">
+                    <button type="submit" class="flex items-center gap-2 bg-[#1A3326] hover:bg-[#34A853] text-[#34A853] hover:text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all border border-[#2A5A3C]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Create Backup
+                    </button>
+                </form>
+            </div>
+            <div class="rounded-xl border border-[#2C2C2E] overflow-hidden">
+                {% if backups %}
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-[#1C1C1E] text-gray-500 text-xs font-bold uppercase tracking-wider border-b border-[#2C2C2E]">
+                            <th class="py-3 px-4 text-left">File</th>
+                            <th class="py-3 px-4 text-center">Size</th>
+                            <th class="py-3 px-4 text-right">Date</th>
+                            <th class="py-3 px-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#2C2C2E]">
+                        {% for b in backups %}
+                        <tr class="hover:bg-[#1C1C1E] transition-colors">
+                            <td class="py-3 px-4 font-mono text-xs text-gray-200">{{ b.filename }}</td>
+                            <td class="py-3 px-4 text-center text-xs text-gray-400 font-mono">{{ b.size }}</td>
+                            <td class="py-3 px-4 text-right text-xs text-gray-500">{{ b.date }}</td>
+                            <td class="py-3 px-4">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="/download_backup/{{ b.filename }}" class="p-1.5 rounded-lg text-[#A8C7FA] hover:bg-[#1E3A5F] transition-all" title="Download">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                    </a>
+                                    <form onsubmit="confirmAndRunBackup(event, 'restore_backup', '{{ b.filename }}')" class="inline">
+                                        <button type="submit" class="p-1.5 rounded-lg text-[#34A853] hover:bg-[#1A3326] transition-all" title="Restore">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                        </button>
+                                    </form>
+                                    <form action="/api/delete_backup" method="POST" onsubmit="return confirm('Delete this backup?')" class="inline">
+                                        <input type="hidden" name="filename" value="{{ b.filename }}">
+                                        <button type="submit" class="p-1.5 rounded-lg text-[#F28B82] hover:bg-[#3B1A1A] transition-all" title="Delete">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="py-10 text-center">
+                    <p class="text-sm text-gray-500">No backups found</p>
+                    <p class="text-xs text-gray-600 mt-1">Click "Create Backup" to get started</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Terminal -->
+        <div class="material-card p-5 flex-1 flex flex-col">
+            <div class="flex items-center gap-2 mb-3">
+                <span id="backupSpinner" class="hidden">
+                    <svg class="animate-spin h-4 w-4 text-[#34A853]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                </span>
+                <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M4 17h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                <h3 class="text-sm font-bold text-white">Backup Terminal</h3>
+            </div>
+            <div class="bg-[#0F0F11] rounded-xl border border-[#2C2C2E] shadow-inner flex-1">
+                <pre id="backupLogOutput" class="p-4 text-[#A8C7FA] font-mono text-sm min-h-[220px] h-full overflow-y-auto whitespace-pre-wrap leading-relaxed">BlueFalcon OS > Backup vault ready.</pre>
+            </div>
+        </div>
+    </div>
+    <script>
+        let backupPoll = null;
+        function runBackupAction(event, action) {
+            event.preventDefault();
+            fetch('/api/system_action?action=' + action, { method: 'POST' }).then(() => startBackupPolling());
+        }
+        function confirmAndRunBackup(event, action, filename) {
+            event.preventDefault();
+            if (!confirm('Restore "' + filename + '"? This will overwrite config and restart services.')) return;
+            const fd = new FormData(); fd.append('action', action); fd.append('filename', filename);
+            fetch('/api/system_action', { method: 'POST', body: fd }).then(() => startBackupPolling());
+        }
+        function startBackupPolling() {
+            document.getElementById('backupSpinner').classList.remove('hidden');
+            const log = document.getElementById('backupLogOutput');
+            log.textContent = '';
+            if (backupPoll) clearInterval(backupPoll);
+            backupPoll = setInterval(() => {
+                fetch('/api/system_log').then(r => r.json()).then(data => {
+                    if (data.log) { log.textContent = data.log; log.scrollTop = log.scrollHeight; }
+                    if (data.status === 'done') {
+                        clearInterval(backupPoll);
+                        document.getElementById('backupSpinner').classList.add('hidden');
+                        setTimeout(() => window.location.reload(), 2000);
+                    }
+                });
+            }, 1000);
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/system_log').then(r => r.json()).then(data => {
+                if (data.status === 'running') startBackupPolling();
+                else if (data.log) document.getElementById('backupLogOutput').textContent = data.log;
+            });
+        });
+    </script>
     {% endif %}
 
     <!-- About Tab Content -->

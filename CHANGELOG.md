@@ -1,6 +1,13 @@
-VERSION="3.2"
+VERSION="3.3"
 
 # Changelog
+
+## [v3.3] - 2026-06-28
+### Changed
+- **System Tools**: Redesigned page with tabs (Update System, System Packages, SSH Settings). Each tab has its own context and the permanent terminal is present in applicable tabs.
+- **Backup/Restore**: Moved from System Tools to a dedicated tab inside Preferences.
+- **SSH Settings**: Added toggle switches for Password Auth and Pubkey Auth directly from the web panel.
+- **Terminal Command**: Renamed the CLI shortcut from `bf-ui` to `bfp` for faster access.
 
 ## [v3.2] - 2026-06-28
 ### Added
