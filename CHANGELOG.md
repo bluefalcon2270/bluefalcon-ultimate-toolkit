@@ -1,6 +1,11 @@
-VERSION="3.4"
+VERSION="3.5"
 
 # Changelog
+
+## [v3.5] - 2026-06-28
+### Fixed
+- **System Packages**: Docker Engine and Docker Compose are now correctly installed via the "Install Missing" button. Previously, it skipped the Docker repository setup.
+- **Terminal Formatting**: The system update and package installation terminal logs now perfectly mirror the CLI menu's exact text layout and hide raw `apt` output during package installation.
 
 ## [v3.4] - 2026-06-28
 ### Added

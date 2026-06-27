@@ -387,10 +387,10 @@ def run_system_task(action, payload=None):
     log_file = '/tmp/system_task.log'
     with open(log_file, 'w') as f:
         if action == 'update_system':
-            f.write(f"🚀 {_BB}STARTING FULL SYSTEM UPDATE...{_NC}\n\n")
-            f.write(f"{_BB}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{_NC}\n")
-            f.write(f"{_BB}  Updating Package Repositories{_NC}\n")
-            f.write(f"{_BB}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{_NC}\n\n")
+            f.write(f"{_BB}-----------------------------------------------------{_NC}\n")
+            f.write(f"{_BB}                    Update System                    {_NC}\n")
+            f.write(f"{_BB}-----------------------------------------------------{_NC}\n\n")
+            f.write(f"{_BB}--- Updating Repositories ---{_NC}\n")
             f.flush()
             process = subprocess.Popen(
                 'DEBIAN_FRONTEND=noninteractive apt-get update -y',
@@ -399,9 +399,8 @@ def run_system_task(action, payload=None):
             for line in iter(process.stdout.readline, ''):
                 f.write(line); f.flush()
             process.wait()
-            f.write(f"\n{_BB}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{_NC}\n")
-            f.write(f"{_BB}  Upgrading Packages{_NC}\n")
-            f.write(f"{_BB}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{_NC}\n\n")
+            
+            f.write(f"\n{_BB}--- Upgrading Packages ---{_NC}\n")
             f.flush()
             process = subprocess.Popen(
                 'DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"',
@@ -410,22 +409,48 @@ def run_system_task(action, payload=None):
             for line in iter(process.stdout.readline, ''):
                 f.write(line); f.flush()
             process.wait()
-            f.write(f"\n[ {_GRN}✔{_NC} ] System update and upgrade complete.\n\n")
+            f.write(f"\n[ {_GRN}✔{_NC} ] System update and upgrade successfully finished!\n\n")
 
         elif action == 'install_packages':
             pkgs = ['curl','wget','git','htop','unzip','zip','nano','net-tools',
                     'tmux','screen','socat','cron','ufw','iptables','nftables','qrencode','dnsutils']
-            f.write(f"📦 {_BB}INSTALLING SYSTEM PACKAGES...{_NC}\n\n")
-            f.write(f"{_BB}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{_NC}\n\n")
+            f.write(f"{_BB}-----------------------------------------------------{_NC}\n")
+            f.write(f"{_BB}                   System Packages                   {_NC}\n")
+            f.write(f"{_BB}-----------------------------------------------------{_NC}\n\n")
             f.flush()
-            process = subprocess.Popen(
-                f'DEBIAN_FRONTEND=noninteractive apt-get install -y {" ".join(pkgs)}',
-                shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
-            )
-            for line in iter(process.stdout.readline, ''):
-                f.write(line); f.flush()
-            process.wait()
-            f.write(f"\n[ {_GRN}✔{_NC} ] Package installation complete.\n\n")
+            
+            # 1. Install missing standard packages silently
+            for pkg in pkgs:
+                check = subprocess.run(f"dpkg-query -W -f='${{Status}}' {pkg} 2>/dev/null", shell=True, capture_output=True, text=True)
+                if "ok installed" not in check.stdout:
+                    subprocess.run(f"DEBIAN_FRONTEND=noninteractive apt-get install -yq {pkg} >/dev/null 2>&1", shell=True)
+                f.write(f"[ {_GRN}✔{_NC} ] {pkg}\n")
+                f.flush()
+                
+            # 2. Check and Install Docker
+            docker_installed = False
+            if subprocess.run("command -v docker", shell=True).returncode == 0:
+                check_compose = subprocess.run("dpkg-query -W -f='${Status}' docker-compose-plugin 2>/dev/null", shell=True, capture_output=True, text=True)
+                if "ok installed" in check_compose.stdout:
+                    docker_installed = True
+            
+            if not docker_installed:
+                docker_cmd = """
+                export DEBIAN_FRONTEND=noninteractive
+                apt-get update -y >/dev/null 2>&1
+                apt-get install -y ca-certificates curl gnupg lsb-release >/dev/null 2>&1
+                install -m 0755 -d /etc/apt/keyrings
+                curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" -o /etc/apt/keyrings/docker.asc
+                chmod a+r /etc/apt/keyrings/docker.asc
+                echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list >/dev/null 2>&1
+                apt-get update -y >/dev/null 2>&1
+                apt-get install -yq docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin >/dev/null 2>&1
+                """
+                subprocess.run(docker_cmd, shell=True)
+                
+            f.write(f"[ {_GRN}✔{_NC} ] Docker Engine & Compose\n")
+            f.write("\nInstallation process finished,\n\n")
+            f.flush()
 
         elif action == 'create_backup':
             f.write(f"📦 {_BB}CREATING SYSTEM BACKUP...{_NC}\n\n")
