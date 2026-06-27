@@ -1,6 +1,6 @@
 # /opt/bluefalcon-ultimate-toolkit/panel/app.py
 from flask import Flask, render_template, request, redirect, url_for, session, send_file, Response, jsonify
-import sqlite3, os, time, subprocess, re, psutil
+import sqlite3, os, time, subprocess, re, psutil, threading
 
 app = Flask(__name__)
 app.secret_key = 'BlueFalcon_Enterprise_Secret_Key_2026'
@@ -280,47 +280,66 @@ def warp_action(action):
         os.system(f"bash {script_path} toggle")
     return redirect(url_for('warp_dashboard'))
 
+def run_warp_script(action, script_path, target='3', license_key='free'):
+    log_file = '/tmp/warp_install.log'
+    with open(log_file, 'w') as f:
+        if action == 'install':
+            f.write("🚀 INITIALIZING CLOUDFLARE WARP ENGINE...\n\n")
+            process = subprocess.Popen(['bash', script_path, 'install', target, license_key], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            for line in iter(process.stdout.readline, ''):
+                f.write(line)
+                f.flush()
+            process.wait()
+            
+            conn = sqlite3.connect(DB_PATH)
+            conn.execute('UPDATE warp SET is_installed=1')
+            conn.commit(); conn.close()
+            
+            f.write("\n\n🟢 WARP ENGINE DEPLOYED SUCCESSFULLY.\n\n")
+        elif action == 'uninstall':
+            f.write("🗑️ PURGING CLOUDFLARE WARP ENGINE...\n\n")
+            process = subprocess.Popen(['bash', script_path, 'uninstall'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            for line in iter(process.stdout.readline, ''):
+                f.write(line)
+                f.flush()
+            process.wait()
+            
+            conn = sqlite3.connect(DB_PATH)
+            conn.execute('UPDATE warp SET is_installed=0')
+            conn.commit(); conn.close()
+            
+            f.write("\n\n🔴 WARP ENGINE PURGED.\n\n")
+            
+        f.write("[DONE]\n")
+
 @app.route('/api/warp_stream')
 def warp_stream():
-    if 'admin_logged_in' not in session: return Response("Unauthorized", status=401)
+    if 'admin_logged_in' not in session: return jsonify({"error": "Unauthorized"}), 401
     
     action = request.args.get('action')
     target = request.args.get('target', '3')
     license_key = request.args.get('license', 'free')
+    script_path = f"{APP_DIR}/scripts/action.sh"
+    
+    # Start background thread
+    threading.Thread(target=run_warp_script, args=(action, script_path, target, license_key)).start()
+    return jsonify({"status": "started"})
 
-    def generate():
-        script_path = f"{APP_DIR}/scripts/action.sh"
-        if action == 'install':
-            yield "data: 🚀 INITIALIZING CLOUDFLARE WARP ENGINE...\n\n"
-            process = subprocess.Popen(['bash', script_path, 'install', target, license_key], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-            for line in iter(process.stdout.readline, ''):
-                yield f"data: {line}\n\n"
-            process.stdout.close(); process.wait()
-            
-            conn = get_db()
-            conn.execute('UPDATE warp SET is_installed=1')
-            conn.commit(); conn.close()
-            
-            yield "data: \n\n"
-            yield "data: 🟢 WARP ENGINE DEPLOYED SUCCESSFULLY.\n\n"
-            yield "data: [DONE]\n\n"
-            
-        elif action == 'uninstall':
-            yield "data: 🗑️ PURGING CLOUDFLARE WARP ENGINE...\n\n"
-            process = subprocess.Popen(['bash', script_path, 'uninstall'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-            for line in iter(process.stdout.readline, ''):
-                yield f"data: {line}\n\n"
-            process.stdout.close(); process.wait()
-            
-            conn = get_db()
-            conn.execute('UPDATE warp SET is_installed=0')
-            conn.commit(); conn.close()
-            
-            yield "data: \n\n"
-            yield "data: 🔴 WARP ENGINE PURGED.\n\n"
-            yield "data: [DONE]\n\n"
-            
-    return Response(generate(), mimetype='text/event-stream')
+@app.route('/api/warp_log')
+def warp_log():
+    if 'admin_logged_in' not in session: return jsonify({"error": "Unauthorized"}), 401
+    try:
+        with open('/tmp/warp_install.log', 'r') as f:
+            content = f.read()
+        status = "running"
+        if "[DONE]" in content:
+            status = "done"
+            content = content.replace("[DONE]\n", "")
+        return jsonify({"log": content, "status": status})
+    except:
+        return jsonify({"log": "", "status": "not_running"})
+
+
 
 # --- Preferences (Settings, Logs, About) ---
 @app.route('/preferences', methods=['GET', 'POST'])

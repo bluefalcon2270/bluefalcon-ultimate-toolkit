@@ -9,7 +9,7 @@
     <div class="bg-gradient-to-r from-[#1A2B4C] to-[#0B2559] rounded-2xl p-8 shadow-lg border border-[#2A3B6C] flex justify-between items-center text-[#A8C7FA]">
         <div class="text-xl font-bold tracking-wide">Protocol: <span class="text-white">{{ settings['protocol'] | upper }}</span></div>
         <div class="text-xl font-bold tracking-wide">Port: <span class="text-white">{{ settings['port'] }}</span></div>
-        <div class="text-xl font-bold tracking-wide">Simultaneous Users: <span class="text-white">{% if settings['conn_limit'] == '1' %}Limited (1){% else %}Unlimited{% endif %}</span></div>
+        <div class="text-xl font-bold tracking-wide">Max Users: <span class="text-white">{% if settings['conn_limit'] == '1' %}Limited (1){% else %}Unlimited{% endif %}</span></div>
     </div>
 
     <!-- Add New User Form -->
@@ -18,18 +18,18 @@
         <form action="/openvpn" method="POST" class="flex flex-col md:flex-row items-end gap-4">
             <div class="flex-1 w-full">
                 <label class="block text-xs font-semibold text-gray-500 mb-2">Username</label>
-                <input type="text" name="new_user" placeholder="(Box to type)" required class="w-full px-4 py-2.5 bg-[#1F1F22] border border-[#2C2C2E] rounded-xl focus:border-[#A8C7FA] focus:ring-1 focus:ring-[#A8C7FA] outline-none text-sm text-gray-200 placeholder-gray-600 transition-all">
+                <input type="text" name="new_user" placeholder="Enter Username" required class="w-full px-4 py-2.5 bg-[#1F1F22] border border-[#2C2C2E] rounded-xl focus:border-[#A8C7FA] focus:ring-1 focus:ring-[#A8C7FA] outline-none text-sm text-gray-200 placeholder-gray-600 transition-all">
             </div>
             <div class="flex-1 w-full">
                 <label class="block text-xs font-semibold text-gray-500 mb-2">Password</label>
-                <input type="text" name="new_pass" placeholder="(Box to type)" required class="w-full px-4 py-2.5 bg-[#1F1F22] border border-[#2C2C2E] rounded-xl focus:border-[#A8C7FA] focus:ring-1 focus:ring-[#A8C7FA] outline-none text-sm text-gray-200 placeholder-gray-600 transition-all">
+                <input type="text" name="new_pass" placeholder="Enter Password" required class="w-full px-4 py-2.5 bg-[#1F1F22] border border-[#2C2C2E] rounded-xl focus:border-[#A8C7FA] focus:ring-1 focus:ring-[#A8C7FA] outline-none text-sm text-gray-200 placeholder-gray-600 transition-all">
             </div>
             <div class="flex-1 w-full">
-                <label class="block text-xs font-semibold text-gray-500 mb-2">Time</label>
-                <input type="number" name="exp_days" value="0" min="0" placeholder="(Box to type)" required class="w-full px-4 py-2.5 bg-[#1F1F22] border border-[#2C2C2E] rounded-xl focus:border-[#A8C7FA] focus:ring-1 focus:ring-[#A8C7FA] outline-none text-sm text-gray-200 placeholder-gray-600 transition-all">
+                <label class="block text-xs font-semibold text-gray-500 mb-2">Expiry Days</label>
+                <input type="number" name="exp_days" value="0" min="0" placeholder="0 = Unlimited" required class="w-full px-4 py-2.5 bg-[#1F1F22] border border-[#2C2C2E] rounded-xl focus:border-[#A8C7FA] focus:ring-1 focus:ring-[#A8C7FA] outline-none text-sm text-gray-200 placeholder-gray-600 transition-all">
             </div>
             <button type="submit" class="bg-transparent border-2 border-gray-200 hover:border-white text-gray-200 hover:text-white px-8 py-2.5 rounded-xl font-bold transition-all text-sm h-[42px] shadow-sm whitespace-nowrap">
-                Create Button
+                Add Client
             </button>
         </form>
     </div>
@@ -41,11 +41,11 @@
                 <thead>
                     <tr class="bg-[#1C1C1E] text-gray-500 text-xs font-bold uppercase tracking-wider border-b border-[#2C2C2E]">
                         <th class="py-4 px-6 w-10">#</th>
-                        <th class="py-4 px-6">Client Name</th>
-                        <th class="py-4 px-6">Client ID</th>
+                        <th class="py-4 px-6">Name</th>
+                        <th class="py-4 px-6">ID</th>
                         <th class="py-4 px-6 text-center">Status</th>
                         <th class="py-4 px-6 text-right">Traffic</th>
-                        <th class="py-4 px-6 text-right">Time Left</th>
+                        <th class="py-4 px-6 text-right">Expires</th>
                         <th class="py-4 px-6 text-right">Actions</th>
                     </tr>
                 </thead>

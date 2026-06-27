@@ -1,6 +1,13 @@
-VERSION="3.0"
+VERSION="3.1"
 
 # Changelog
+
+## [v3.1] - 2026-06-28
+### Added
+- **WARP Persistent Terminal**: The WARP installation process now runs in a background thread and logs to `/tmp/warp_install.log`. The frontend uses a collapsible terminal that resumes polling even after a page reload.
+### Changed
+- **OpenVPN UI Tweaks**: Removed literal placeholders from the Add User form, shortened 'Max Users', and simplified table headers.
+- **WARP IP Logic**: Applied Single Green Circle rule: True Server IP gets green when OFF, WARP IP gets green when ON. Inactive WARP IP displays as `Offline`.
 
 ## [v3.0] - 2026-06-27
 ### Fixed

@@ -12,11 +12,19 @@
             <div class="space-y-4">
                 <div class="bg-[#2C2C2E] rounded-xl p-3 relative flex items-center justify-center border border-[#3A3A3C]">
                     <span class="font-mono text-sm text-gray-200">{{ trace.v4_vps }}</span>
-                    <div class="absolute right-4 w-4 h-4 rounded-full bg-[#34A853]"></div>
+                    {% if trace.v4_status in ['on', 'plus'] %}
+                        <div class="absolute right-4 w-4 h-4 rounded-full border border-gray-500"></div>
+                    {% else %}
+                        <div class="absolute right-4 w-4 h-4 rounded-full bg-[#34A853]"></div>
+                    {% endif %}
                 </div>
                 <div class="bg-[#2C2C2E] rounded-xl p-3 relative flex items-center justify-center border border-[#3A3A3C]">
                     <span class="font-mono text-sm text-gray-200 truncate max-w-[80%]">{{ trace.v6_vps }}</span>
-                    <div class="absolute right-4 w-4 h-4 rounded-full bg-[#34A853]"></div>
+                    {% if trace.v6_status in ['on', 'plus'] %}
+                        <div class="absolute right-4 w-4 h-4 rounded-full border border-gray-500"></div>
+                    {% else %}
+                        <div class="absolute right-4 w-4 h-4 rounded-full bg-[#34A853]"></div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -27,18 +35,20 @@
             {% if is_installed %}
                 <div class="space-y-4">
                     <div class="bg-[#2C2C2E] rounded-xl p-3 relative flex items-center justify-center border border-[#3A3A3C]">
-                        <span class="font-mono text-sm text-gray-200">{{ trace.v4_warp }}</span>
                         {% if trace.v4_status in ['on', 'plus'] %}
+                            <span class="font-mono text-sm text-gray-200">{{ trace.v4_warp }}</span>
                             <div class="absolute right-4 w-4 h-4 rounded-full bg-[#34A853]"></div>
                         {% else %}
+                            <span class="font-mono text-sm text-gray-500 font-semibold tracking-wider">OFFLINE</span>
                             <div class="absolute right-4 w-4 h-4 rounded-full border border-gray-500"></div>
                         {% endif %}
                     </div>
                     <div class="bg-[#2C2C2E] rounded-xl p-3 relative flex items-center justify-center border border-[#3A3A3C]">
-                        <span class="font-mono text-sm text-gray-200 truncate max-w-[80%]">{{ trace.v6_warp }}</span>
                         {% if trace.v6_status in ['on', 'plus'] %}
+                            <span class="font-mono text-sm text-gray-200 truncate max-w-[80%]">{{ trace.v6_warp }}</span>
                             <div class="absolute right-4 w-4 h-4 rounded-full bg-[#34A853]"></div>
                         {% else %}
+                            <span class="font-mono text-sm text-gray-500 font-semibold tracking-wider">OFFLINE</span>
                             <div class="absolute right-4 w-4 h-4 rounded-full border border-gray-500"></div>
                         {% endif %}
                     </div>
@@ -101,34 +111,58 @@
 </div>
 
 <script>
+    let pollInterval = null;
+
     function startWarpStream(event, action) {
         event.preventDefault();
         
         let url = '/api/warp_stream?action=' + action;
-        
-        // Append form parameters if installing
         if (action === 'install') {
             const target = document.querySelector('select[name="target"]').value;
             const license = document.querySelector('input[name="license"]').value;
             url += `&target=${target}&license=${encodeURIComponent(license)}`;
         }
         
-        // Hide standard controls, show terminal
-        document.getElementById('warpControls').classList.add('hidden');
-        document.getElementById('warpTerminalContainer').classList.remove('hidden');
-        
-        const logWindow = document.getElementById('warpLogOutput');
-        const source = new EventSource(url);
-        
-        source.onmessage = function(e) {
-            if (e.data === "[DONE]") {
-                source.close();
-                setTimeout(() => window.location.reload(), 1500);
-            } else {
-                logWindow.innerHTML += e.data + "\n";
-                logWindow.scrollTop = logWindow.scrollHeight;
-            }
-        };
+        // Start background process
+        fetch(url).then(() => {
+            showTerminalAndPoll();
+        });
     }
+
+    function showTerminalAndPoll() {
+        const controls = document.getElementById('warpControls');
+        if (controls) controls.classList.add('hidden');
+        
+        document.getElementById('warpTerminalContainer').classList.remove('hidden');
+        const logWindow = document.getElementById('warpLogOutput');
+        
+        if (pollInterval) clearInterval(pollInterval);
+        
+        pollInterval = setInterval(() => {
+            fetch('/api/warp_log')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.log) {
+                        logWindow.innerHTML = data.log;
+                        logWindow.scrollTop = logWindow.scrollHeight;
+                    }
+                    if (data.status === 'done') {
+                        clearInterval(pollInterval);
+                        setTimeout(() => window.location.reload(), 1500);
+                    }
+                });
+        }, 1000);
+    }
+
+    // Auto-resume polling if page is loaded while installing
+    document.addEventListener("DOMContentLoaded", () => {
+        fetch('/api/warp_log')
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'running') {
+                    showTerminalAndPoll();
+                }
+            });
+    });
 </script>
 {% endblock %}
