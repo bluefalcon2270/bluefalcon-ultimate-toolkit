@@ -139,20 +139,21 @@ def sysinfo():
     if 'admin_logged_in' not in session: return {"error": "unauthorized"}, 401
     
     net_io = psutil.net_io_counters(pernic=True)
-    net_global_rx = 0; net_global_tx = 0
-    net_ovpn_rx = 0; net_ovpn_tx = 0
-    net_wg_rx = 0; net_wg_tx = 0
+    stats_data = {'global': {'rx': 0, 'tx': 0}, 'ovpn': {'rx': 0, 'tx': 0}, 'wg': {'rx': 0, 'tx': 0}, 'warp': {'rx': 0, 'tx': 0}}
     
-    for nic, stats in net_io.items():
+    for nic, io in net_io.items():
         if not nic.startswith(('lo', 'tun', 'wg', 'veth', 'docker', 'br-')):
-            net_global_rx += stats.bytes_recv
-            net_global_tx += stats.bytes_sent
+            stats_data['global']['rx'] += io.bytes_recv
+            stats_data['global']['tx'] += io.bytes_sent
+        elif nic.startswith('wgcf'):
+            stats_data['warp']['rx'] += io.bytes_recv
+            stats_data['warp']['tx'] += io.bytes_sent
         elif nic.startswith('tun'):
-            net_ovpn_rx += stats.bytes_recv
-            net_ovpn_tx += stats.bytes_sent
+            stats_data['ovpn']['rx'] += io.bytes_recv
+            stats_data['ovpn']['tx'] += io.bytes_sent
         elif nic.startswith('wg'):
-            net_wg_rx += stats.bytes_recv
-            net_wg_tx += stats.bytes_sent
+            stats_data['wg']['rx'] += io.bytes_recv
+            stats_data['wg']['tx'] += io.bytes_sent
 
     return {
         "cpu": psutil.cpu_percent(interval=None),
@@ -166,13 +167,7 @@ def sysinfo():
         "disk_percent": psutil.disk_usage('/').percent,
         "disk_used": format_bytes(psutil.disk_usage('/').used),
         "disk_total": format_bytes(psutil.disk_usage('/').total),
-        "net_rx": net_global_rx,
-        "net_tx": net_global_tx,
-        "net": {
-            "global": {"rx": net_global_rx, "tx": net_global_tx},
-            "ovpn": {"rx": net_ovpn_rx, "tx": net_ovpn_tx},
-            "wg": {"rx": net_wg_rx, "tx": net_wg_tx}
-        },
+        "net": stats_data,
         "uptime": int(time.time() - psutil.boot_time()),
         "threads": sum(p.info['num_threads'] for p in psutil.process_iter(['num_threads']) if p.info['num_threads']),
         "conn_tcp": len([c for c in psutil.net_connections(kind='tcp') if c.status == 'ESTABLISHED']),
@@ -264,7 +259,7 @@ def install_execute():
         wg_pending = conn.execute("SELECT is_installed FROM settings WHERE server_name='wireguard'").fetchone()[0] == -1
         conn.close()
 
-        yield "data: ðŸ¦… INITIALIZING BLUEFALCON DEPLOYMENT SEQUENCE\n\n"
+        yield "data: [INFO] INITIALIZING BLUEFALCON DEPLOYMENT SEQUENCE\n\n"
         time.sleep(1)
 
         if ovpn_pending:
@@ -310,7 +305,7 @@ def install_execute():
             conn.commit(); conn.close()
             
         yield "data: \n\n"
-        yield "data: ðŸŸ¢ DEPLOYMENT COMPLETE. REDIRECTING...\n\n"
+        yield "data: [SUCCESS] DEPLOYMENT COMPLETE. REDIRECTING...\n\n"
         
         conn = get_db()
         panel_port_row = conn.execute("SELECT panel_port FROM settings LIMIT 1").fetchone()
@@ -408,13 +403,13 @@ def openvpn_dashboard():
     return render_template('openvpn.html', users=users, settings=settings, stats=user_stats, current_time=int(time.time()))
 
 def run_ovpn_task(protocol, port, dns1, dns2):
-    log_file = '/tmp/system_task.log'
+    log_file = '/var/log/bluefalcon_deploy.log'
     
     # Save the parameters for core_setup.sh which reads from args or environment
     # Actually, core_setup.sh takes parameters or reads defaults. 
     # The original core_setup.sh relies on settings db for port/protocol/dns.
     # We must update the DB first, then run core_setup.sh
-    with open(log_file, 'w') as f:
+    with open(log_file, 'a') as f:
         process = subprocess.Popen(
             ['bash', f'{APP_DIR}/core/openvpn/core_setup.sh'],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
@@ -453,8 +448,8 @@ def openvpn_stream():
 
 # --- WIREGUARD ROUTES ---
 def run_wg_task(action, port):
-    log_file = '/tmp/system_task.log'
-    with open(log_file, 'w') as f:
+    log_file = '/var/log/bluefalcon_deploy.log'
+    with open(log_file, 'a') as f:
         if action == 'install':
             process = subprocess.Popen(
                 ['bash', f'{APP_DIR}/core/wireguard/core_setup.sh', str(port)],
@@ -613,10 +608,10 @@ def warp_action(action):
     return redirect(url_for('warp_dashboard'))
 
 def run_warp_script(action, script_path, target='3', license_key='free'):
-    log_file = '/tmp/warp_install.log'
-    with open(log_file, 'w') as f:
+    LOG_FILE = '/var/log/bluefalcon_deploy.log'
+    with open(LOG_FILE, 'a') as f:
         if action == 'install':
-            f.write("ðŸš€ INITIALIZING CLOUDFLARE WARP ENGINE...\n\n")
+            f.write("[INFO] INITIALIZING CLOUDFLARE WARP ENGINE...\n\n")
             process = subprocess.Popen(['bash', script_path, 'install', target, license_key], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             for line in iter(process.stdout.readline, ''):
                 f.write(line)
@@ -627,9 +622,9 @@ def run_warp_script(action, script_path, target='3', license_key='free'):
             conn.execute('UPDATE warp SET is_installed=1')
             conn.commit(); conn.close()
             
-            f.write("\n\nðŸŸ¢ WARP ENGINE DEPLOYED SUCCESSFULLY.\n\n")
+            f.write("\n\n[SUCCESS] WARP ENGINE DEPLOYED SUCCESSFULLY.\n\n")
         elif action == 'uninstall':
-            f.write("ðŸ—‘ï¸ PURGING CLOUDFLARE WARP ENGINE...\n\n")
+            f.write("[INFO] PURGING CLOUDFLARE WARP ENGINE...\n\n")
             process = subprocess.Popen(['bash', script_path, 'uninstall'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             for line in iter(process.stdout.readline, ''):
                 f.write(line)
@@ -640,7 +635,7 @@ def run_warp_script(action, script_path, target='3', license_key='free'):
             conn.execute('UPDATE warp SET is_installed=0')
             conn.commit(); conn.close()
             
-            f.write("\n\nðŸ”´ WARP ENGINE PURGED.\n\n")
+            f.write("\n\n[SUCCESS] WARP ENGINE PURGED.\n\n")
             
         f.write("[DONE]\n")
 
@@ -676,8 +671,8 @@ def warp_log():
 
 # --- System Tools ---
 def run_system_task(action, payload=None):
-    log_file = '/tmp/system_task.log'
-    with open(log_file, 'w') as f:
+    log_file = '/var/log/bluefalcon_deploy.log'
+    with open(log_file, 'a') as f:
         if action == 'update_system':
             f.write(f"{_BB}-----------------------------------------------------{_NC}\n")
             f.write(f"{_BB}                    Update System                    {_NC}\n")
@@ -701,7 +696,7 @@ def run_system_task(action, payload=None):
             for line in iter(process.stdout.readline, ''):
                 f.write(line); f.flush()
             process.wait()
-            f.write(f"\n[ {_GRN}âœ”{_NC} ] System update and upgrade successfully finished!\n\n")
+            f.write(f"\n[INFO] System update and upgrade successfully finished!\n\n")
 
         elif action == 'install_packages':
             pkgs = ['curl','wget','git','htop','unzip','zip','nano','net-tools',
@@ -716,7 +711,7 @@ def run_system_task(action, payload=None):
                 check = subprocess.run(f"dpkg-query -W -f='${{Status}}' {pkg} 2>/dev/null", shell=True, capture_output=True, text=True)
                 if "ok installed" not in check.stdout:
                     subprocess.run(f"DEBIAN_FRONTEND=noninteractive apt-get install -yq {pkg} >/dev/null 2>&1", shell=True)
-                f.write(f"[ {_GRN}âœ”{_NC} ] {pkg}\n")
+                f.write(f"[INFO] {pkg}\n")
                 f.flush()
                 
             # 2. Check and Install Docker
@@ -740,13 +735,13 @@ def run_system_task(action, payload=None):
                 """
                 subprocess.run(docker_cmd, shell=True)
                 
-            f.write(f"[ {_GRN}âœ”{_NC} ] Docker Engine & Compose\n")
+            f.write(f"[INFO] Docker Engine & Compose\n")
             f.write("\nInstallation process finished,\n\n")
             f.flush()
 
         elif action == 'create_backup':
-            f.write(f"ðŸ“¦ {_BB}CREATING SYSTEM BACKUP...{_NC}\n\n")
-            f.write(f"{_BB}â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”{_NC}\n\n")
+            f.write(f"[INFO] {_BB}CREATING SYSTEM BACKUP...{_NC}\n\n")
+            f.write(f"{_BB}-----------------------------------------------------{_NC}\n\n")
             f.flush()
             timestamp = time.strftime("%Y%m%d_%H%M%S")
             backup_dir = "/var/backups/bluefalcon"
@@ -757,7 +752,7 @@ def run_system_task(action, payload=None):
             if os.path.exists(f"{APP_DIR}/data/panel.db"): paths.append(f"{APP_DIR}/data/panel.db")
             if os.path.exists("/etc/wireguard"): paths.append("/etc/wireguard")
             if not paths:
-                f.write(f"[ {_YLW}!{_NC} ] No configurations found to backup.\n\n")
+                f.write(f"[WARN] No configurations found to backup.\n\n")
             else:
                 f.write(f"Paths: {_CYN}{', '.join(paths)}{_NC}\n\n")
                 process = subprocess.Popen(
@@ -769,17 +764,17 @@ def run_system_task(action, payload=None):
                 process.wait()
                 if process.returncode == 0:
                     size = os.path.getsize(backup_file) / (1024 * 1024)
-                    f.write(f"\n[ {_GRN}âœ”{_NC} ] Backup created: {_CYN}{backup_file}{_NC} ({size:.2f} MB)\n\n")
+                    f.write(f"\n[SUCCESS] Backup created: {_CYN}{backup_file}{_NC} ({size:.2f} MB)\n\n")
                 else:
-                    f.write(f"\n[ {_RED}âœ–{_NC} ] Backup FAILED.\n\n")
+                    f.write(f"\n[ERROR] Backup FAILED.\n\n")
 
         elif action == 'restore_backup':
-            f.write(f"ðŸ”„ {_BB}RESTORING BACKUP: {payload}...{_NC}\n\n")
-            f.write(f"{_BB}â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”{_NC}\n\n")
+            f.write(f"[INFO] {_BB}RESTORING BACKUP: {payload}...{_NC}\n\n")
+            f.write(f"{_BB}-----------------------------------------------------{_NC}\n\n")
             f.flush()
             backup_file = f"/var/backups/bluefalcon/{payload}"
             if not os.path.exists(backup_file):
-                f.write(f"[ {_RED}âœ–{_NC} ] Backup file not found.\n\n")
+                f.write(f"[ERROR] Backup file not found.\n\n")
             else:
                 process = subprocess.Popen(
                     f"tar -xzvf {backup_file} -C /",
@@ -839,10 +834,14 @@ def system_action():
 def system_log():
     if 'admin_logged_in' not in session: return jsonify({"error": "Unauthorized"}), 401
     try:
-        with open('/tmp/system_task.log', 'r') as f:
+        if not os.path.exists('/var/log/bluefalcon_deploy.log'):
+            return jsonify({"log": "", "status": "not_running"})
+            
+        with open('/var/log/bluefalcon_deploy.log', 'r') as f:
             content = f.read()
-        status = "done" if "[DONE]" in content else "running"
-        content = content.replace("[DONE]\n", "")
+        
+        status = "done" if content.strip().endswith("[DONE]") else "running"
+        content = content.replace("[DONE]\n", "").replace("[DONE]", "")
         return jsonify({"log": ansi_to_html(content), "status": status})
     except:
         return jsonify({"log": "", "status": "not_running"})

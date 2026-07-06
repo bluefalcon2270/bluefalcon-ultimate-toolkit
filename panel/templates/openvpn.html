@@ -124,24 +124,6 @@
         </div>
 
         <!-- Persistent Terminal — always visible like WARP -->
-        <div id="ovpnTerminalContainer" class="mt-6">
-            <div class="mb-2 flex items-center justify-between">
-                <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                    <span id="ovpnSpinner" class="hidden">
-                        <svg class="animate-spin h-4 w-4 text-[#34A853]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    </span>
-                    <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M4 17h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                    OpenVPN Terminal
-                </h3>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs text-gray-500">Auto-scroll</span>
-                    <button id="ovpnScrollToggle" class="scroll-toggle on" type="button" onclick="toggleOvpnScroll(this)"><span class="thumb"></span></button>
-                </div>
-            </div>
-            <div class="bg-[#0F0F11] rounded-xl overflow-hidden border border-[#2C2C2E] shadow-inner">
-                <pre id="ovpnLogOutput" class="term-scroll p-4 text-[#A8C7FA] font-mono text-sm h-96 whitespace-pre-wrap leading-relaxed">BlueFalcon OS &gt; OpenVPN not installed. Configure options above and click Install.</pre>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -153,9 +135,6 @@
                 if (data.error) alert(data.error);
             });
     }
-
-    let ovpnPoll = null;
-    let ovpnAutoScroll = true;
 
     function formatBytes(bytes) {
         if (bytes < 1024) return bytes + " B";
@@ -177,60 +156,15 @@
         });
     }, 2000);
 
-    function toggleOvpnScroll(btn) {
-        ovpnAutoScroll = !ovpnAutoScroll;
-        btn.classList.toggle('on', ovpnAutoScroll);
-        btn.classList.toggle('off', !ovpnAutoScroll);
-    }
-
     function startOvpnStream(event) {
         event.preventDefault();
         const fd = new FormData(event.target);
 
-        document.getElementById('ovpnSpinner').classList.remove('hidden');
-        const logWindow = document.getElementById('ovpnLogOutput');
-        logWindow.innerHTML = '';
-
+        if (window.startGlobalStream) window.startGlobalStream();
         fetch('/api/openvpn_stream', { method: 'POST', body: fd }).then(() => {
-            if (ovpnPoll) clearInterval(ovpnPoll);
-            ovpnPoll = setInterval(() => {
-                fetch('/api/system_log')
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.log) {
-                            logWindow.innerHTML = data.log;
-                            if (ovpnAutoScroll) requestAnimationFrame(() => { logWindow.scrollTop = logWindow.scrollHeight; });
-                        }
-                        if (data.status === 'done') {
-                            clearInterval(ovpnPoll);
-                            document.getElementById('ovpnSpinner').classList.add('hidden');
-                            setTimeout(() => window.location.reload(), 1500);
-                        }
-                    });
-            }, 1000);
+            setTimeout(() => window.location.reload(), 3000); // Wait for stream to finish then reload
         });
     }
-
-    // Auto-resume polling if page loads while installing
-    document.addEventListener("DOMContentLoaded", () => {
-        fetch('/api/system_log')
-            .then(r => r.json())
-            .then(data => {
-                if (data.status === 'running') {
-                    document.getElementById('ovpnSpinner').classList.remove('hidden');
-                    document.getElementById('ovpnLogOutput').innerHTML = data.log || '';
-                    if (ovpnPoll) clearInterval(ovpnPoll);
-                    ovpnPoll = setInterval(() => {
-                        fetch('/api/system_log').then(r => r.json()).then(d => {
-                            if (d.log) { document.getElementById('ovpnLogOutput').innerHTML = d.log; if (ovpnAutoScroll) document.getElementById('ovpnLogOutput').scrollTop = 99999; }
-                            if (d.status === 'done') { clearInterval(ovpnPoll); document.getElementById('ovpnSpinner').classList.add('hidden'); setTimeout(() => window.location.reload(), 1500); }
-                        });
-                    }, 1000);
-                } else if (data.log) {
-                    document.getElementById('ovpnLogOutput').innerHTML = data.log;
-                }
-            });
-    });
 </script>
 {% endif %}
 {% endblock %}

@@ -1,6 +1,12 @@
-VERSION="7.8"
+VERSION="7.9"
 
 # Changelog
+
+## [v7.9] - 2026-07-06
+### Added
+- Unified Global Deployment Terminal in dashboard footer.
+- Separation of WARP (wgcf) interface from WireGuard (wg) for accurate traffic stats.
+- 4-column dashboard layout separating Live Speed and Total Usage, with Download/Upload.
 
 ## [v7.8] - 2026-07-06
 ### Changed

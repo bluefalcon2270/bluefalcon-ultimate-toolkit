@@ -24,23 +24,7 @@
                 </button>
             </form>
         </div>
-        <!-- Terminal -->
-        <div class="material-card p-5 flex-1 flex flex-col min-h-0">
-            <div class="flex items-center justify-between gap-3 mb-3 shrink-0">
-                <div class="flex items-center gap-2">
-                    <span id="sysSpinner" class="hidden"><svg class="animate-spin h-4 w-4 text-[#34A853]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></span>
-                    <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M4 17h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                    <span class="text-sm font-bold text-white">Terminal</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs text-gray-500">Auto-scroll</span>
-                    <button id="scrollToggle" class="scroll-toggle on" onclick="toggleScroll(this)" title="Toggle auto-scroll"><span class="thumb"></span></button>
-                </div>
-            </div>
-            <div class="bg-[#0F0F11] rounded-xl border border-[#2C2C2E] shadow-inner flex-1 min-h-0">
-                <pre id="sysLog" class="term-scroll p-4 text-[#A8C7FA] font-mono text-sm h-full whitespace-pre-wrap leading-relaxed">BlueFalcon OS &gt; System ready. Waiting for tasks...</pre>
-            </div>
-        </div>
+
     </div>
     {% endif %}
 
@@ -69,23 +53,7 @@
                 {% endfor %}
             </div>
         </div>
-        <!-- Terminal -->
-        <div class="material-card p-5 flex-1 flex flex-col min-h-0">
-            <div class="flex items-center justify-between gap-3 mb-3 shrink-0">
-                <div class="flex items-center gap-2">
-                    <span id="sysSpinner" class="hidden"><svg class="animate-spin h-4 w-4 text-[#34A853]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></span>
-                    <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M4 17h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                    <span class="text-sm font-bold text-white">Terminal</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs text-gray-500">Auto-scroll</span>
-                    <button id="scrollToggle" class="scroll-toggle on" onclick="toggleScroll(this)" title="Toggle auto-scroll"><span class="thumb"></span></button>
-                </div>
-            </div>
-            <div class="bg-[#0F0F11] rounded-xl border border-[#2C2C2E] shadow-inner flex-1 min-h-0">
-                <pre id="sysLog" class="term-scroll p-4 text-[#A8C7FA] font-mono text-sm h-full whitespace-pre-wrap leading-relaxed">BlueFalcon OS &gt; System ready. Waiting for tasks...</pre>
-            </div>
-        </div>
+
     </div>
     {% endif %}
 
@@ -137,57 +105,13 @@
 </div>
 
 <script>
-    let sysAutoScroll = true;
-    let sysPoll = null;
-
-    function toggleScroll(btn) {
-        sysAutoScroll = !sysAutoScroll;
-        btn.classList.toggle('on', sysAutoScroll);
-        btn.classList.toggle('off', !sysAutoScroll);
-    }
-
     function runSysAction(event, action) {
         event.preventDefault();
         const btn = event.submitter;
         if (btn) { btn.disabled = true; btn.textContent = 'Starting...'; }
+        if (window.startGlobalStream) window.startGlobalStream();
         fetch('/api/system_action?action=' + action, { method: 'POST' })
-            .then(() => startSysPoll());
+            .then(() => setTimeout(() => window.location.reload(), 3000));
     }
-
-    function startSysPoll() {
-        const spinner = document.getElementById('sysSpinner');
-        if (spinner) spinner.classList.remove('hidden');
-        const log = document.getElementById('sysLog');
-        if (log) log.innerHTML = '';
-        if (sysPoll) clearInterval(sysPoll);
-        sysPoll = setInterval(() => {
-            fetch('/api/system_log')
-                .then(r => r.json())
-                .then(data => {
-                    if (data.log && log) {
-                        log.innerHTML = data.log;
-                        if (sysAutoScroll) requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
-                    }
-                    if (data.status === 'done') {
-                        clearInterval(sysPoll);
-                        if (spinner) spinner.classList.add('hidden');
-                        setTimeout(() => window.location.reload(), 2000);
-                    }
-                });
-        }, 1000);
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        fetch('/api/system_log')
-            .then(r => r.json())
-            .then(data => {
-                if (data.status === 'running') {
-                    startSysPoll();
-                } else if (data.log) {
-                    const log = document.getElementById('sysLog');
-                    if (log) { log.innerHTML = data.log; requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; }); }
-                }
-            });
-    });
 </script>
 {% endblock %}
