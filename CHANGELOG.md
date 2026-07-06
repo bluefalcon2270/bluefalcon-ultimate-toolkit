@@ -1,6 +1,11 @@
-VERSION="6.1"
+VERSION="6.2"
 
 # Changelog
+
+## [v6.2] - 2026-07-06
+### Fixed
+- **VPN Script Failures**: Fixed a critical issue in `openvpn/add_user.sh`, `wireguard/core_setup.sh`, and `wireguard/add_user.sh` where `curl ifconfig.me` would crash the script under strict `set -e` mode if the external service was unreachable. Added robust fallback mechanisms (`|| echo "127.0.0.1"`) to prevent abrupt terminations and configuration corruption.
+- **Removed Setup Hacks**: Removed dirty Python-based `sed` script replacements in `app.py` that were attempting to patch `curl` logic across all scripts. The correct interface-bound curl logic is now natively embedded in the bash scripts.
 
 ## [v6.1] - 2026-07-06
 ### Fixed

@@ -8,7 +8,7 @@ umask 077
 PORT="${1:-51820}"
 DNS1="${2:-8.8.8.8}"
 DNS2="${3:-8.8.4.4}"
-PUBLIC_IP=$(curl --interface $(ip route show table main | awk '/default/ {print $5}' | head -1) -s4 ifconfig.me)
+PUBLIC_IP=$(curl --interface $(ip route show table main | awk '/default/ {print $5}' | head -1) -s4 ifconfig.me || echo "127.0.0.1")
 
 echo "🚀 STARTING WIREGUARD INSTALLATION..."
 echo "-----------------------------------------------------"

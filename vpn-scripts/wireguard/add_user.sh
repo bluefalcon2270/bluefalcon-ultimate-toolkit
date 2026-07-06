@@ -19,7 +19,7 @@ mkdir -p "${CLIENT_DIR}"
 DB_FILE="/opt/bluefalcon-ultimate-toolkit/panel.db"
 SERVER_PUB_IP=$(sqlite3 "$DB_FILE" "SELECT public_ip FROM settings WHERE server_name='wireguard';")
 if [ -z "$SERVER_PUB_IP" ]; then
-    SERVER_PUB_IP=$(curl --interface $(ip route | awk '/default/ {print $5}' | head -1) -s4 ifconfig.me)
+    SERVER_PUB_IP=$(curl --interface $(ip route show table main | awk '/default/ {print $5}' | head -1) -s4 ifconfig.me || echo "127.0.0.1")
 fi
 SERVER_PORT=$(sqlite3 "$DB_FILE" "SELECT port FROM settings WHERE server_name='wireguard';")
 DNS1=$(sqlite3 "$DB_FILE" "SELECT dns FROM settings WHERE server_name='wireguard';")

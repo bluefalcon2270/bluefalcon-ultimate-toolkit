@@ -214,10 +214,7 @@ def install_execute():
 
         yield "data: 🦅 INITIALIZING BLUEFALCON DEPLOYMENT SEQUENCE\n\n"
         time.sleep(1)
-        
-        fix_cmd = "sed -i -E \"s/curl.*ifconfig\\.me|curl.*api\\.ipify\\.org/curl --interface \\$(ip route | awk '\\/default\\/ {print \\$5}' | head -1) -s4 ifconfig.me/g\" /opt/bluefalcon-ultimate-toolkit/panel/vpn-scripts/*/*.sh 2>/dev/null"
-        os.system(fix_cmd)
-        
+
         if ovpn_pending:
             yield "data: \n\n"
             yield "data: [OPENVPN] Starting Core Configuration...\n\n"

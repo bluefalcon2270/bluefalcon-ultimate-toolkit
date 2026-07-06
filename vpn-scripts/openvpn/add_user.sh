@@ -4,7 +4,7 @@ APP_DIR="/opt/bluefalcon-ultimate-toolkit"
 
 # Fetch True IP from Database to avoid WARP hijacks
 IPV4=$(sqlite3 "${APP_DIR}/panel.db" "SELECT public_ip FROM settings LIMIT 1;")
-if [ -z "$IPV4" ]; then IPV4=$(curl -s -4 ifconfig.me); fi
+if [ -z "$IPV4" ]; then IPV4=$(curl --interface $(ip route show table main | awk '/default/ {print $5}' | head -1) -s4 ifconfig.me || echo "127.0.0.1"); fi
 
 PROTOCOL=$(sqlite3 "${APP_DIR}/panel.db" "SELECT protocol FROM settings LIMIT 1;")
 PORT=$(sqlite3 "${APP_DIR}/panel.db" "SELECT port FROM settings LIMIT 1;")
