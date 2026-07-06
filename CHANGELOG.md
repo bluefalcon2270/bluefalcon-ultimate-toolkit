@@ -1,6 +1,10 @@
-VERSION="5.9"
+VERSION="6.0"
 
 # Changelog
+
+## [v6.0] - 2026-07-06
+### Fixed
+- **Panel Port Changes**: Fixed an issue where changing the panel port in the initial wizard or in the panel settings failed to update the underlying service. Port updates will now correctly modify the `systemd` service using regex replacement, apply the appropriate UFW/iptables rules, and dynamically redirect the user's browser to the new port address without returning a connection error.
 
 ## [v5.9] - 2026-07-02
 ### Fixed

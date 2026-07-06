@@ -36,9 +36,14 @@
         const logWindow = document.getElementById('logOutput');
         const source = new EventSource('/api/install_execute');
         source.onmessage = function(event) {
-            if (event.data === "[DONE]") {
+            if (event.data.startsWith("[DONE")) {
                 source.close();
-                window.location.href = "/login";
+                let newPort = "2020";
+                let match = event.data.match(/\[DONE:(\d+)\]/);
+                if (match) newPort = match[1];
+                setTimeout(() => {
+                    window.location.href = window.location.protocol + "//" + window.location.hostname + ":" + newPort + "/login";
+                }, 2000);
             } else {
                 logWindow.innerHTML += event.data + "\n";
                 logWindow.scrollTop = logWindow.scrollHeight;

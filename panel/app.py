@@ -262,7 +262,21 @@ def install_execute():
             
         yield "data: \n\n"
         yield "data: 🟢 DEPLOYMENT COMPLETE. REDIRECTING...\n\n"
-        yield "data: [DONE]\n\n"
+        
+        conn = get_db()
+        panel_port_row = conn.execute("SELECT panel_port FROM settings LIMIT 1").fetchone()
+        panel_port = panel_port_row[0] if panel_port_row else 2020
+        conn.close()
+
+        if panel_port != 2020:
+            os.system(f"sed -i -E 's/-b 0\\.0\\.0\\.0:[0-9]+ /-b 0.0.0.0:{panel_port} /g' /etc/systemd/system/bluefalcon-panel.service")
+            os.system(f"ufw allow {panel_port}/tcp >/dev/null 2>&1")
+            os.system(f"iptables -I INPUT -p tcp --dport {panel_port} -j ACCEPT")
+            os.system("netfilter-persistent save > /dev/null 2>&1")
+
+        yield f"data: [DONE:{panel_port}]\n\n"
+        os.system("nohup bash -c 'sleep 2 && systemctl daemon-reload && systemctl restart bluefalcon-panel' >/dev/null 2>&1 &")
+        
     return Response(generate(), mimetype='text/event-stream')
 
 # --- Login & Dashboards ---
@@ -862,8 +876,11 @@ def preferences():
             os.system(f"iptables -D INPUT -p tcp --dport {old_panel_port} -j ACCEPT")
             os.system(f"iptables -I INPUT -p tcp --dport {new_panel_port} -j ACCEPT")
             os.system("netfilter-persistent save > /dev/null 2>&1")
-            os.system(f"sed -i 's/:{old_panel_port} /:{new_panel_port} /g' /etc/systemd/system/bluefalcon-panel.service")
+            os.system(f"sed -i -E 's/-b 0\\.0\\.0\\.0:[0-9]+ /-b 0.0.0.0:{new_panel_port} /g' /etc/systemd/system/bluefalcon-panel.service")
             os.system("nohup bash -c 'sleep 1 && systemctl daemon-reload && systemctl restart bluefalcon-panel' >/dev/null 2>&1 &")
+            
+            host = request.host.split(':')[0]
+            return redirect(f"{request.scheme}://{host}:{new_panel_port}/preferences?tab=settings")
             
         return redirect(url_for('preferences', tab='settings'))
         
