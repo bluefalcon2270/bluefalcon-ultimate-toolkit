@@ -113,9 +113,7 @@
         }
         
         if (window.startGlobalStream) window.startGlobalStream();
-        fetch(url).then(() => {
-            setTimeout(() => window.location.reload(), 3000);
-        });
+        fetch(url).catch(e => console.error(e));
     }
 </script>
 {% endblock %}

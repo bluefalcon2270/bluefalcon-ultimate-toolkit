@@ -2,7 +2,7 @@
 
 # ==============================================================================
 # BlueFalcon Ultimate Toolkit (God Script)
-# Version: v7.9
+# Version: v8.0
 # Architecture: Optimized for Debian & Ubuntu (Bash/Python/SQLite Stack)
 # ==============================================================================
 

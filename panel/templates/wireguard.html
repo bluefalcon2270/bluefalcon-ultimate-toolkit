@@ -138,9 +138,7 @@
         const url = `/api/wireguard_stream?action=${action}&port=${port}`;
 
         if (window.startGlobalStream) window.startGlobalStream();
-        fetch(url).then(() => {
-            setTimeout(() => window.location.reload(), 3000);
-        });
+        fetch(url).catch(e => console.error(e));
     }
 
     function formatBytes(bytes) {

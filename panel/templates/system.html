@@ -110,8 +110,7 @@
         const btn = event.submitter;
         if (btn) { btn.disabled = true; btn.textContent = 'Starting...'; }
         if (window.startGlobalStream) window.startGlobalStream();
-        fetch('/api/system_action?action=' + action, { method: 'POST' })
-            .then(() => setTimeout(() => window.location.reload(), 3000));
+        fetch('/api/system_action?action=' + action, { method: 'POST' }).catch(e => console.error(e));
     }
 </script>
 {% endblock %}

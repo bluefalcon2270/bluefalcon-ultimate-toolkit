@@ -161,9 +161,7 @@
         const fd = new FormData(event.target);
 
         if (window.startGlobalStream) window.startGlobalStream();
-        fetch('/api/openvpn_stream', { method: 'POST', body: fd }).then(() => {
-            setTimeout(() => window.location.reload(), 3000); // Wait for stream to finish then reload
-        });
+        fetch('/api/openvpn_stream', { method: 'POST', body: fd }).catch(e => console.error(e));
     }
 </script>
 {% endif %}

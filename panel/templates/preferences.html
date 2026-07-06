@@ -206,16 +206,14 @@
         function runBackupAction(event, action) {
             event.preventDefault();
             if (window.startGlobalStream) window.startGlobalStream();
-            fetch('/api/system_action?action=' + action, { method: 'POST' })
-                .then(() => setTimeout(() => window.location.reload(), 3000));
+            fetch('/api/system_action?action=' + action, { method: 'POST' }).catch(e => console.error(e));
         }
         function confirmAndRunBackup(event, action, filename) {
             event.preventDefault();
             if (!confirm('Restore "' + filename + '"? This will overwrite config and restart services.')) return;
             const fd = new FormData(); fd.append('action', action); fd.append('filename', filename);
             if (window.startGlobalStream) window.startGlobalStream();
-            fetch('/api/system_action', { method: 'POST', body: fd })
-                .then(() => setTimeout(() => window.location.reload(), 3000));
+            fetch('/api/system_action', { method: 'POST', body: fd }).catch(e => console.error(e));
         }
     </script>
     {% endif %}

@@ -1,6 +1,11 @@
-VERSION="7.9"
+VERSION="8.0"
 
 # Changelog
+
+## [v8.0] - 2026-07-06
+### Added
+- Resizable Global Deployment Terminal: Added a vertical drag handle so the user can easily adjust the terminal drawer height.
+- Intelligent Auto-Refresh: Terminal now seamlessly reloads the page only when an installation successfully completes, eliminating the hard-coded timeout glitch.
 
 ## [v7.9] - 2026-07-06
 ### Added
