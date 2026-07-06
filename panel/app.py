@@ -110,6 +110,22 @@ def get_traffic():
     except (FileNotFoundError, PermissionError): pass
     return live_traffic, live_rx, live_tx
 
+def get_wg_traffic():
+    traffic = {}
+    try:
+        output = subprocess.getoutput('wg show wg0 transfer')
+        conn = get_db()
+        users = {row['pub_key']: row['system_name'] for row in conn.execute('SELECT pub_key, system_name FROM wg_users').fetchall()}
+        conn.close()
+        for line in output.split('\n'):
+            parts = line.strip().split('\t')
+            if len(parts) == 3:
+                pub_key, rx, tx = parts
+                if pub_key in users:
+                    traffic[users[pub_key]] = {"rx": int(rx), "tx": int(tx)}
+    except Exception: pass
+    return traffic
+
 def format_bytes(b):
     if not isinstance(b, (int, float)): return "0.0 KB"
     if b < 1048576: return f"{b/1024:.1f} KB"
@@ -123,11 +139,20 @@ def sysinfo():
     if 'admin_logged_in' not in session: return {"error": "unauthorized"}, 401
     
     net_io = psutil.net_io_counters(pernic=True)
-    net_rx = 0; net_tx = 0
+    net_global_rx = 0; net_global_tx = 0
+    net_ovpn_rx = 0; net_ovpn_tx = 0
+    net_wg_rx = 0; net_wg_tx = 0
+    
     for nic, stats in net_io.items():
         if not nic.startswith(('lo', 'tun', 'wg', 'veth', 'docker', 'br-')):
-            net_rx += stats.bytes_recv
-            net_tx += stats.bytes_sent
+            net_global_rx += stats.bytes_recv
+            net_global_tx += stats.bytes_sent
+        elif nic.startswith('tun'):
+            net_ovpn_rx += stats.bytes_recv
+            net_ovpn_tx += stats.bytes_sent
+        elif nic.startswith('wg'):
+            net_wg_rx += stats.bytes_recv
+            net_wg_tx += stats.bytes_sent
 
     return {
         "cpu": psutil.cpu_percent(interval=None),
@@ -141,13 +166,25 @@ def sysinfo():
         "disk_percent": psutil.disk_usage('/').percent,
         "disk_used": format_bytes(psutil.disk_usage('/').used),
         "disk_total": format_bytes(psutil.disk_usage('/').total),
-        "net_rx": net_rx,
-        "net_tx": net_tx,
+        "net_rx": net_global_rx,
+        "net_tx": net_global_tx,
+        "net": {
+            "global": {"rx": net_global_rx, "tx": net_global_tx},
+            "ovpn": {"rx": net_ovpn_rx, "tx": net_ovpn_tx},
+            "wg": {"rx": net_wg_rx, "tx": net_wg_tx}
+        },
         "uptime": int(time.time() - psutil.boot_time()),
         "threads": sum(p.info['num_threads'] for p in psutil.process_iter(['num_threads']) if p.info['num_threads']),
         "conn_tcp": len([c for c in psutil.net_connections(kind='tcp') if c.status == 'ESTABLISHED']),
         "conn_udp": len(psutil.net_connections(kind='udp'))
     }
+
+@app.route('/api/user_traffic')
+def user_traffic():
+    if 'admin_logged_in' not in session: return {"error": "unauthorized"}, 401
+    ovpn_traffic, _, _ = get_traffic()
+    wg_traffic = get_wg_traffic()
+    return {"ovpn": ovpn_traffic, "wg": wg_traffic}
 
 # --- Core Routing ---
 @app.route('/')

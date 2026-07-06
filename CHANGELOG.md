@@ -1,6 +1,11 @@
-VERSION="7.6"
+VERSION="7.7"
 
 # Changelog
+
+## [v7.7] - 2026-07-06
+### Added
+- **Advanced Network Monitoring**: Transformed the Dashboard's "Overall Speed" into a 3-column Network Overview grid displaying Global Edge, OpenVPN Tunnel, and WireGuard Tunnel traffic independently.
+- **Per-User Live Speeds**: Upgraded the Active Clients table in both OpenVPN and WireGuard tabs to display real-time live Upload/Download speeds and Total Data usage for every individual connected user.
 
 ## [v7.6] - 2026-07-06
 ### Fixed

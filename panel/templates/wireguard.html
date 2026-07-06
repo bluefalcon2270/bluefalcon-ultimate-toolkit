@@ -81,7 +81,8 @@
                         <th class="py-4 px-6">Client Name</th>
                         <th class="py-4 px-6">IP Address</th>
                         <th class="py-4 px-6 text-center">Status</th>
-                        <th class="py-4 px-6 text-right">Data (TX/RX)</th>
+                        <th class="py-4 px-6 text-right">Traffic</th>
+                        <th class="py-4 px-6 text-right">Speed</th>
                         <th class="py-4 px-6 text-right">Actions</th>
                     </tr>
                 </thead>
@@ -94,7 +95,13 @@
                         <td class="py-3 px-6 text-center">
                             <span class="bg-[#14331C] text-[#81C995] px-3 py-1 rounded-md text-xs font-semibold border border-[#254C2F]">Connected</span>
                         </td>
-                        <td class="py-3 px-6 text-gray-400 text-right font-mono">0B / 0B</td>
+                        <td class="py-3 px-6 text-gray-400 text-right font-mono">
+                            <span id="wg_data_{{ u.system_name }}">0 B</span>
+                        </td>
+                        <td class="py-3 px-6 text-gray-400 text-right font-mono text-xs">
+                            <div class="text-[#A8C7FA]" id="wg_speed_down_{{ u.system_name }}">↓ 0 B/s</div>
+                            <div class="text-[#F28B82]" id="wg_speed_up_{{ u.system_name }}">↑ 0 B/s</div>
+                        </td>
                         <td class="py-3 px-6 text-right space-x-3 whitespace-nowrap">
                             <button onclick="showQR('{{ u.system_name }}')" class="bg-[#2C2C2E] hover:bg-[#3A3A3C] text-gray-300 px-3 py-1.5 rounded-md text-xs font-bold transition border border-[#3A3A3C]">QR Code</button>
                             <a href="/api/download_wg_conf/{{ u.system_name }}" class="bg-[#2C2C2E] hover:bg-[#3A3A3C] text-gray-300 px-3 py-1.5 rounded-md text-xs font-bold transition border border-[#3A3A3C]">.conf</a>
@@ -130,6 +137,49 @@
 <script>
     let wgPoll = null;
     let wgAutoScroll = true;
+
+    let firstUserPoll = true;
+    let lastUserRx = {};
+    let lastUserTx = {};
+
+    function formatSpeed(bytes) {
+        if (bytes < 1024) return bytes + " B/s";
+        else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + " KB/s";
+        else return (bytes / 1048576).toFixed(2) + " MB/s";
+    }
+
+    function formatBytes(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + " KB";
+        else if (bytes < 1073741824) return (bytes / 1048576).toFixed(2) + " MB";
+        else return (bytes / 1073741824).toFixed(2) + " GB";
+    }
+
+    setInterval(() => {
+        fetch('/api/user_traffic').then(r => r.json()).then(data => {
+            if (data.wg) {
+                for (const [user, stats] of Object.entries(data.wg)) {
+                    let elData = document.getElementById('wg_data_' + user);
+                    let elSpeedDown = document.getElementById('wg_speed_down_' + user);
+                    let elSpeedUp = document.getElementById('wg_speed_up_' + user);
+                    
+                    if (elData && elSpeedDown && elSpeedUp) {
+                        elData.innerText = formatBytes(stats.rx + stats.tx);
+                        if (!firstUserPoll && lastUserRx[user] !== undefined) {
+                            let rxSpeed = Math.max(0, stats.rx - lastUserRx[user]);
+                            let txSpeed = Math.max(0, stats.tx - lastUserTx[user]);
+                            // Client perspective: Download = Server TX, Upload = Server RX
+                            elSpeedDown.innerText = '↓ ' + formatSpeed(txSpeed);
+                            elSpeedUp.innerText = '↑ ' + formatSpeed(rxSpeed);
+                        }
+                        lastUserRx[user] = stats.rx;
+                        lastUserTx[user] = stats.tx;
+                    }
+                }
+            }
+            firstUserPoll = false;
+        });
+    }, 1000);
 
     function toggleWgScroll(btn) {
         wgAutoScroll = !wgAutoScroll;

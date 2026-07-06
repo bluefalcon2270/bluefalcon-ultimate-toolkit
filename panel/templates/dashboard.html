@@ -87,47 +87,83 @@
 
     </div>
 
-    <!-- 2 Column Grid Layout -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- 3 Column Network Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- Left Column: Overall Speed -->
+        <!-- Global Edge -->
         <div class="sanaie-card flex flex-col justify-center h-full">
-            <h3 class="text-bright text-lg mb-4">Overall Speed</h3>
-            <div class="flex justify-between mt-auto">
+            <h3 class="text-bright text-lg mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                Global Edge
+            </h3>
+            <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <span class="text-dim block mb-1">Upload</span>
-                    <div class="flex items-center gap-2 text-bright text-lg">
-                        <svg class="w-4 h-4 text-[#F28B82]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
-                        <span id="speed_up">0 KB /s</span>
-                    </div>
+                    <span class="text-dim text-sm block mb-1">Upload Speed</span>
+                    <span id="speed_up_global" class="text-bright text-md font-mono">0 KB/s</span>
                 </div>
                 <div>
-                    <span class="text-dim block mb-1">Download</span>
-                    <div class="flex items-center gap-2 text-bright text-lg">
-                        <svg class="w-4 h-4 text-[#A8C7FA]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
-                        <span id="speed_down">0 KB /s</span>
-                    </div>
+                    <span class="text-dim text-sm block mb-1">Download Speed</span>
+                    <span id="speed_down_global" class="text-bright text-md font-mono">0 KB/s</span>
+                </div>
+                <div>
+                    <span class="text-dim text-sm block mb-1">Total Sent</span>
+                    <span id="sent_global" class="text-bright text-md font-mono">0 B</span>
+                </div>
+                <div>
+                    <span class="text-dim text-sm block mb-1">Total Received</span>
+                    <span id="recv_global" class="text-bright text-md font-mono">0 B</span>
                 </div>
             </div>
         </div>
 
-        <!-- Right Column: Total Data -->
+        <!-- OpenVPN Tunnels -->
         <div class="sanaie-card flex flex-col justify-center h-full">
-            <h3 class="text-bright text-lg mb-4">Total Data</h3>
-            <div class="flex justify-between mt-auto">
+            <h3 class="text-bright text-lg mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                OpenVPN Traffic
+            </h3>
+            <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <span class="text-dim block mb-1">Sent</span>
-                    <div class="flex items-center gap-2 text-bright text-lg">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                        <span id="total_sent">0.0 KB</span>
-                    </div>
+                    <span class="text-dim text-sm block mb-1">Upload Speed</span>
+                    <span id="speed_up_ovpn" class="text-bright text-md font-mono">0 KB/s</span>
                 </div>
                 <div>
-                    <span class="text-dim block mb-1">Received</span>
-                    <div class="flex items-center gap-2 text-bright text-lg">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path></svg>
-                        <span id="total_recv">0.0 KB</span>
-                    </div>
+                    <span class="text-dim text-sm block mb-1">Download Speed</span>
+                    <span id="speed_down_ovpn" class="text-bright text-md font-mono">0 KB/s</span>
+                </div>
+                <div>
+                    <span class="text-dim text-sm block mb-1">Total Sent</span>
+                    <span id="sent_ovpn" class="text-bright text-md font-mono">0 B</span>
+                </div>
+                <div>
+                    <span class="text-dim text-sm block mb-1">Total Received</span>
+                    <span id="recv_ovpn" class="text-bright text-md font-mono">0 B</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- WireGuard Tunnels -->
+        <div class="sanaie-card flex flex-col justify-center h-full">
+            <h3 class="text-bright text-lg mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                WireGuard Traffic
+            </h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <span class="text-dim text-sm block mb-1">Upload Speed</span>
+                    <span id="speed_up_wg" class="text-bright text-md font-mono">0 KB/s</span>
+                </div>
+                <div>
+                    <span class="text-dim text-sm block mb-1">Download Speed</span>
+                    <span id="speed_down_wg" class="text-bright text-md font-mono">0 KB/s</span>
+                </div>
+                <div>
+                    <span class="text-dim text-sm block mb-1">Total Sent</span>
+                    <span id="sent_wg" class="text-bright text-md font-mono">0 B</span>
+                </div>
+                <div>
+                    <span class="text-dim text-sm block mb-1">Total Received</span>
+                    <span id="recv_wg" class="text-bright text-md font-mono">0 B</span>
                 </div>
             </div>
         </div>
@@ -137,7 +173,7 @@
 
 <script>
     let firstPoll = true;
-    let lastRx = 0, lastTx = 0;
+    let lastNet = { global: {rx: 0, tx: 0}, ovpn: {rx: 0, tx: 0}, wg: {rx: 0, tx: 0} };
     
     function formatSpeed(bytes) {
         if (bytes < 1024) return bytes + " B/s";
@@ -159,6 +195,20 @@
         circle.style.strokeDashoffset = offset;
     }
 
+    function updateNetCard(type, currentData) {
+        document.getElementById(`sent_${type}`).innerText = formatBytes(currentData.rx);
+        document.getElementById(`recv_${type}`).innerText = formatBytes(currentData.tx);
+        
+        if (!firstPoll) {
+            let rxSpeed = Math.max(0, currentData.rx - lastNet[type].rx);
+            let txSpeed = Math.max(0, currentData.tx - lastNet[type].tx);
+            // Client perspective: Upload = Server RX, Download = Server TX
+            document.getElementById(`speed_up_${type}`).innerText = formatSpeed(rxSpeed);
+            document.getElementById(`speed_down_${type}`).innerText = formatSpeed(txSpeed);
+        }
+        lastNet[type] = {rx: currentData.rx, tx: currentData.tx};
+    }
+
     setInterval(() => {
         fetch('/api/sysinfo').then(r => r.json()).then(data => {
             document.getElementById('text_cpu').innerText = data.cpu + '%';
@@ -177,17 +227,13 @@
             updateRing('ring_disk', data.disk_percent);
             document.getElementById('val_disk').innerText = data.disk_used + ' / ' + data.disk_total;
 
-            document.getElementById('total_sent').innerText = formatBytes(data.net_rx);
-            document.getElementById('total_recv').innerText = formatBytes(data.net_tx);
-
-            if (!firstPoll) {
-                let rxSpeed = Math.max(0, data.net_rx - lastRx);
-                let txSpeed = Math.max(0, data.net_tx - lastTx);
-                // From client perspective: Upload = Server RX, Download = Server TX
-                document.getElementById('speed_up').innerText = formatSpeed(rxSpeed);
-                document.getElementById('speed_down').innerText = formatSpeed(txSpeed);
+            if (data.net) {
+                updateNetCard('global', data.net.global);
+                updateNetCard('ovpn', data.net.ovpn);
+                updateNetCard('wg', data.net.wg);
             }
-            lastRx = data.net_rx; lastTx = data.net_tx; firstPoll = false;
+            
+            firstPoll = false;
         });
     }, 1000);
 </script>

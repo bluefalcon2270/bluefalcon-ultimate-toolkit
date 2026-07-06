@@ -46,6 +46,7 @@
                         <th class="py-4 px-6">ID</th>
                         <th class="py-4 px-6 text-center">Status</th>
                         <th class="py-4 px-6 text-right">Traffic</th>
+                        <th class="py-4 px-6 text-right">Speed</th>
                         <th class="py-4 px-6 text-right">Expires</th>
                         <th class="py-4 px-6 text-right">Actions</th>
                     </tr>
@@ -65,7 +66,13 @@
                                 <span class="bg-[#1F1F22] text-gray-400 px-3 py-1 rounded-md text-xs font-semibold border border-[#2C2C2E]">Disconnected</span>
                             {% endif %}
                         </td>
-                        <td class="py-3 px-6 text-gray-400 text-right font-mono">{{ stats[user['system_name']]['usage']|format_bytes }}</td>
+                        <td class="py-3 px-6 text-gray-400 text-right font-mono">
+                            <span id="ovpn_data_{{ user['system_name'] }}">{{ stats[user['system_name']]['usage']|format_bytes }}</span>
+                        </td>
+                        <td class="py-3 px-6 text-gray-400 text-right font-mono text-xs">
+                            <div class="text-[#A8C7FA]" id="ovpn_speed_down_{{ user['system_name'] }}">↓ 0 B/s</div>
+                            <div class="text-[#F28B82]" id="ovpn_speed_up_{{ user['system_name'] }}">↑ 0 B/s</div>
+                        </td>
                         <td class="py-3 px-6 text-gray-400 text-right">
                             {% if user['exp_days'] == 0 %} <span class="text-xs font-medium">Unlimited</span>
                             {% elif user['exp_days'] < current_time %} <span class="text-[#F28B82] text-xs font-bold">Expired</span>
@@ -138,6 +145,49 @@
 <script>
     let ovpnPoll = null;
     let ovpnAutoScroll = true;
+
+    let firstUserPoll = true;
+    let lastUserRx = {};
+    let lastUserTx = {};
+
+    function formatSpeed(bytes) {
+        if (bytes < 1024) return bytes + " B/s";
+        else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + " KB/s";
+        else return (bytes / 1048576).toFixed(2) + " MB/s";
+    }
+
+    function formatBytes(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + " KB";
+        else if (bytes < 1073741824) return (bytes / 1048576).toFixed(2) + " MB";
+        else return (bytes / 1073741824).toFixed(2) + " GB";
+    }
+
+    setInterval(() => {
+        fetch('/api/user_traffic').then(r => r.json()).then(data => {
+            if (data.ovpn) {
+                for (const [user, stats] of Object.entries(data.ovpn)) {
+                    let elData = document.getElementById('ovpn_data_' + user);
+                    let elSpeedDown = document.getElementById('ovpn_speed_down_' + user);
+                    let elSpeedUp = document.getElementById('ovpn_speed_up_' + user);
+                    
+                    if (elData && elSpeedDown && elSpeedUp) {
+                        elData.innerText = formatBytes(stats.rx + stats.tx);
+                        if (!firstUserPoll && lastUserRx[user] !== undefined) {
+                            let rxSpeed = Math.max(0, stats.rx - lastUserRx[user]);
+                            let txSpeed = Math.max(0, stats.tx - lastUserTx[user]);
+                            // Client perspective: Download = Server TX, Upload = Server RX
+                            elSpeedDown.innerText = '↓ ' + formatSpeed(txSpeed);
+                            elSpeedUp.innerText = '↑ ' + formatSpeed(rxSpeed);
+                        }
+                        lastUserRx[user] = stats.rx;
+                        lastUserTx[user] = stats.tx;
+                    }
+                }
+            }
+            firstUserPoll = false;
+        });
+    }, 1000);
 
     function toggleOvpnScroll(btn) {
         ovpnAutoScroll = !ovpnAutoScroll;
