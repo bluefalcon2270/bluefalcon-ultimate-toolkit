@@ -1,6 +1,10 @@
-VERSION="7.3"
+VERSION="7.4"
 
 # Changelog
+
+## [v7.4] - 2026-07-06
+### Changed
+- **UI Enhancements**: Restructured the Dashboard to only display the core resource rings, overall speed, and total data usage. Realigned the WireGuard page layout to match the clean, horizontal styling of the OpenVPN page. Client action buttons are now permanently visible rather than requiring a hover state.
 
 ## [v7.3] - 2026-07-06
 ### Fixed
