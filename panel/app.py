@@ -531,8 +531,35 @@ def download_wg_conf(username):
     if 'admin_logged_in' not in session: return redirect(url_for('login'))
     conf_path = f"/etc/wireguard/clients/{username}.conf"
     if os.path.exists(conf_path):
-        return send_file(conf_path, as_attachment=True)
+        u = get_db().execute('SELECT display_name FROM wg_users WHERE system_name = ?', (username,)).fetchone()
+        s = get_db().execute("SELECT display_name FROM settings WHERE server_name='openvpn'").fetchone()
+        srv_label = s['display_name'] if s and s['display_name'] else 'BlueFalcon'
+        custom_name = f"{srv_label} - {u['display_name']}.conf" if u else f"{username}.conf"
+        return send_file(conf_path, as_attachment=True, download_name=custom_name)
     return "Config file not found.", 404
+
+@app.route('/api/toggle_user/<protocol>/<username>', methods=['POST'])
+def toggle_user(protocol, username):
+    if 'admin_logged_in' not in session: return jsonify({"error": "Unauthorized"}), 401
+    
+    if protocol == 'openvpn':
+        u = get_db().execute('SELECT status FROM users WHERE system_name = ?', (username,)).fetchone()
+        if not u: return jsonify({"error": "User not found"}), 404
+        new_status = 'active' if u['status'] == 'paused' else 'paused'
+        get_db().execute('UPDATE users SET status = ? WHERE system_name = ?', (new_status, username)).connection.commit()
+        if new_status == 'paused':
+            os.system(f"sed -i '/^{username}:/d' /etc/openvpn/server/auth/users.db")
+            os.system(f"echo -e 'kill {username}\\nquit' | nc -w 1 127.0.0.1 7505 > /dev/null 2>&1 &")
+        else:
+            get_db().execute('UPDATE users SET rx = 0, tx = 0 WHERE system_name = ?', (username,)).connection.commit()
+            psw = get_db().execute('SELECT password FROM users WHERE system_name = ?', (username,)).fetchone()['password']
+            os.system(f"echo '{username}:{psw}' >> /etc/openvpn/server/auth/users.db")
+        return jsonify({"status": "success", "new_status": new_status})
+        
+    elif protocol == 'wireguard':
+        return jsonify({"status": "success"}) # Stub for wg pause/resume if implemented in future, since WG doesn't have pause logic right now in users.
+    
+    return jsonify({"error": "Invalid protocol"}), 400
 
 @app.route('/api/get_wg_qr/<username>')
 def get_wg_qr(username):
@@ -1039,18 +1066,7 @@ def download(sys_name):
     file_path = f'{APP_DIR}/configs/{sys_name}.ovpn'
     if not os.path.exists(file_path): return "Error 404: Configuration file not found.", 404
     srv_label = s['display_name'] if s and s['display_name'] else 'BlueFalcon'
-    custom_name = f"{srv_label} - {u['display_name']} (Auto).ovpn"
-    return send_file(file_path, as_attachment=True, download_name=custom_name)
-
-@app.route('/download_manual/<sys_name>')
-def download_manual(sys_name):
-    if 'admin_logged_in' not in session: return redirect(url_for('login'))
-    u = get_db().execute('SELECT display_name FROM users WHERE system_name = ?', (sys_name,)).fetchone()
-    s = get_db().execute("SELECT display_name FROM settings WHERE server_name='openvpn'").fetchone()
-    file_path = f'{APP_DIR}/configs/{sys_name}_manual.ovpn'
-    if not os.path.exists(file_path): return "Error 404: Configuration file not found.", 404
-    srv_label = s['display_name'] if s and s['display_name'] else 'BlueFalcon'
-    custom_name = f"{srv_label} - {u['display_name']} (Manual).ovpn"
+    custom_name = f"{srv_label} - {u['display_name']}.ovpn"
     return send_file(file_path, as_attachment=True, download_name=custom_name)
 
 if __name__ == '__main__': app.run(host='0.0.0.0', port=2020)

@@ -1,6 +1,11 @@
-VERSION="7.7"
+VERSION="7.8"
 
 # Changelog
+
+## [v7.8] - 2026-07-06
+### Changed
+- **Client List Layouts**: Overhauled the OpenVPN and WireGuard client lists to closely mirror the Sanaie UI style. Client names and IDs are now elegantly stacked, pause/resume actions have been converted into modern iOS-style toggle switches, status indicators use clean colored-dot badges, and action buttons have been consolidated.
+- **Config Downloads**: Removed the redundant "Manual" OpenVPN download button. All config downloads (OpenVPN and WireGuard) now strictly follow the intuitive `ServerName - ClientName` file naming convention.
 
 ## [v7.7] - 2026-07-06
 ### Added

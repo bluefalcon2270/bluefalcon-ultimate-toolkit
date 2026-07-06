@@ -42,11 +42,10 @@
                 <thead>
                     <tr class="bg-[#1C1C1E] text-gray-500 text-xs font-bold uppercase tracking-wider border-b border-[#2C2C2E]">
                         <th class="py-4 px-6 w-10">#</th>
-                        <th class="py-4 px-6">Name</th>
-                        <th class="py-4 px-6">ID</th>
-                        <th class="py-4 px-6 text-center">Status</th>
+                        <th class="py-4 px-6">Client</th>
+                        <th class="py-4 px-6 text-center">Enabled</th>
+                        <th class="py-4 px-6 text-center">Online</th>
                         <th class="py-4 px-6 text-right">Traffic</th>
-                        <th class="py-4 px-6 text-right">Speed</th>
                         <th class="py-4 px-6 text-right">Expires</th>
                         <th class="py-4 px-6 text-right">Actions</th>
                     </tr>
@@ -55,34 +54,38 @@
                     {% for user in users %}
                     <tr class="hover:bg-[#1F1F22] transition-colors group">
                         <td class="py-3 px-6 text-gray-500 font-mono">{{ loop.index }}</td>
-                        <td class="py-3 px-6 font-bold text-gray-200">{{ user['display_name'] }}</td>
-                        <td class="py-3 px-6 text-gray-500 font-mono text-xs">{{ user['system_name'] }}</td>
+                        <td class="py-3 px-6">
+                            <div class="font-bold text-gray-200">{{ user['display_name'] }}</div>
+                            <div class="text-gray-500 font-mono text-[10px] mt-0.5">{{ user['system_name'] }}</div>
+                        </td>
                         <td class="py-3 px-6 text-center">
-                            {% if user['status'] == 'paused' %}
-                                <span class="bg-[#3D2E15] text-[#FDE293] px-3 py-1 rounded-md text-xs font-semibold border border-[#524020]">Suspended</span>
-                            {% elif stats[user['system_name']]['online'] %}
-                                <span class="bg-[#14331C] text-[#81C995] px-3 py-1 rounded-md text-xs font-semibold border border-[#254C2F]">Connected</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                              <input type="checkbox" onchange="toggleUser('openvpn', '{{ user['system_name'] }}')" class="sr-only peer" {% if user['status'] != 'paused' %}checked{% endif %}>
+                              <div class="w-9 h-5 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                            </label>
+                        </td>
+                        <td class="py-3 px-6 text-center">
+                            {% if stats[user['system_name']]['online'] %}
+                                <span class="inline-flex items-center gap-1.5 bg-[#1C1C1E] text-gray-300 px-3 py-1 rounded-md text-xs font-semibold border border-[#2C2C2E]">
+                                    <span class="w-2 h-2 rounded-full bg-green-500"></span> Online
+                                </span>
                             {% else %}
-                                <span class="bg-[#1F1F22] text-gray-400 px-3 py-1 rounded-md text-xs font-semibold border border-[#2C2C2E]">Disconnected</span>
+                                <span class="inline-flex items-center gap-1.5 bg-[#1C1C1E] text-gray-500 px-3 py-1 rounded-md text-xs font-semibold border border-[#2C2C2E]">
+                                    <span class="w-2 h-2 rounded-full bg-gray-600"></span> Offline
+                                </span>
                             {% endif %}
                         </td>
                         <td class="py-3 px-6 text-gray-400 text-right font-mono">
                             <span id="ovpn_data_{{ user['system_name'] }}">{{ stats[user['system_name']]['usage']|format_bytes }}</span>
-                        </td>
-                        <td class="py-3 px-6 text-gray-400 text-right font-mono text-xs">
-                            <div class="text-[#A8C7FA]" id="ovpn_speed_down_{{ user['system_name'] }}">↓ 0 B/s</div>
-                            <div class="text-[#F28B82]" id="ovpn_speed_up_{{ user['system_name'] }}">↑ 0 B/s</div>
                         </td>
                         <td class="py-3 px-6 text-gray-400 text-right">
                             {% if user['exp_days'] == 0 %} <span class="text-xs font-medium">Unlimited</span>
                             {% elif user['exp_days'] < current_time %} <span class="text-[#F28B82] text-xs font-bold">Expired</span>
                             {% else %} <span class="text-xs font-medium">{{ ((user['exp_days'] - current_time) / 86400) | round(1) }} Days</span> {% endif %}
                         </td>
-                        <td class="py-3 px-6 text-right space-x-3 whitespace-nowrap">
-                            <a href="/toggle/{{ user['system_name'] }}" class="text-[#A8C7FA] hover:text-[#8AB4F8] text-xs font-bold transition">{% if user['status'] == 'paused' %}Start{% else %}Pause{% endif %}</a>
-                            <a href="/download/{{ user['system_name'] }}" class="bg-[#2C2C2E] hover:bg-[#3A3A3C] text-gray-300 px-3 py-1.5 rounded-md text-xs font-bold transition border border-[#3A3A3C]">Auto</a>
-                            <a href="/download_manual/{{ user['system_name'] }}" class="bg-[#2C2C2E] hover:bg-[#3A3A3C] text-gray-300 px-3 py-1.5 rounded-md text-xs font-bold transition border border-[#3A3A3C]">Manual</a>
-                            <a href="/revoke/{{ user['system_name'] }}" onclick="return confirm('Permanently delete user?')" class="text-[#F28B82] hover:text-[#FAD2CF] text-xs font-bold transition">Remove</a>
+                        <td class="py-3 px-6 text-right space-x-2 whitespace-nowrap">
+                            <a href="/download/{{ user['system_name'] }}" class="bg-[#2C2C2E] hover:bg-[#3A3A3C] text-gray-300 px-3 py-1.5 rounded-md text-xs font-bold transition border border-[#3A3A3C]">Config</a>
+                            <a href="/revoke/{{ user['system_name'] }}" onclick="return confirm('Permanently delete user?')" class="bg-[#3D2222] hover:bg-[#5C3333] text-[#F28B82] px-3 py-1.5 rounded-md text-xs font-bold transition border border-[#5C3333]">Revoke</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -143,18 +146,16 @@
 </div>
 
 <script>
+    function toggleUser(protocol, username) {
+        fetch(`/api/toggle_user/${protocol}/${username}`, { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) alert(data.error);
+            });
+    }
+
     let ovpnPoll = null;
     let ovpnAutoScroll = true;
-
-    let firstUserPoll = true;
-    let lastUserRx = {};
-    let lastUserTx = {};
-
-    function formatSpeed(bytes) {
-        if (bytes < 1024) return bytes + " B/s";
-        else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + " KB/s";
-        else return (bytes / 1048576).toFixed(2) + " MB/s";
-    }
 
     function formatBytes(bytes) {
         if (bytes < 1024) return bytes + " B";
@@ -168,26 +169,13 @@
             if (data.ovpn) {
                 for (const [user, stats] of Object.entries(data.ovpn)) {
                     let elData = document.getElementById('ovpn_data_' + user);
-                    let elSpeedDown = document.getElementById('ovpn_speed_down_' + user);
-                    let elSpeedUp = document.getElementById('ovpn_speed_up_' + user);
-                    
-                    if (elData && elSpeedDown && elSpeedUp) {
+                    if (elData) {
                         elData.innerText = formatBytes(stats.rx + stats.tx);
-                        if (!firstUserPoll && lastUserRx[user] !== undefined) {
-                            let rxSpeed = Math.max(0, stats.rx - lastUserRx[user]);
-                            let txSpeed = Math.max(0, stats.tx - lastUserTx[user]);
-                            // Client perspective: Download = Server TX, Upload = Server RX
-                            elSpeedDown.innerText = '↓ ' + formatSpeed(txSpeed);
-                            elSpeedUp.innerText = '↑ ' + formatSpeed(rxSpeed);
-                        }
-                        lastUserRx[user] = stats.rx;
-                        lastUserTx[user] = stats.tx;
                     }
                 }
             }
-            firstUserPoll = false;
         });
-    }, 1000);
+    }, 2000);
 
     function toggleOvpnScroll(btn) {
         ovpnAutoScroll = !ovpnAutoScroll;
