@@ -1,6 +1,11 @@
-VERSION="7.0"
+VERSION="7.1"
 
 # Changelog
+
+## [v7.1] - 2026-07-06
+### Fixed
+- **Mojibake & UTF-8 Encoding**: Fixed an issue where scripts were accidentally saved with a UTF-8 BOM, causing `/bin/bash` execution to break on Linux and converting the interactive terminal menu emojis (🧰, ✖, ✔) into unreadable garbage characters.
+- **V7 Database Migration**: Fixed a bug introduced in v7.0 where fresh installations or updates would fail to launch the web panel because the `data/` folder didn't exist. The panel installer now properly creates `data/` and automatically migrates any legacy `panel.db` into the new v7 architecture.
 
 ## [v7.0] - 2026-07-06
 ### Changed
@@ -36,7 +41,7 @@ VERSION="7.0"
 
 ## [v5.8] - 2026-07-02
 ### Fixed
-- **SSH Disconnection**: Fixed a critical bug introduced during modularization (v5.4+) where sourcing the `action.sh` file internally overwrote the `TARGET` variable with the `LICENSE` string. This caused the VPS's anti-lockout routing rules (`PostUp` and `PreUp`) to be completely bypassed, forcing all VPS trafficâ€”including SSH connectionsâ€”through WARP, instantly dropping the user's connection during "Building Configuration".
+- **SSH Disconnection**: Fixed a critical bug introduced during modularization (v5.4+) where sourcing the `action.sh` file internally overwrote the `TARGET` variable with the `LICENSE` string. This caused the VPS's anti-lockout routing rules (`PostUp` and `PreUp`) to be completely bypassed, forcing all VPS traffic—including SSH connections—through WARP, instantly dropping the user's connection during "Building Configuration".
 
 ## [v5.7] - 2026-07-02
 ### Fixed
@@ -137,9 +142,9 @@ VERSION="7.0"
 
 ## [v3.8] - 2026-06-28
 ### Fixed
-- **WireGuard Panel (Critical)**: Fixed `Internal Server Error` caused by calling `get_db_connection()` which doesn't exist â€” all calls now correctly use `get_db()`.
+- **WireGuard Panel (Critical)**: Fixed `Internal Server Error` caused by calling `get_db_connection()` which doesn't exist — all calls now correctly use `get_db()`.
 - **OpenVPN Install (Critical)**: Same undefined function fix for the `/api/openvpn_stream` and `/api/add_wg_user` routes.
-- **OpenVPN & WireGuard "Not Installed" UI**: Completely redesigned to match the WARP page â€” full-width card with persistent, large terminal always visible on screen. Terminal shows live log as soon as you click Install.
+- **OpenVPN & WireGuard "Not Installed" UI**: Completely redesigned to match the WARP page — full-width card with persistent, large terminal always visible on screen. Terminal shows live log as soon as you click Install.
 - **Auto-resume polling**: If you navigate away and come back while an install is running, the terminal will automatically resume showing the live log.
 
 ## [v3.7] - 2026-06-28
@@ -160,7 +165,7 @@ VERSION="7.0"
 
 ## [v3.4] - 2026-06-28
 ### Added
-- **ANSI Color Rendering**: All terminal outputs (System Tools, WARP, Backup) now render colored output identical to the CLI menu â€” bold blue headers, green checkmarks, red errors.
+- **ANSI Color Rendering**: All terminal outputs (System Tools, WARP, Backup) now render colored output identical to the CLI menu — bold blue headers, green checkmarks, red errors.
 - **Auto-scroll Toggle**: Every terminal in the panel now has a green toggle switch. When ON, the terminal auto-scrolls to the newest line. When OFF, you can freely scroll to read previous output without being interrupted.
 - **Styled Scrollbar**: All terminals now have a thin, dark-styled scrollbar that is always visible.
 - **`install_packages` action**: System Packages tab now installs all missing packages via the live terminal.

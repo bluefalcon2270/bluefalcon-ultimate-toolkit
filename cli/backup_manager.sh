@@ -33,7 +33,7 @@ create_backup() {
     fi
 
     if [ -z "$paths_to_backup" ]; then
-        echo -e "\n[ ${RED}âœ–${NC} ] No configurations found to backup."
+        echo -e "\n[ ${RED}✖${NC} ] No configurations found to backup."
         pause_execution
         return
     fi
@@ -41,9 +41,9 @@ create_backup() {
     tar -czf "$backup_file" $paths_to_backup >/dev/null 2>&1
     
     if [ $? -eq 0 ]; then
-        echo -e "\n[ ${GREEN}âœ”${NC} ] Backup created successfully: $backup_file"
+        echo -e "\n[ ${GREEN}✔${NC} ] Backup created successfully: $backup_file"
     else
-        echo -e "\n[ ${RED}âœ–${NC} ] Backup failed."
+        echo -e "\n[ ${RED}✖${NC} ] Backup failed."
     fi
     
     pause_execution
@@ -80,9 +80,9 @@ restore_backup() {
         systemctl restart openvpn-server@server 2>/dev/null
         systemctl restart bluefalcon-panel 2>/dev/null
         
-        echo -e "\n[ ${GREEN}âœ”${NC} ] Restore completed successfully."
+        echo -e "\n[ ${GREEN}✔${NC} ] Restore completed successfully."
     else
-        echo -e "\n[ ${RED}âœ–${NC} ] Invalid selection."
+        echo -e "\n[ ${RED}✖${NC} ] Invalid selection."
     fi
     
     pause_execution
@@ -105,7 +105,7 @@ manage_backup() {
             1) create_backup ;;
             2) restore_backup ;;
             0) break ;;
-            *) echo -e "\n[ ${RED}âœ–${NC} ] Invalid input." ; sleep 1.5 ;;
+            *) echo -e "\n[ ${RED}✖${NC} ] Invalid input." ; sleep 1.5 ;;
         esac
     done
 }

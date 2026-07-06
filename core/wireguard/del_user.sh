@@ -31,4 +31,4 @@ rm -f "${CLIENT_DIR}/${CLIENT_NAME}.conf"
 # Remove from DB
 sqlite3 "$DB_FILE" "DELETE FROM wg_users WHERE system_name='${CLIENT_NAME}';"
 
-echo "[ âœ” ] User ${CLIENT_NAME} deleted successfully."
+echo "[ ✔ ] User ${CLIENT_NAME} deleted successfully."

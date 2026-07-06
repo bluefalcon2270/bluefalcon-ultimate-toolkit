@@ -57,7 +57,7 @@ manage_wireguard() {
                     bash "${SCRIPT_DIR}/core/wireguard/add_user.sh" "$new_user" "$exp_days"
                     pause_execution
                 else
-                    echo -e "\n[ ${RED}âœ–${NC} ] WireGuard is not installed."
+                    echo -e "\n[ ${RED}✖${NC} ] WireGuard is not installed."
                     sleep 1.5
                 fi
                 ;;
@@ -68,7 +68,7 @@ manage_wireguard() {
                     bash "${SCRIPT_DIR}/core/wireguard/del_user.sh" "$del_user"
                     pause_execution
                 else
-                    echo -e "\n[ ${RED}âœ–${NC} ] WireGuard is not installed."
+                    echo -e "\n[ ${RED}✖${NC} ] WireGuard is not installed."
                     sleep 1.5
                 fi
                 ;;
@@ -79,12 +79,12 @@ manage_wireguard() {
                     sqlite3 "${DB_FILE}" "SELECT system_name, ip_address, exp_days, status FROM wg_users;" | column -t -s '|'
                     pause_execution
                 else
-                    echo -e "\n[ ${RED}âœ–${NC} ] WireGuard is not installed."
+                    echo -e "\n[ ${RED}✖${NC} ] WireGuard is not installed."
                     sleep 1.5
                 fi
                 ;;
             0) break ;;
-            *) echo -e "\n[ ${RED}âœ–${NC} ] Invalid input." ; sleep 1.5 ;;
+            *) echo -e "\n[ ${RED}✖${NC} ] Invalid input." ; sleep 1.5 ;;
         esac
     done
 }

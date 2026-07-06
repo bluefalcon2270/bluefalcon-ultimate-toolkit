@@ -21,9 +21,9 @@ install_warp() {
     CURRENT_LOG="${WARP_LOG}" run_with_spinner "Building Configuration" build_config
     
     if ip link show wgcf >/dev/null 2>&1; then
-        echo -e "\n[ ${GREEN}âœ”${NC} ] WARP Installation Completed Successfully!"
+        echo -e "\n[ ${GREEN}✔${NC} ] WARP Installation Completed Successfully!"
     else
-        echo -e "\n[ ${RED}âœ–${NC} ] Failed to start WireGuard. Check 'View WARP Logs'."
+        echo -e "\n[ ${RED}✖${NC} ] Failed to start WireGuard. Check 'View WARP Logs'."
     fi
     sleep 3
 }
@@ -31,16 +31,16 @@ install_warp() {
 toggle_warp_service() {
     echo ""
     if [ ! -f "/etc/wireguard/wgcf.conf" ]; then 
-        echo -e "[ ${RED}âœ–${NC} ] WARP is not installed."
+        echo -e "[ ${RED}✖${NC} ] WARP is not installed."
         sleep 2; return
     fi
     
     source "${SCRIPT_DIR}/core/warp/action.sh"
     CURRENT_LOG="${WARP_LOG}" run_with_spinner "Toggling WARP" toggle_warp    
     if ip link show wgcf >/dev/null 2>&1; then
-        echo -e "[ ${GREEN}âœ”${NC} ] WARP Service Started."
+        echo -e "[ ${GREEN}✔${NC} ] WARP Service Started."
     else
-        echo -e "[ ${RED}âœ–${NC} ] WARP Service Stopped."
+        echo -e "[ ${RED}✖${NC} ] WARP Service Stopped."
     fi
     sleep 2
 }
@@ -50,9 +50,9 @@ uninstall_warp() {
     if [ -f "/etc/wireguard/wgcf.conf" ] || command -v wgcf >/dev/null 2>&1; then
         source "${SCRIPT_DIR}/core/warp/action.sh"
         CURRENT_LOG="${WARP_LOG}" run_with_spinner "Uninstalling WARP" uninstall_warp
-        echo -e "\n[ ${GREEN}âœ”${NC} ] WARP Uninstalled."
+        echo -e "\n[ ${GREEN}✔${NC} ] WARP Uninstalled."
     else
-        echo -e "[ ${RED}âœ–${NC} ] WARP is not installed."
+        echo -e "[ ${RED}✖${NC} ] WARP is not installed."
     fi
     pause_execution
 }
@@ -70,7 +70,7 @@ draw_warp_dashboard() {
     local WARP_IPv6_Status=$(curl -s6 ${CF_Trace_URL} --connect-timeout 2 | grep warp | cut -d= -f2 || echo "off")
     local WARP_IPv6_IP=$(curl -s6 ${CF_Trace_URL} --connect-timeout 2 | grep ip | cut -d= -f2 || echo "------------")
 
-    local active_tag="  ${GREEN}(ðŸŸ¢ Active)${NC}"
+    local active_tag="  ${GREEN}(🟢 Active)${NC}"
     local v4_vps_out v4_warp_out v6_vps_out v6_warp_out
 
     if [[ ${WARP_IPv4_Status} == "on" || ${WARP_IPv4_Status} == "plus" ]]; then
@@ -136,7 +136,7 @@ manage_warp() {
             3) toggle_warp_service ;;
             4) uninstall_warp ;;
             0) break ;;
-            *) echo -e "\n[ ${RED}âœ–${NC} ] Invalid input." ; sleep 1.5 ;;
+            *) echo -e "\n[ ${RED}✖${NC} ] Invalid input." ; sleep 1.5 ;;
         esac
     done
 }

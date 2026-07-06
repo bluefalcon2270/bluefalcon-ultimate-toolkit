@@ -86,4 +86,4 @@ EOF
 # Add to SQLite database
 sqlite3 "$DB_FILE" "INSERT INTO wg_users (display_name, system_name, pub_key, ip_address, exp_days, status, rx, tx) VALUES ('${CLIENT_NAME}', '${CLIENT_NAME}', '${CLIENT_PUB}', '${CLIENT_IP}', ${EXP_DAYS}, 'active', 0, 0);"
 
-echo "[ âœ” ] User ${CLIENT_NAME} added successfully with IP ${CLIENT_IP}."
+echo "[ ✔ ] User ${CLIENT_NAME} added successfully with IP ${CLIENT_IP}."

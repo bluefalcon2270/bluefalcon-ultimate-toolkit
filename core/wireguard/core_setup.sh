@@ -10,7 +10,7 @@ DNS1="${2:-8.8.8.8}"
 DNS2="${3:-8.8.4.4}"
 PUBLIC_IP=$(curl --interface $(ip route show table main | awk '/default/ {print $5}' | head -1) -s4 ifconfig.me || echo "127.0.0.1")
 
-echo "ðŸš€ STARTING WIREGUARD INSTALLATION..."
+echo "🚀 STARTING WIREGUARD INSTALLATION..."
 echo "-----------------------------------------------------"
 echo "  Installing WireGuard Tools"
 echo "-----------------------------------------------------"
@@ -62,4 +62,4 @@ systemctl restart wg-quick@wg0 > /dev/null 2>&1
 # Update SQLite Database to mark as installed
 sqlite3 /opt/bluefalcon-ultimate-toolkit/data/panel.db "UPDATE settings SET is_installed=1, port=${PORT}, dns='${DNS1}', dns2='${DNS2}' WHERE server_name='wireguard';"
 
-echo "[ âœ” ] WireGuard successfully installed on port ${PORT}!"
+echo "[ ✔ ] WireGuard successfully installed on port ${PORT}!"

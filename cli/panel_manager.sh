@@ -14,11 +14,16 @@ install_panel() {
     CURRENT_LOG="${LOG_FILE}" run_with_spinner "Installing dependencies" apt-get install -y python3 python3-flask python3-gunicorn python3-psutil sqlite3 curl cron gunicorn iptables iptables-persistent iproute2 netcat-openbsd
 
     deploy_panel_files() {
-        mkdir -p "${APP_DIR}/configs" /var/log/bluefalcon-panel
+        mkdir -p "${APP_DIR}/configs" /var/log/bluefalcon-panel "${APP_DIR}/data"
         local REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
         
         cp -r "${REPO_DIR}/panel/"* "${APP_DIR}/"
         cp -r "${REPO_DIR}/core" "${APP_DIR}/"
+        if [ -d "${REPO_DIR}/data" ]; then cp -r "${REPO_DIR}/data/"* "${APP_DIR}/data/" 2>/dev/null || true; fi
+        
+        # Migrate old v6 DB to v7
+        if [ -f "${APP_DIR}/panel.db" ]; then mv "${APP_DIR}/panel.db" "${APP_DIR}/data/panel.db" 2>/dev/null || true; fi
+        
         chmod +x "${APP_DIR}/core/"*/*.sh
     }
     
@@ -57,7 +62,7 @@ EOF
     CURRENT_LOG="${LOG_FILE}" run_with_spinner "Starting Web Panel Engine" bash -c "systemctl daemon-reload && systemctl enable bluefalcon-panel && systemctl restart bluefalcon-panel"
 
     IPV4=$(ip -4 addr show $(ip route | awk '/default/ {print $5}' | head -1) | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
-    echo -e "\n[ ${GREEN}âœ”${NC} ] WEB PANEL DEPLOYED SUCCESSFULLY!"
+    echo -e "\n[ ${GREEN}✔${NC} ] WEB PANEL DEPLOYED SUCCESSFULLY!"
     echo -e "Open your browser to the Initialization Wizard: ${YELLOW}http://$IPV4:2020${NC}\n"
     pause_execution
 }
@@ -69,9 +74,9 @@ uninstall_panel() {
     if [[ "${confirm,,}" == "y" ]]; then
         echo ""
         CURRENT_LOG="${LOG_FILE}" run_with_spinner "Removing Web Panel service" bash -c "systemctl stop bluefalcon-panel 2>/dev/null; systemctl disable bluefalcon-panel 2>/dev/null; rm -f /etc/systemd/system/bluefalcon-panel.service /etc/cron.daily/bluefalcon-panel-expiry; systemctl daemon-reload"
-        echo -e "\n[ ${GREEN}âœ”${NC} ] Web Panel safely disabled and removed. Your VPN engines are still running."
+        echo -e "\n[ ${GREEN}✔${NC} ] Web Panel safely disabled and removed. Your VPN engines are still running."
     else
-        echo -e "\n[ ${YELLOW}âœ–${NC} ] Uninstallation canceled."
+        echo -e "\n[ ${YELLOW}✖${NC} ] Uninstallation canceled."
     fi
     pause_execution
 }
@@ -101,7 +106,7 @@ manage_panel() {
         echo -e " Admin Username:      ${CYAN}${ADMIN_USER}${NC}"
         echo -e " Admin Password:      ${CYAN}${ADMIN_PASS}${NC}"
         
-        if systemctl is-active --quiet bluefalcon-panel; then echo -e " Web Panel:           [ ${GREEN}âœ”${NC} ] Active"; else echo -e " Web Panel:           [ ${RED}âœ–${NC} ] Offline"; fi
+        if systemctl is-active --quiet bluefalcon-panel; then echo -e " Web Panel:           [ ${GREEN}✔${NC} ] Active"; else echo -e " Web Panel:           [ ${RED}✖${NC} ] Offline"; fi
         
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
         echo ""
@@ -115,7 +120,7 @@ manage_panel() {
             1) install_panel ;;
             2) uninstall_panel ;;
             0) break ;;
-            *) echo -e "\n[ ${RED}âœ–${NC} ] Invalid input." ; sleep 1.5 ;;
+            *) echo -e "\n[ ${RED}✖${NC} ] Invalid input." ; sleep 1.5 ;;
         esac
     done
 }
