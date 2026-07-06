@@ -121,6 +121,14 @@ app.jinja_env.filters['format_bytes'] = format_bytes
 @app.route('/api/sysinfo')
 def sysinfo():
     if 'admin_logged_in' not in session: return {"error": "unauthorized"}, 401
+    
+    net_io = psutil.net_io_counters(pernic=True)
+    net_rx = 0; net_tx = 0
+    for nic, stats in net_io.items():
+        if not nic.startswith(('lo', 'tun', 'wg', 'veth', 'docker', 'br-')):
+            net_rx += stats.bytes_recv
+            net_tx += stats.bytes_sent
+
     return {
         "cpu": psutil.cpu_percent(interval=None),
         "cpu_cores": psutil.cpu_percent(interval=None, percpu=True),
@@ -133,8 +141,8 @@ def sysinfo():
         "disk_percent": psutil.disk_usage('/').percent,
         "disk_used": format_bytes(psutil.disk_usage('/').used),
         "disk_total": format_bytes(psutil.disk_usage('/').total),
-        "net_rx": psutil.net_io_counters().bytes_recv,
-        "net_tx": psutil.net_io_counters().bytes_sent,
+        "net_rx": net_rx,
+        "net_tx": net_tx,
         "uptime": int(time.time() - psutil.boot_time()),
         "threads": sum(p.info['num_threads'] for p in psutil.process_iter(['num_threads']) if p.info['num_threads']),
         "conn_tcp": len([c for c in psutil.net_connections(kind='tcp') if c.status == 'ESTABLISHED']),

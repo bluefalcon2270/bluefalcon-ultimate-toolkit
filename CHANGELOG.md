@@ -1,6 +1,10 @@
-VERSION="7.5"
+VERSION="7.6"
 
 # Changelog
+
+## [v7.6] - 2026-07-06
+### Fixed
+- **Network Stats Double Counting**: Fixed an issue where the Overall Speed and Total Data metrics were displaying roughly double the actual values. This was caused by `psutil` summing the traffic across all network interfaces, which resulted in VPN traffic being counted twice (once on the virtual `tun`/`wg` interface, and once on the physical `eth`/`ens` interface as encapsulated packets). The system now explicitly filters out virtual loopback and tunnel interfaces (`lo`, `tun`, `wg`, `docker`, etc.) to measure pure, raw edge-server traffic.
 
 ## [v7.5] - 2026-07-06
 ### Fixed
