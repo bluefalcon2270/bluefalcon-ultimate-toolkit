@@ -1,6 +1,10 @@
-VERSION="7.2"
+VERSION="7.3"
 
 # Changelog
+
+## [v7.3] - 2026-07-06
+### Fixed
+- **Dashboard Crash**: Fixed another 500 Internal Server Error when accessing the web panel dashboard. The `url_for('system')` link was invalid because the actual underlying Python function for the system tools page is named `system_tools`, not `system`.
 
 ## [v7.2] - 2026-07-06
 ### Fixed
