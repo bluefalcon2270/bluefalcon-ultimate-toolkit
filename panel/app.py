@@ -127,11 +127,18 @@ def sysinfo():
         "ram_percent": psutil.virtual_memory().percent,
         "ram_used": format_bytes(psutil.virtual_memory().used),
         "ram_total": format_bytes(psutil.virtual_memory().total),
+        "swap_percent": psutil.swap_memory().percent,
+        "swap_used": format_bytes(psutil.swap_memory().used),
+        "swap_total": format_bytes(psutil.swap_memory().total),
         "disk_percent": psutil.disk_usage('/').percent,
         "disk_used": format_bytes(psutil.disk_usage('/').used),
         "disk_total": format_bytes(psutil.disk_usage('/').total),
         "net_rx": psutil.net_io_counters().bytes_recv,
-        "net_tx": psutil.net_io_counters().bytes_sent
+        "net_tx": psutil.net_io_counters().bytes_sent,
+        "uptime": int(time.time() - psutil.boot_time()),
+        "threads": sum(p.info['num_threads'] for p in psutil.process_iter(['num_threads']) if p.info['num_threads']),
+        "conn_tcp": len([c for c in psutil.net_connections(kind='tcp') if c.status == 'ESTABLISHED']),
+        "conn_udp": len(psutil.net_connections(kind='udp'))
     }
 
 # --- Core Routing ---

@@ -1,6 +1,11 @@
-VERSION="6.2"
+VERSION="6.3"
 
 # Changelog
+
+## [v6.3] - 2026-07-06
+### Changed
+- **Dashboard Aesthetic Overhaul**: Completely redesigned the Web Panel dashboard to match the deeply aesthetic, dark-themed Sanaie (3X-UI) visual style. Replaced horizontal progress bars with animated SVG circular rings and introduced a dense 2-column metrics grid.
+- **Enhanced Telemetry**: Expanded the `/api/sysinfo` backend API to supply Swap Memory, OS Uptime, Thread Counts, and active TCP/UDP connections to feed the new dashboard layout. Removed the intrusive Unified Network Manager WARP banner to preserve the aesthetic.
 
 ## [v6.2] - 2026-07-06
 ### Fixed
