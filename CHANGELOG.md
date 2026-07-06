@@ -1,6 +1,10 @@
-VERSION="7.1"
+VERSION="7.2"
 
 # Changelog
+
+## [v7.2] - 2026-07-06
+### Fixed
+- **Dashboard Crash**: Fixed a 500 Internal Server Error when accessing the web panel dashboard. The Jinja `url_for('logs')` function was crashing the Flask router because the route had been renamed to `system` in a previous restructuring.
 
 ## [v7.1] - 2026-07-06
 ### Fixed
