@@ -5,10 +5,10 @@ import sqlite3, os, time, subprocess, re, psutil, threading
 app = Flask(__name__)
 app.secret_key = 'BlueFalcon_Enterprise_Secret_Key_2026'
 APP_DIR = '/opt/bluefalcon-ultimate-toolkit'
-DB_PATH = f'{APP_DIR}/panel.db'
+DB_PATH = f'{APP_DIR}/data/panel.db'
 LOG_PATH = '/var/log/openvpn/status.log'
 
-# ANSI escape → HTML converter for terminal output
+# ANSI escape â†’ HTML converter for terminal output
 _ANSI_MAP = {
     '31': 'color:#F28B82', '91': 'color:#F28B82',
     '32': 'color:#34A853', '92': 'color:#81C995',
@@ -219,13 +219,13 @@ def install_execute():
         wg_pending = conn.execute("SELECT is_installed FROM settings WHERE server_name='wireguard'").fetchone()[0] == -1
         conn.close()
 
-        yield "data: 🦅 INITIALIZING BLUEFALCON DEPLOYMENT SEQUENCE\n\n"
+        yield "data: ðŸ¦… INITIALIZING BLUEFALCON DEPLOYMENT SEQUENCE\n\n"
         time.sleep(1)
 
         if ovpn_pending:
             yield "data: \n\n"
             yield "data: [OPENVPN] Starting Core Configuration...\n\n"
-            process = subprocess.Popen(['bash', f'{APP_DIR}/vpn-scripts/openvpn/core_setup.sh'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            process = subprocess.Popen(['bash', f'{APP_DIR}/core/openvpn/core_setup.sh'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             for line in iter(process.stdout.readline, ''): yield f"data: {line}\n\n"
             process.stdout.close(); process.wait()
             
@@ -240,7 +240,7 @@ def install_execute():
             wg_port = conn.execute("SELECT port FROM settings WHERE server_name='wireguard'").fetchone()[0]
             conn.close()
             
-            process = subprocess.Popen(['bash', f'{APP_DIR}/vpn-scripts/wireguard/core_setup.sh', str(wg_port)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            process = subprocess.Popen(['bash', f'{APP_DIR}/core/wireguard/core_setup.sh', str(wg_port)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             for line in iter(process.stdout.readline, ''): yield f"data: {line}\n\n"
             process.stdout.close(); process.wait()
             
@@ -256,7 +256,7 @@ def install_execute():
             except:
                 target, license_key = "3", "free"
                 
-            process2 = subprocess.Popen(['bash', f'{APP_DIR}/vpn-scripts/warp/action.sh', 'install', target, license_key], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            process2 = subprocess.Popen(['bash', f'{APP_DIR}/core/warp/action.sh', 'install', target, license_key], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             for line in iter(process2.stdout.readline, ''): yield f"data: {line}\n\n"
             process2.stdout.close(); process2.wait()
             
@@ -265,7 +265,7 @@ def install_execute():
             conn.commit(); conn.close()
             
         yield "data: \n\n"
-        yield "data: 🟢 DEPLOYMENT COMPLETE. REDIRECTING...\n\n"
+        yield "data: ðŸŸ¢ DEPLOYMENT COMPLETE. REDIRECTING...\n\n"
         
         conn = get_db()
         panel_port_row = conn.execute("SELECT panel_port FROM settings LIMIT 1").fetchone()
@@ -339,7 +339,7 @@ def openvpn_dashboard():
             with open("/etc/openvpn/server/auth/users.db", "w") as f:
                 for u in conn.execute('SELECT system_name, password, exp_days, status FROM users').fetchall():
                     f.write(f"{u['system_name']}:{u['password']}:{u['exp_days']}:{u['status']}\n")
-            subprocess.run(['bash', f'{APP_DIR}/vpn-scripts/openvpn/add_user.sh', sys_name, p], check=False)
+            subprocess.run(['bash', f'{APP_DIR}/core/openvpn/add_user.sh', sys_name, p], check=False)
         return redirect(url_for('openvpn_dashboard'))
 
     users = conn.execute('SELECT * FROM users').fetchall()
@@ -371,7 +371,7 @@ def run_ovpn_task(protocol, port, dns1, dns2):
     # We must update the DB first, then run core_setup.sh
     with open(log_file, 'w') as f:
         process = subprocess.Popen(
-            ['bash', f'{APP_DIR}/vpn-scripts/openvpn/core_setup.sh'],
+            ['bash', f'{APP_DIR}/core/openvpn/core_setup.sh'],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
         )
         for line in iter(process.stdout.readline, ''):
@@ -412,7 +412,7 @@ def run_wg_task(action, port):
     with open(log_file, 'w') as f:
         if action == 'install':
             process = subprocess.Popen(
-                ['bash', f'{APP_DIR}/vpn-scripts/wireguard/core_setup.sh', str(port)],
+                ['bash', f'{APP_DIR}/core/wireguard/core_setup.sh', str(port)],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
             )
             for line in iter(process.stdout.readline, ''):
@@ -468,7 +468,7 @@ def add_wg_user():
     if exists:
         return jsonify({"status": "error", "message": "Client name already exists."})
         
-    process = subprocess.run(['bash', f'{APP_DIR}/vpn-scripts/wireguard/add_user.sh', name, str(exp)], capture_output=True, text=True)
+    process = subprocess.run(['bash', f'{APP_DIR}/core/wireguard/add_user.sh', name, str(exp)], capture_output=True, text=True)
     if process.returncode == 0:
         return jsonify({"status": "success"})
     return jsonify({"status": "error", "message": process.stderr})
@@ -478,7 +478,7 @@ def del_wg_user():
     if 'admin_logged_in' not in session: return jsonify({"error": "Unauthorized"}), 401
     name = request.form.get('name')
     if name:
-        subprocess.run(['bash', f'{APP_DIR}/vpn-scripts/wireguard/del_user.sh', name], check=False)
+        subprocess.run(['bash', f'{APP_DIR}/core/wireguard/del_user.sh', name], check=False)
     return jsonify({"status": "success"})
 
 @app.route('/api/download_wg_conf/<username>')
@@ -535,7 +535,7 @@ def warp_dashboard():
 @app.route('/warp/action/<action>', methods=['POST', 'GET'])
 def warp_action(action):
     if 'admin_logged_in' not in session: return redirect(url_for('login'))
-    script_path = f"{APP_DIR}/vpn-scripts/warp/action.sh"
+    script_path = f"{APP_DIR}/core/warp/action.sh"
     if action == "toggle": 
         os.system(f"bash {script_path} toggle")
     return redirect(url_for('warp_dashboard'))
@@ -544,7 +544,7 @@ def run_warp_script(action, script_path, target='3', license_key='free'):
     log_file = '/tmp/warp_install.log'
     with open(log_file, 'w') as f:
         if action == 'install':
-            f.write("🚀 INITIALIZING CLOUDFLARE WARP ENGINE...\n\n")
+            f.write("ðŸš€ INITIALIZING CLOUDFLARE WARP ENGINE...\n\n")
             process = subprocess.Popen(['bash', script_path, 'install', target, license_key], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             for line in iter(process.stdout.readline, ''):
                 f.write(line)
@@ -555,9 +555,9 @@ def run_warp_script(action, script_path, target='3', license_key='free'):
             conn.execute('UPDATE warp SET is_installed=1')
             conn.commit(); conn.close()
             
-            f.write("\n\n🟢 WARP ENGINE DEPLOYED SUCCESSFULLY.\n\n")
+            f.write("\n\nðŸŸ¢ WARP ENGINE DEPLOYED SUCCESSFULLY.\n\n")
         elif action == 'uninstall':
-            f.write("🗑️ PURGING CLOUDFLARE WARP ENGINE...\n\n")
+            f.write("ðŸ—‘ï¸ PURGING CLOUDFLARE WARP ENGINE...\n\n")
             process = subprocess.Popen(['bash', script_path, 'uninstall'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             for line in iter(process.stdout.readline, ''):
                 f.write(line)
@@ -568,7 +568,7 @@ def run_warp_script(action, script_path, target='3', license_key='free'):
             conn.execute('UPDATE warp SET is_installed=0')
             conn.commit(); conn.close()
             
-            f.write("\n\n🔴 WARP ENGINE PURGED.\n\n")
+            f.write("\n\nðŸ”´ WARP ENGINE PURGED.\n\n")
             
         f.write("[DONE]\n")
 
@@ -579,7 +579,7 @@ def warp_stream():
     action = request.args.get('action')
     target = request.args.get('target', '3')
     license_key = request.args.get('license', 'free')
-    script_path = f"{APP_DIR}/vpn-scripts/warp/action.sh"
+    script_path = f"{APP_DIR}/core/warp/action.sh"
     
     # Start background thread
     threading.Thread(target=run_warp_script, args=(action, script_path, target, license_key)).start()
@@ -629,7 +629,7 @@ def run_system_task(action, payload=None):
             for line in iter(process.stdout.readline, ''):
                 f.write(line); f.flush()
             process.wait()
-            f.write(f"\n[ {_GRN}✔{_NC} ] System update and upgrade successfully finished!\n\n")
+            f.write(f"\n[ {_GRN}âœ”{_NC} ] System update and upgrade successfully finished!\n\n")
 
         elif action == 'install_packages':
             pkgs = ['curl','wget','git','htop','unzip','zip','nano','net-tools',
@@ -644,7 +644,7 @@ def run_system_task(action, payload=None):
                 check = subprocess.run(f"dpkg-query -W -f='${{Status}}' {pkg} 2>/dev/null", shell=True, capture_output=True, text=True)
                 if "ok installed" not in check.stdout:
                     subprocess.run(f"DEBIAN_FRONTEND=noninteractive apt-get install -yq {pkg} >/dev/null 2>&1", shell=True)
-                f.write(f"[ {_GRN}✔{_NC} ] {pkg}\n")
+                f.write(f"[ {_GRN}âœ”{_NC} ] {pkg}\n")
                 f.flush()
                 
             # 2. Check and Install Docker
@@ -668,13 +668,13 @@ def run_system_task(action, payload=None):
                 """
                 subprocess.run(docker_cmd, shell=True)
                 
-            f.write(f"[ {_GRN}✔{_NC} ] Docker Engine & Compose\n")
+            f.write(f"[ {_GRN}âœ”{_NC} ] Docker Engine & Compose\n")
             f.write("\nInstallation process finished,\n\n")
             f.flush()
 
         elif action == 'create_backup':
-            f.write(f"📦 {_BB}CREATING SYSTEM BACKUP...{_NC}\n\n")
-            f.write(f"{_BB}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{_NC}\n\n")
+            f.write(f"ðŸ“¦ {_BB}CREATING SYSTEM BACKUP...{_NC}\n\n")
+            f.write(f"{_BB}â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”{_NC}\n\n")
             f.flush()
             timestamp = time.strftime("%Y%m%d_%H%M%S")
             backup_dir = "/var/backups/bluefalcon"
@@ -682,7 +682,7 @@ def run_system_task(action, payload=None):
             backup_file = f"{backup_dir}/bf_backup_{timestamp}.tar.gz"
             paths = []
             if os.path.exists("/etc/openvpn/server"): paths.append("/etc/openvpn/server")
-            if os.path.exists(f"{APP_DIR}/panel.db"): paths.append(f"{APP_DIR}/panel.db")
+            if os.path.exists(f"{APP_DIR}/data/panel.db"): paths.append(f"{APP_DIR}/data/panel.db")
             if os.path.exists("/etc/wireguard"): paths.append("/etc/wireguard")
             if not paths:
                 f.write(f"[ {_YLW}!{_NC} ] No configurations found to backup.\n\n")
@@ -697,17 +697,17 @@ def run_system_task(action, payload=None):
                 process.wait()
                 if process.returncode == 0:
                     size = os.path.getsize(backup_file) / (1024 * 1024)
-                    f.write(f"\n[ {_GRN}✔{_NC} ] Backup created: {_CYN}{backup_file}{_NC} ({size:.2f} MB)\n\n")
+                    f.write(f"\n[ {_GRN}âœ”{_NC} ] Backup created: {_CYN}{backup_file}{_NC} ({size:.2f} MB)\n\n")
                 else:
-                    f.write(f"\n[ {_RED}✖{_NC} ] Backup FAILED.\n\n")
+                    f.write(f"\n[ {_RED}âœ–{_NC} ] Backup FAILED.\n\n")
 
         elif action == 'restore_backup':
-            f.write(f"🔄 {_BB}RESTORING BACKUP: {payload}...{_NC}\n\n")
-            f.write(f"{_BB}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{_NC}\n\n")
+            f.write(f"ðŸ”„ {_BB}RESTORING BACKUP: {payload}...{_NC}\n\n")
+            f.write(f"{_BB}â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”{_NC}\n\n")
             f.flush()
             backup_file = f"/var/backups/bluefalcon/{payload}"
             if not os.path.exists(backup_file):
-                f.write(f"[ {_RED}✖{_NC} ] Backup file not found.\n\n")
+                f.write(f"[ {_RED}âœ–{_NC} ] Backup file not found.\n\n")
             else:
                 process = subprocess.Popen(
                     f"tar -xzvf {backup_file} -C /",
@@ -719,7 +719,7 @@ def run_system_task(action, payload=None):
                 f.write(f"\n{_BB}Restarting services...{_NC}\n")
                 os.system("systemctl restart openvpn-server@server 2>/dev/null")
                 os.system("systemctl restart bluefalcon-panel 2>/dev/null")
-                f.write(f"[ {_GRN}✔{_NC} ] Restore completed successfully.\n\n")
+                f.write(f"[ {_GRN}âœ”{_NC} ] Restore completed successfully.\n\n")
 
         f.write("[DONE]\n")
 
@@ -875,7 +875,7 @@ def preferences():
         if needs_vpn_restart: os.system("systemctl restart openvpn-server@server")
         
         for u in conn.execute('SELECT system_name, password FROM users').fetchall(): 
-            subprocess.run(['bash', f'{APP_DIR}/vpn-scripts/openvpn/add_user.sh', u['system_name'], u['password']], check=False)
+            subprocess.run(['bash', f'{APP_DIR}/core/openvpn/add_user.sh', u['system_name'], u['password']], check=False)
 
         if new_panel_port != old_panel_port:
             os.system(f"ufw delete allow {old_panel_port}/tcp >/dev/null 2>&1")

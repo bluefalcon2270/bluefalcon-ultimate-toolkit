@@ -44,7 +44,7 @@ manage_wireguard() {
                 echo ""
                 read -rp "Enter port for WireGuard [Default: 51820]: " custom_port
                 custom_port=${custom_port:-51820}
-                bash "${SCRIPT_DIR}/vpn-scripts/wireguard/core_setup.sh" "$custom_port" "8.8.8.8" "8.8.4.4"
+                bash "${SCRIPT_DIR}/core/wireguard/core_setup.sh" "$custom_port" "8.8.8.8" "8.8.4.4"
                 wg_is_installed="1"
                 pause_execution
                 ;;
@@ -54,10 +54,10 @@ manage_wireguard() {
                     read -rp "Enter Username: " new_user
                     read -rp "Enter Expiration (days) [Default: 30]: " exp_days
                     exp_days=${exp_days:-30}
-                    bash "${SCRIPT_DIR}/vpn-scripts/wireguard/add_user.sh" "$new_user" "$exp_days"
+                    bash "${SCRIPT_DIR}/core/wireguard/add_user.sh" "$new_user" "$exp_days"
                     pause_execution
                 else
-                    echo -e "\n[ ${RED}✖${NC} ] WireGuard is not installed."
+                    echo -e "\n[ ${RED}âœ–${NC} ] WireGuard is not installed."
                     sleep 1.5
                 fi
                 ;;
@@ -65,10 +65,10 @@ manage_wireguard() {
                 if [[ "${wg_is_installed}" == "1" ]]; then
                     echo ""
                     read -rp "Enter Username to remove: " del_user
-                    bash "${SCRIPT_DIR}/vpn-scripts/wireguard/del_user.sh" "$del_user"
+                    bash "${SCRIPT_DIR}/core/wireguard/del_user.sh" "$del_user"
                     pause_execution
                 else
-                    echo -e "\n[ ${RED}✖${NC} ] WireGuard is not installed."
+                    echo -e "\n[ ${RED}âœ–${NC} ] WireGuard is not installed."
                     sleep 1.5
                 fi
                 ;;
@@ -79,12 +79,12 @@ manage_wireguard() {
                     sqlite3 "${DB_FILE}" "SELECT system_name, ip_address, exp_days, status FROM wg_users;" | column -t -s '|'
                     pause_execution
                 else
-                    echo -e "\n[ ${RED}✖${NC} ] WireGuard is not installed."
+                    echo -e "\n[ ${RED}âœ–${NC} ] WireGuard is not installed."
                     sleep 1.5
                 fi
                 ;;
             0) break ;;
-            *) echo -e "\n[ ${RED}✖${NC} ] Invalid input." ; sleep 1.5 ;;
+            *) echo -e "\n[ ${RED}âœ–${NC} ] Invalid input." ; sleep 1.5 ;;
         esac
     done
 }

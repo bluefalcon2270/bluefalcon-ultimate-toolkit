@@ -1,6 +1,15 @@
-VERSION="6.3"
+VERSION="7.0"
 
 # Changelog
+
+## [v7.0] - 2026-07-06
+### Changed
+- **Massive Architectural Restructure**: Completely reorganized the underlying folder layout of the entire codebase to properly separate concerns and drastically improve maintainability.
+  - Extracted all Web Panel files to be strictly contained within `panel/`.
+  - Migrated the old terminal `modules/` into a dedicated `cli/` directory.
+  - Consolidated all backend VPN generation scripts (formerly `vpn-scripts/`) directly into the `core/` engine folder so both the terminal UI and Web Panel pull from one unified source.
+  - Moved the `panel.db` SQLite database out of the root directory and into a dedicated `data/` folder.
+  - Executed a codebase-wide string replacement, updating over 30+ internal hardcoded paths across Python and Bash scripts to successfully link the new architecture together.
 
 ## [v6.3] - 2026-07-06
 ### Changed
@@ -23,11 +32,11 @@ VERSION="6.3"
 
 ## [v5.9] - 2026-07-02
 ### Fixed
-- **WARP Toggle**: Fixed an unbound variable error (`$1: unbound variable`) in `vpn-scripts/warp/action.sh` when the script is sourced without arguments during WARP toggle operations.
+- **WARP Toggle**: Fixed an unbound variable error (`$1: unbound variable`) in `core/warp/action.sh` when the script is sourced without arguments during WARP toggle operations.
 
 ## [v5.8] - 2026-07-02
 ### Fixed
-- **SSH Disconnection**: Fixed a critical bug introduced during modularization (v5.4+) where sourcing the `action.sh` file internally overwrote the `TARGET` variable with the `LICENSE` string. This caused the VPS's anti-lockout routing rules (`PostUp` and `PreUp`) to be completely bypassed, forcing all VPS traffic—including SSH connections—through WARP, instantly dropping the user's connection during "Building Configuration".
+- **SSH Disconnection**: Fixed a critical bug introduced during modularization (v5.4+) where sourcing the `action.sh` file internally overwrote the `TARGET` variable with the `LICENSE` string. This caused the VPS's anti-lockout routing rules (`PostUp` and `PreUp`) to be completely bypassed, forcing all VPS trafficâ€”including SSH connectionsâ€”through WARP, instantly dropping the user's connection during "Building Configuration".
 
 ## [v5.7] - 2026-07-02
 ### Fixed
@@ -51,7 +60,7 @@ VERSION="6.3"
 
 ## [v5.2] - 2026-07-02
 ### Changed
-- **Architectural Unification**: Refactored the terminal and web panel backends to use a single source of truth. Eliminated massively duplicated WARP installation code in `warp_manager.sh`, replacing it with a direct invocation of the web panel's `action.sh` script. Removed confusing file copying logic from `panel_manager.sh` and updated `app.py` and `openvpn_manager.sh` to natively point to the `vpn-scripts` directory. This permanently resolves drift bugs across the codebase.
+- **Architectural Unification**: Refactored the terminal and web panel backends to use a single source of truth. Eliminated massively duplicated WARP installation code in `warp_manager.sh`, replacing it with a direct invocation of the web panel's `action.sh` script. Removed confusing file copying logic from `panel_manager.sh` and updated `app.py` and `openvpn_manager.sh` to natively point to the `core` directory. This permanently resolves drift bugs across the codebase.
 
 ## [v5.1] - 2026-07-02
 ### Changed
@@ -98,7 +107,7 @@ VERSION="6.3"
 
 ## [v4.3] - 2026-06-29
 ### Changed
-- **Unified Network Manager**: Completely overhauled the WARP installation script (`vpn-scripts/warp/action.sh`). Eradicated the official `cloudflare-warp` desktop daemon which was causing catastrophic routing conflicts and pulling in 662MB of GUI bloatware. Replaced it with pure `wgcf` + `wireguard-tools` policy routing.
+- **Unified Network Manager**: Completely overhauled the WARP installation script (`core/warp/action.sh`). Eradicated the official `cloudflare-warp` desktop daemon which was causing catastrophic routing conflicts and pulling in 662MB of GUI bloatware. Replaced it with pure `wgcf` + `wireguard-tools` policy routing.
 - **Conflict Warning UI**: Added dynamic warning banners to the Web Panel dashboard. If WARP is running concurrently with OpenVPN or WireGuard, the dashboard actively informs the user that client outbound traffic is being bridged through Cloudflare.
 - **Cross-Platform Compatibility**: Normalized all bash and python scripts to Linux (LF) line endings to fix `\r` crash bugs on fresh deployments. Added `.gitattributes` to enforce this behavior.
 - **System Logs**: Fixed an issue where Ubuntu 24.04 nodes failed to load the authentication logs via `tail /var/log/auth.log`. Ported the logic to `journalctl -u ssh.service`.
@@ -128,9 +137,9 @@ VERSION="6.3"
 
 ## [v3.8] - 2026-06-28
 ### Fixed
-- **WireGuard Panel (Critical)**: Fixed `Internal Server Error` caused by calling `get_db_connection()` which doesn't exist — all calls now correctly use `get_db()`.
+- **WireGuard Panel (Critical)**: Fixed `Internal Server Error` caused by calling `get_db_connection()` which doesn't exist â€” all calls now correctly use `get_db()`.
 - **OpenVPN Install (Critical)**: Same undefined function fix for the `/api/openvpn_stream` and `/api/add_wg_user` routes.
-- **OpenVPN & WireGuard "Not Installed" UI**: Completely redesigned to match the WARP page — full-width card with persistent, large terminal always visible on screen. Terminal shows live log as soon as you click Install.
+- **OpenVPN & WireGuard "Not Installed" UI**: Completely redesigned to match the WARP page â€” full-width card with persistent, large terminal always visible on screen. Terminal shows live log as soon as you click Install.
 - **Auto-resume polling**: If you navigate away and come back while an install is running, the terminal will automatically resume showing the live log.
 
 ## [v3.7] - 2026-06-28
@@ -151,7 +160,7 @@ VERSION="6.3"
 
 ## [v3.4] - 2026-06-28
 ### Added
-- **ANSI Color Rendering**: All terminal outputs (System Tools, WARP, Backup) now render colored output identical to the CLI menu — bold blue headers, green checkmarks, red errors.
+- **ANSI Color Rendering**: All terminal outputs (System Tools, WARP, Backup) now render colored output identical to the CLI menu â€” bold blue headers, green checkmarks, red errors.
 - **Auto-scroll Toggle**: Every terminal in the panel now has a green toggle switch. When ON, the terminal auto-scrolls to the newest line. When OFF, you can freely scroll to read previous output without being interrupted.
 - **Styled Scrollbar**: All terminals now have a thin, dark-styled scrollbar that is always visible.
 - **`install_packages` action**: System Packages tab now installs all missing packages via the live terminal.
@@ -202,7 +211,7 @@ VERSION="6.3"
 ### Added
 - **Unified Preferences Page**: Combined Settings and Logs into a unified 'Preferences' page with an 'About' tab.
 - **Centralized Versioning**: Project version is now centrally defined in `CHANGELOG.md` and read by all Bash and Python scripts.
-- **`.gitignore`**: Added strict ignoring for `panel.db`, log files, and Python cache.
+- **`.gitignore`**: Added strict ignoring for `data/panel.db`, log files, and Python cache.
 - **CLI Logging Enhancement**: All main CLI scripts now output the Toolkit version dynamically on launch.
 
 ### Changed

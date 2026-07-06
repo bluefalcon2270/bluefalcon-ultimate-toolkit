@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧰 BlueFalcon Ultimate Toolkit
+# ðŸ§° BlueFalcon Ultimate Toolkit
 
 **The fast, safe, and modular way to prepare, route, and manage a fresh Linux server.**
 
@@ -17,7 +17,7 @@ An all-in-one, automated deployment toolkit designed to completely set up a fres
 
 <br>
 
-## ⚡ Quick Run
+## âš¡ Quick Run
 Run this single command with root privileges on your fresh VPS. It acts as an intelligent bootstrapper, safely handling fresh installations as well as pulling the latest updates without merge conflicts:
 
 ```bash
@@ -28,44 +28,44 @@ bash <(curl -Ls https://raw.githubusercontent.com/bluefalcon2270/bluefalcon-ulti
 
 <br>
 
-## 🏗️ System Architecture
+## ðŸ—ï¸ System Architecture
 The toolkit is structured for maximum maintainability and professional scaling:
 
 * **Material Design Web UI (`/panel`):** A Flask-based MVC web dashboard fully rewritten using Google Material Design 3. Features a persistent left-navigation sidebar, separating routing, management, and system logs into dedicated views.
-* **Centralized Utilities (`/modules/essential_tools.sh`):** Core dependencies and advanced environments like Docker are treated as standard packages within the core utility deployment.
-* **Isolated VPN Engines (`/vpn-scripts`):** Backend execution scripts are categorized by protocol, ensuring easy debugging and safe updates without cross-contamination.
+* **Centralized Utilities (`/cli/essential_tools.sh`):** Core dependencies and advanced environments like Docker are treated as standard packages within the core utility deployment.
+* **Isolated VPN Engines (`/core`):** Backend execution scripts are categorized by protocol, ensuring easy debugging and safe updates without cross-contamination.
 
 <br>
 
-## 🌟 Features
+## ðŸŒŸ Features
 
-### 1️⃣ System Essentials
+### 1ï¸âƒ£ System Essentials
 * **Update System:** Run standard package updates non-interactively.
 * **System Packages:** Installs a critical checklist of packages (`nano`, `curl`, `git`, `htop`, `ufw`, `iptables`, and the complete `docker-ce` engine & compose plugins).
 * **SSH Settings:** Change your SSH port, root password, and securely toggle password vs. key logins directly from a status dashboard.
 
-### 2️⃣ Master Web Panel & Initialization
+### 2ï¸âƒ£ Master Web Panel & Initialization
 * **Unified Setup Wizard:** Configure your OpenVPN engine, panel credentials, and WARP endpoints from a single, centralized web setup page.
 * **Live SSE Streaming:** Watch background deployment scripts execute in real-time directly inside your browser.
 * **Centralized Log Center:** Read `journalctl` outputs for OpenVPN, WARP, and System services directly from the web browser without SSHing into the server.
 
-### 3️⃣ OpenVPN Management
+### 3ï¸âƒ£ OpenVPN Management
 * **Terminal & Web Sync:** Create, pause, and revoke users directly from the terminal, with all changes instantly reflected in the Web Panel database.
 * **Live Dashboards:** Monitor your server's live health (CPU, RAM, Disk, Network) with real-time dynamic, AWS-style progress bars.
 * **Automated Profiles:** Download mobile/desktop profiles instantly.
 
-### 4️⃣ Cloudflare WARP
+### 4ï¸âƒ£ Cloudflare WARP
 * **Dual-Stack Routing:** Hide your server's true IP and bypass restrictions by routing IPv4 and/or IPv6 traffic through Cloudflare's WireGuard network (`wgcf`).
 * **WARP+ Support:** Upgrade your connection instantly using a premium license key.
 * **Intelligent Network Bypassing:** OpenVPN config generators are hardcoded to bypass the WARP tunnel, ensuring your VPN files are always mapped to your true physical server IP.
 
 <br>
 
-## ✅ Supported Systems
+## âœ… Supported Systems
 | Distribution | Compatibility |
 | :--- | :---: |
-| **Ubuntu** (22.04, 24.04) | ✅ |
-| **Debian** (11, 12, 13) | ✅ |
+| **Ubuntu** (22.04, 24.04) | âœ… |
+| **Debian** (11, 12, 13) | âœ… |
 
 <br>
 

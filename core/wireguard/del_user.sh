@@ -9,7 +9,7 @@ CLIENT_NAME=$1
 
 WG_DIR="/etc/wireguard"
 CLIENT_DIR="${WG_DIR}/clients"
-DB_FILE="/opt/bluefalcon-ultimate-toolkit/panel.db"
+DB_FILE="/opt/bluefalcon-ultimate-toolkit/data/panel.db"
 
 # Fetch pub key from DB
 CLIENT_PUB=$(sqlite3 "$DB_FILE" "SELECT pub_key FROM wg_users WHERE system_name='${CLIENT_NAME}';")
@@ -31,4 +31,4 @@ rm -f "${CLIENT_DIR}/${CLIENT_NAME}.conf"
 # Remove from DB
 sqlite3 "$DB_FILE" "DELETE FROM wg_users WHERE system_name='${CLIENT_NAME}';"
 
-echo "[ ✔ ] User ${CLIENT_NAME} deleted successfully."
+echo "[ âœ” ] User ${CLIENT_NAME} deleted successfully."

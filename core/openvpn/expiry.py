@@ -1,6 +1,6 @@
 import sqlite3, time, os
 APP_DIR = '/opt/bluefalcon-ultimate-toolkit'
-conn = sqlite3.connect(f'{APP_DIR}/panel.db')
+conn = sqlite3.connect(f'{APP_DIR}/data/panel.db')
 users = conn.execute('SELECT system_name, exp_days FROM users WHERE exp_days > 0').fetchall()
 now = int(time.time())
 for u in users:

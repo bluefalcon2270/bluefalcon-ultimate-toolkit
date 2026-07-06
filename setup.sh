@@ -16,13 +16,13 @@ source "${SCRIPT_DIR}/core/ui_utils.sh"
 source "${SCRIPT_DIR}/core/preflight.sh"
 
 # --- Load Modules ---
-source "${SCRIPT_DIR}/modules/essential_tools.sh"
-source "${SCRIPT_DIR}/modules/panel_manager.sh"
-source "${SCRIPT_DIR}/modules/openvpn_manager.sh"
-source "${SCRIPT_DIR}/modules/wireguard_manager.sh"
-source "${SCRIPT_DIR}/modules/warp_manager.sh"
-source "${SCRIPT_DIR}/modules/backup_manager.sh"
-source "${SCRIPT_DIR}/modules/logs_manager.sh"
+source "${SCRIPT_DIR}/cli/essential_tools.sh"
+source "${SCRIPT_DIR}/cli/panel_manager.sh"
+source "${SCRIPT_DIR}/cli/openvpn_manager.sh"
+source "${SCRIPT_DIR}/cli/wireguard_manager.sh"
+source "${SCRIPT_DIR}/cli/warp_manager.sh"
+source "${SCRIPT_DIR}/cli/backup_manager.sh"
+source "${SCRIPT_DIR}/cli/logs_manager.sh"
 
 # ==============================================================================
 # --- God Script Main Execution ---
@@ -30,7 +30,7 @@ source "${SCRIPT_DIR}/modules/logs_manager.sh"
 show_main_menu() {
     clear
     echo -e "${BOLD_BLUE}=====================================================${NC}"
-    echo -e "${BOLD_BLUE}       🧰 BlueFalcon Ultimate Toolkit (${BF_VERSION}) 🧰       ${NC}"
+    echo -e "${BOLD_BLUE}       ðŸ§° BlueFalcon Ultimate Toolkit (${BF_VERSION}) ðŸ§°       ${NC}"
     echo -e "${BOLD_BLUE}=====================================================${NC}"
     echo ""
     echo "1. Web Panel"
@@ -60,12 +60,12 @@ main() {
             6) manage_backup ;;
             7) manage_logs ;;
             0) 
-                echo -e "\n[ ${GREEN}✔${NC} ] Exiting toolkit. Session terminated cleanly.\n"
+                echo -e "\n[ ${GREEN}âœ”${NC} ] Exiting toolkit. Session terminated cleanly.\n"
                 tput cnorm
                 exit 0 
                 ;;
             *) 
-                echo -e "\n[ ${RED}✖${NC} ] Invalid option."
+                echo -e "\n[ ${RED}âœ–${NC} ] Invalid option."
                 sleep 1.5 
                 ;;
         esac

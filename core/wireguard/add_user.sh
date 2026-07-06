@@ -16,7 +16,7 @@ CLIENT_DIR="${WG_DIR}/clients"
 mkdir -p "${CLIENT_DIR}"
 
 # DB paths
-DB_FILE="/opt/bluefalcon-ultimate-toolkit/panel.db"
+DB_FILE="/opt/bluefalcon-ultimate-toolkit/data/panel.db"
 SERVER_PUB_IP=$(sqlite3 "$DB_FILE" "SELECT public_ip FROM settings WHERE server_name='wireguard';")
 if [ -z "$SERVER_PUB_IP" ]; then
     SERVER_PUB_IP=$(curl --interface $(ip route show table main | awk '/default/ {print $5}' | head -1) -s4 ifconfig.me || echo "127.0.0.1")
@@ -86,4 +86,4 @@ EOF
 # Add to SQLite database
 sqlite3 "$DB_FILE" "INSERT INTO wg_users (display_name, system_name, pub_key, ip_address, exp_days, status, rx, tx) VALUES ('${CLIENT_NAME}', '${CLIENT_NAME}', '${CLIENT_PUB}', '${CLIENT_IP}', ${EXP_DAYS}, 'active', 0, 0);"
 
-echo "[ ✔ ] User ${CLIENT_NAME} added successfully with IP ${CLIENT_IP}."
+echo "[ âœ” ] User ${CLIENT_NAME} added successfully with IP ${CLIENT_IP}."

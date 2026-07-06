@@ -46,15 +46,15 @@ echo " - Live DB verification logic attached [OK]"
 echo "[INFO] Engineering Data Persistence Hook..."
 cat > /etc/openvpn/server/disconnect.sh << 'EOF_D'
 #!/bin/bash
-/usr/bin/sqlite3 -cmd ".timeout 5000" /opt/bluefalcon-ultimate-toolkit/panel.db "UPDATE users SET rx = rx + ${bytes_received:-0}, tx = tx + ${bytes_sent:-0} WHERE system_name = '${common_name}';"
+/usr/bin/sqlite3 -cmd ".timeout 5000" /opt/bluefalcon-ultimate-toolkit/data/panel.db "UPDATE users SET rx = rx + ${bytes_received:-0}, tx = tx + ${bytes_sent:-0} WHERE system_name = '${common_name}';"
 EOF_D
 chmod +x /etc/openvpn/server/disconnect.sh
 echo " - Disconnect database injector deployed [OK]"
 echo "[INFO] Writing Server Configuration & NAT Firewalls..."
-PROTOCOL=$(sqlite3 "${APP_DIR}/panel.db" "SELECT protocol FROM settings LIMIT 1;")
-PORT=$(sqlite3 "${APP_DIR}/panel.db" "SELECT port FROM settings LIMIT 1;")
-DNS=$(sqlite3 "${APP_DIR}/panel.db" "SELECT dns FROM settings LIMIT 1;")
-DNS2=$(sqlite3 "${APP_DIR}/panel.db" "SELECT dns2 FROM settings LIMIT 1;")
+PROTOCOL=$(sqlite3 "${APP_DIR}/data/panel.db" "SELECT protocol FROM settings LIMIT 1;")
+PORT=$(sqlite3 "${APP_DIR}/data/panel.db" "SELECT port FROM settings LIMIT 1;")
+DNS=$(sqlite3 "${APP_DIR}/data/panel.db" "SELECT dns FROM settings LIMIT 1;")
+DNS2=$(sqlite3 "${APP_DIR}/data/panel.db" "SELECT dns2 FROM settings LIMIT 1;")
 cat > /etc/openvpn/server/server.conf << EOCONF
 port $PORT
 proto $PROTOCOL
@@ -91,7 +91,7 @@ status /var/log/openvpn/status.log 5
 status-version 2
 verb 3
 EOCONF
-LIMIT=$(sqlite3 "${APP_DIR}/panel.db" "SELECT conn_limit FROM settings LIMIT 1;")
+LIMIT=$(sqlite3 "${APP_DIR}/data/panel.db" "SELECT conn_limit FROM settings LIMIT 1;")
 if [ "$LIMIT" == "unlimited" ]; then echo "duplicate-cn" >> /etc/openvpn/server/server.conf; fi
 cat > /etc/sysctl.d/99-openvpn.conf << EOF
 net.ipv4.ip_forward=1

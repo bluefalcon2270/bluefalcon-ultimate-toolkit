@@ -4,7 +4,7 @@
 # ==============================================================================
 
 APP_DIR="/opt/bluefalcon-ultimate-toolkit/panel"
-DB_PATH="${APP_DIR}/panel.db"
+DB_PATH="${APP_DIR}/data/panel.db"
 
 update_users_db_file() {
     if [ -f "$DB_PATH" ]; then
@@ -37,9 +37,9 @@ ovpn_add_user() {
     update_users_db_file
 
     # Run OpenVPN Script
-    bash "${APP_DIR}/vpn-scripts/openvpn/add_user.sh" "$sys_name" "$password" >/dev/null 2>&1
+    bash "${APP_DIR}/core/openvpn/add_user.sh" "$sys_name" "$password" >/dev/null 2>&1
     
-    echo -e "\n[ ${GREEN}✔${NC} ] User '$disp_name' created successfully!"
+    echo -e "\n[ ${GREEN}âœ”${NC} ] User '$disp_name' created successfully!"
     pause_execution
 }
 
@@ -49,7 +49,7 @@ ovpn_revoke_user() {
     read -rp "Enter System Name to revoke: " sys_name
     
     if ! sqlite3 "$DB_PATH" "SELECT 1 FROM users WHERE system_name='$sys_name';" | grep -q 1; then
-        echo -e "\n[ ${RED}✖${NC} ] User '$sys_name' not found in database."
+        echo -e "\n[ ${RED}âœ–${NC} ] User '$sys_name' not found in database."
         pause_execution
         return
     fi
@@ -72,7 +72,7 @@ ovpn_revoke_user() {
     rm -f "${APP_DIR}/configs/${sys_name}.ovpn"
     rm -f "${APP_DIR}/configs/${sys_name}_manual.ovpn"
 
-    echo -e "\n[ ${GREEN}✔${NC} ] User '$sys_name' revoked and deleted."
+    echo -e "\n[ ${GREEN}âœ”${NC} ] User '$sys_name' revoked and deleted."
     pause_execution
 }
 
@@ -84,7 +84,7 @@ ovpn_toggle_user() {
     current_stat=$(sqlite3 "$DB_PATH" "SELECT status FROM users WHERE system_name='$sys_name';")
     
     if [ -z "$current_stat" ]; then
-        echo -e "\n[ ${RED}✖${NC} ] User '$sys_name' not found."
+        echo -e "\n[ ${RED}âœ–${NC} ] User '$sys_name' not found."
         pause_execution
         return
     fi
@@ -99,7 +99,7 @@ ovpn_toggle_user() {
     sqlite3 "$DB_PATH" "UPDATE users SET status='$new_stat' WHERE system_name='$sys_name';"
     update_users_db_file
 
-    echo -e "\n[ ${GREEN}✔${NC} ] User '$sys_name' is now $new_stat."
+    echo -e "\n[ ${GREEN}âœ”${NC} ] User '$sys_name' is now $new_stat."
     pause_execution
 }
 
@@ -129,7 +129,7 @@ ovpn_list_users() {
 manage_openvpn() {
     if [ ! -f "$DB_PATH" ]; then
         clear
-        echo -e "\n[ ${RED}✖${NC} ] Database missing. Please install the Web Panel first to configure OpenVPN."
+        echo -e "\n[ ${RED}âœ–${NC} ] Database missing. Please install the Web Panel first to configure OpenVPN."
         pause_execution
         return
     fi
@@ -139,7 +139,7 @@ manage_openvpn() {
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
         echo -e "${BOLD_BLUE}           OpenVPN Management (${BF_VERSION})              ${NC}"
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
-        if systemctl is-active --quiet openvpn-server@server; then echo -e " OpenVPN Core:        [ ${GREEN}✔${NC} ] Active"; else echo -e " OpenVPN Core:        [ ${RED}✖${NC} ] Offline"; fi
+        if systemctl is-active --quiet openvpn-server@server; then echo -e " OpenVPN Core:        [ ${GREEN}âœ”${NC} ] Active"; else echo -e " OpenVPN Core:        [ ${RED}âœ–${NC} ] Offline"; fi
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
         echo ""
         echo "1. Create New User"
@@ -156,7 +156,7 @@ manage_openvpn() {
             3) ovpn_toggle_user ;;
             4) ovpn_list_users ;;
             0) break ;;
-            *) echo -e "\n[ ${RED}✖${NC} ] Invalid input." ; sleep 1.5 ;;
+            *) echo -e "\n[ ${RED}âœ–${NC} ] Invalid input." ; sleep 1.5 ;;
         esac
     done
 }

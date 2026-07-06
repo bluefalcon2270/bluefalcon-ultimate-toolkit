@@ -18,8 +18,8 @@ install_panel() {
         local REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
         
         cp -r "${REPO_DIR}/panel/"* "${APP_DIR}/"
-        cp -r "${REPO_DIR}/vpn-scripts" "${APP_DIR}/"
-        chmod +x "${APP_DIR}/vpn-scripts/"*/*.sh
+        cp -r "${REPO_DIR}/core" "${APP_DIR}/"
+        chmod +x "${APP_DIR}/core/"*/*.sh
     }
     
     CURRENT_LOG="${LOG_FILE}" run_with_spinner "Deploying Material Design Application" deploy_panel_files
@@ -32,7 +32,7 @@ install_panel() {
 
     cat > /etc/cron.daily/bluefalcon-panel-expiry << EOF
 #!/bin/bash
-python3 ${APP_DIR}/vpn-scripts/openvpn/expiry.py
+python3 ${APP_DIR}/core/openvpn/expiry.py
 EOF
     chmod +x /etc/cron.daily/bluefalcon-panel-expiry
 
@@ -57,7 +57,7 @@ EOF
     CURRENT_LOG="${LOG_FILE}" run_with_spinner "Starting Web Panel Engine" bash -c "systemctl daemon-reload && systemctl enable bluefalcon-panel && systemctl restart bluefalcon-panel"
 
     IPV4=$(ip -4 addr show $(ip route | awk '/default/ {print $5}' | head -1) | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
-    echo -e "\n[ ${GREEN}✔${NC} ] WEB PANEL DEPLOYED SUCCESSFULLY!"
+    echo -e "\n[ ${GREEN}âœ”${NC} ] WEB PANEL DEPLOYED SUCCESSFULLY!"
     echo -e "Open your browser to the Initialization Wizard: ${YELLOW}http://$IPV4:2020${NC}\n"
     pause_execution
 }
@@ -69,9 +69,9 @@ uninstall_panel() {
     if [[ "${confirm,,}" == "y" ]]; then
         echo ""
         CURRENT_LOG="${LOG_FILE}" run_with_spinner "Removing Web Panel service" bash -c "systemctl stop bluefalcon-panel 2>/dev/null; systemctl disable bluefalcon-panel 2>/dev/null; rm -f /etc/systemd/system/bluefalcon-panel.service /etc/cron.daily/bluefalcon-panel-expiry; systemctl daemon-reload"
-        echo -e "\n[ ${GREEN}✔${NC} ] Web Panel safely disabled and removed. Your VPN engines are still running."
+        echo -e "\n[ ${GREEN}âœ”${NC} ] Web Panel safely disabled and removed. Your VPN engines are still running."
     else
-        echo -e "\n[ ${YELLOW}✖${NC} ] Uninstallation canceled."
+        echo -e "\n[ ${YELLOW}âœ–${NC} ] Uninstallation canceled."
     fi
     pause_execution
 }
@@ -88,12 +88,12 @@ manage_panel() {
         ADMIN_USER="Not Set"
         ADMIN_PASS="Not Set"
         
-        if [ -f "${APP_DIR}/panel.db" ]; then
-            PANEL_PORT=$(sqlite3 "${APP_DIR}/panel.db" "SELECT panel_port FROM settings LIMIT 1;" 2>/dev/null)
+        if [ -f "${APP_DIR}/data/panel.db" ]; then
+            PANEL_PORT=$(sqlite3 "${APP_DIR}/data/panel.db" "SELECT panel_port FROM settings LIMIT 1;" 2>/dev/null)
             PANEL_PORT=${PANEL_PORT:-2020}
-            ADMIN_USER=$(sqlite3 "${APP_DIR}/panel.db" "SELECT username FROM admin LIMIT 1;" 2>/dev/null)
+            ADMIN_USER=$(sqlite3 "${APP_DIR}/data/panel.db" "SELECT username FROM admin LIMIT 1;" 2>/dev/null)
             ADMIN_USER=${ADMIN_USER:-"Not Set"}
-            ADMIN_PASS=$(sqlite3 "${APP_DIR}/panel.db" "SELECT password FROM admin LIMIT 1;" 2>/dev/null)
+            ADMIN_PASS=$(sqlite3 "${APP_DIR}/data/panel.db" "SELECT password FROM admin LIMIT 1;" 2>/dev/null)
             ADMIN_PASS=${ADMIN_PASS:-"Not Set"}
         fi
         
@@ -101,7 +101,7 @@ manage_panel() {
         echo -e " Admin Username:      ${CYAN}${ADMIN_USER}${NC}"
         echo -e " Admin Password:      ${CYAN}${ADMIN_PASS}${NC}"
         
-        if systemctl is-active --quiet bluefalcon-panel; then echo -e " Web Panel:           [ ${GREEN}✔${NC} ] Active"; else echo -e " Web Panel:           [ ${RED}✖${NC} ] Offline"; fi
+        if systemctl is-active --quiet bluefalcon-panel; then echo -e " Web Panel:           [ ${GREEN}âœ”${NC} ] Active"; else echo -e " Web Panel:           [ ${RED}âœ–${NC} ] Offline"; fi
         
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
         echo ""
@@ -115,7 +115,7 @@ manage_panel() {
             1) install_panel ;;
             2) uninstall_panel ;;
             0) break ;;
-            *) echo -e "\n[ ${RED}✖${NC} ] Invalid input." ; sleep 1.5 ;;
+            *) echo -e "\n[ ${RED}âœ–${NC} ] Invalid input." ; sleep 1.5 ;;
         esac
     done
 }

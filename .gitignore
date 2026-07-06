@@ -9,7 +9,7 @@ venv/
 .venv/
 
 # Panel Database
-panel/panel.db
+data/panel.db
 
 # Logs
 *.log
