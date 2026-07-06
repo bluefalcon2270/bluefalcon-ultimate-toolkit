@@ -127,9 +127,16 @@ ovpn_list_users() {
 }
 
 manage_openvpn() {
-    if [ ! -f "$DB_PATH" ]; then
+    local ovpn_is_installed
+    if systemctl is-active --quiet openvpn-server@server; then
+        ovpn_is_installed="1"
+    else
+        ovpn_is_installed="0"
+    fi
+
+    if [ ! -f "$DB_PATH" ] && [ "$ovpn_is_installed" == "1" ]; then
         clear
-        echo -e "\n[ ${RED}✖${NC} ] Database missing. Please install the Web Panel first to configure OpenVPN."
+        echo -e "\n[ ${RED}✖${NC} ] Database missing. Please install the Web Panel to manage users."
         pause_execution
         return
     fi
@@ -139,24 +146,55 @@ manage_openvpn() {
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
         echo -e "${BOLD_BLUE}           OpenVPN Management (${BF_VERSION})              ${NC}"
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
-        if systemctl is-active --quiet openvpn-server@server; then echo -e " OpenVPN Core:        [ ${GREEN}✔${NC} ] Active"; else echo -e " OpenVPN Core:        [ ${RED}✖${NC} ] Offline"; fi
+        if [[ "$ovpn_is_installed" == "1" ]]; then 
+            echo -e " OpenVPN Core:        [ ${GREEN}✔${NC} ] Active"
+        else 
+            echo -e " OpenVPN Core:        [ ${RED}✖${NC} ] Not Installed"
+        fi
         echo -e "${BOLD_BLUE}-----------------------------------------------------${NC}"
         echo ""
-        echo "1. Create New User"
-        echo "2. Revoke/Delete User"
-        echo "3. Pause/Resume User"
-        echo "4. List All Users"
+        
+        if [[ "$ovpn_is_installed" != "1" ]]; then
+            echo "1. Install OpenVPN"
+        else
+            echo "1. Reinstall OpenVPN"
+            echo "2. Create New User"
+            echo "3. Revoke/Delete User"
+            echo "4. Pause/Resume User"
+            echo "5. List All Users"
+        fi
         echo "0. Return"
         echo ""
         
         read -rp "Select option: " o_choice
-        case "$o_choice" in
-            1) ovpn_add_user ;;
-            2) ovpn_revoke_user ;;
-            3) ovpn_toggle_user ;;
-            4) ovpn_list_users ;;
-            0) break ;;
-            *) echo -e "\n[ ${RED}✖${NC} ] Invalid input." ; sleep 1.5 ;;
-        esac
+        if [[ "$ovpn_is_installed" != "1" ]]; then
+            case "$o_choice" in
+                1) 
+                    echo ""
+                    bash "${SCRIPT_DIR}/core/openvpn/core_setup.sh"
+                    if [ -f "$DB_PATH" ]; then
+                        sqlite3 "$DB_PATH" "UPDATE settings SET is_installed=1 WHERE server_name='openvpn'"
+                    fi
+                    ovpn_is_installed="1"
+                    pause_execution
+                    ;;
+                0) break ;;
+                *) echo -e "\n[ ${RED}✖${NC} ] Invalid input." ; sleep 1.5 ;;
+            esac
+        else
+            case "$o_choice" in
+                1) 
+                    echo ""
+                    bash "${SCRIPT_DIR}/core/openvpn/core_setup.sh"
+                    pause_execution
+                    ;;
+                2) ovpn_add_user ;;
+                3) ovpn_revoke_user ;;
+                4) ovpn_toggle_user ;;
+                5) ovpn_list_users ;;
+                0) break ;;
+                *) echo -e "\n[ ${RED}✖${NC} ] Invalid input." ; sleep 1.5 ;;
+            esac
+        fi
     done
 }

@@ -1,6 +1,11 @@
-VERSION="8.0"
+VERSION="8.1"
 
 # Changelog
+
+## [v8.1] - 2026-07-06
+### Fixed
+- OpenVPN CLI: Added the ability to install OpenVPN directly from the terminal CLI even before the Web Panel is configured.
+- WARP Core: Implemented robust retry loops for Cloudflare `wgcf` registration and configuration generation to handle API timeouts and rate limits, preventing "warp not installed" errors.
 
 ## [v8.0] - 2026-07-06
 ### Added

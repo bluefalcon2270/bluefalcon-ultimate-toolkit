@@ -35,8 +35,20 @@ register_account() {
     cd /etc/warp || exit
     
     if [[ ! -f "$Wgcf_account" ]]; then 
-        echo "[INFO] Registering free Cloudflare profile..."
-        wgcf register --accept-tos >/dev/null 2>&1
+        echo "[INFO] Registering free Cloudflare profile (this may take a few attempts)..."
+        local attempts=0
+        while [ $attempts -lt 5 ]; do
+            wgcf register --accept-tos >/dev/null 2>&1
+            if [ -f "$Wgcf_account" ]; then
+                break
+            fi
+            attempts=$((attempts+1))
+            sleep 3
+        done
+        if [[ ! -f "$Wgcf_account" ]]; then
+            echo "[ERROR] Failed to register Cloudflare profile. Please try again later."
+            exit 1
+        fi
     fi
 
     if [ -n "$LICENSE" ] && [ "$LICENSE" != "free" ]; then
@@ -50,7 +62,23 @@ build_config() {
     echo "[INFO] Generating WireGuard configuration file..."
     cd /etc/warp || exit
     rm -f wgcf-profile.conf
-    timeout 30 setsid wgcf generate >/dev/null 2>&1
+    
+    local gen_attempts=0
+    while [ $gen_attempts -lt 5 ]; do
+        timeout 30 setsid wgcf generate >/dev/null 2>&1
+        if [ -f "wgcf-profile.conf" ]; then
+            break
+        fi
+        gen_attempts=$((gen_attempts+1))
+        echo "[INFO] Retrying generation... ($gen_attempts/5)"
+        sleep 3
+    done
+
+    if [[ ! -f "wgcf-profile.conf" ]]; then
+        echo "[ERROR] Failed to generate WARP profile. Please try again later."
+        exit 1
+    fi
+
     [ -d "/etc/wireguard" ] || mkdir -p "/etc/wireguard"
     
     local PrivateKey=$(grep ^PrivateKey "${Profile_conf}" | cut -d= -f2- | awk '$1=$1')
