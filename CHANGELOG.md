@@ -1,6 +1,11 @@
-VERSION="6.0"
+VERSION="6.1"
 
 # Changelog
+
+## [v6.1] - 2026-07-06
+### Fixed
+- **SSH Port Update Bug**: Fixed an issue where changing the SSH port failed to apply if the `Port` directive in `/etc/ssh/sshd_config` contained spaces or was completely missing. The backend now robustly updates or appends the port and automatically opens the new port in UFW/iptables before restarting `sshd` to prevent accidental lockouts.
+- **Seamless Panel Port Transition**: Replaced the instant HTTP redirect when changing the panel port with a styled "Applying New Port" HTML transition screen. This screen waits 5 seconds to gracefully redirect the browser only *after* the panel has successfully rebooted on the new port, eliminating the broken "Connection Refused" page.
 
 ## [v6.0] - 2026-07-06
 ### Fixed

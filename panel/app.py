@@ -776,7 +776,10 @@ def change_ssh():
     if 'admin_logged_in' not in session: return redirect(url_for('login'))
     new_port = request.form.get('ssh_port', '').strip()
     if new_port.isdigit() and 1 <= int(new_port) <= 65535:
-        os.system(f"sed -i 's/^#*Port .*/Port {new_port}/' /etc/ssh/sshd_config")
+        os.system(f"grep -qE '^#?[[:space:]]*Port[[:space:]]+' /etc/ssh/sshd_config && sed -i -E 's/^#?[[:space:]]*Port[[:space:]]+.*/Port {new_port}/i' /etc/ssh/sshd_config || echo 'Port {new_port}' >> /etc/ssh/sshd_config")
+        os.system(f"ufw allow {new_port}/tcp >/dev/null 2>&1")
+        os.system(f"iptables -I INPUT -p tcp --dport {new_port} -j ACCEPT")
+        os.system("netfilter-persistent save > /dev/null 2>&1")
         os.system("sshd -t && (systemctl restart sshd 2>/dev/null || service ssh restart 2>/dev/null)")
     return redirect(url_for('system_tools', tab='ssh'))
 
@@ -880,7 +883,30 @@ def preferences():
             os.system("nohup bash -c 'sleep 1 && systemctl daemon-reload && systemctl restart bluefalcon-panel' >/dev/null 2>&1 &")
             
             host = request.host.split(':')[0]
-            return redirect(f"{request.scheme}://{host}:{new_panel_port}/preferences?tab=settings")
+            new_url = f"{request.scheme}://{host}:{new_panel_port}/preferences?tab=settings"
+            return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Applying Changes...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {{ font-family: 'Inter', sans-serif; background-color: #0F0F11 !important; color: #F3F4F6 !important; }}
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+    <div class="text-center bg-[#1C1C1E] border border-[#2C2C2E] p-10 rounded-2xl shadow-lg">
+        <svg class="animate-spin h-10 w-10 text-[#34A853] mx-auto mb-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <h2 class="text-2xl font-bold text-white">Applying New Panel Port</h2>
+        <p class="text-gray-400 mt-2 text-sm leading-relaxed">Please wait while the service securely restarts.<br>You will be redirected automatically.</p>
+    </div>
+    <script>
+        setTimeout(function() {{
+            window.location.href = "{new_url}";
+        }}, 5000);
+    </script>
+</body>
+</html>"""
             
         return redirect(url_for('preferences', tab='settings'))
         
