@@ -1,6 +1,12 @@
-VERSION="7.4"
+VERSION="7.5"
 
 # Changelog
+
+## [v7.5] - 2026-07-06
+### Fixed
+- **Dashboard Stats**: Fixed a bug where Swap, Storage, and Overall Speed were stuck at 0 due to a JavaScript error caused by removing unused UI elements. The metrics have been correctly remapped.
+- **Traffic Reporting Perspective**: Swapped the Total Data (Sent/Received) values and Overall Speed logic to reflect the *client's perspective* based on global server traffic, rather than the server's perspective based on OpenVPN logs alone.
+- **Refresh Rate**: Doubled the dashboard refresh rate from 2 seconds to 1 second to match the snappy feel of the Sanaie panel.
 
 ## [v7.4] - 2026-07-06
 ### Changed
