@@ -1,73 +1,68 @@
 <div align="center">
 
-# ðŸ§° BlueFalcon Ultimate Toolkit
+# 🦅 BlueFalcon Ultimate Toolkit
 
-**The fast, safe, and modular way to prepare, route, and manage a fresh Linux server.**
+**The ultimate all-in-one Linux networking stack designed to turn any standard VPS into a high-performance routing powerhouse.**
 
-![Version](https://img.shields.io/badge/Version-v2.0-blue?style=for-the-badge)
-![Linux](https://img.shields.io/badge/Platform-Debian%20%7C%20Ubuntu-FCC624?style=for-the-badge&logo=linux&logoColor=black)
-[![Language](https://img.shields.io/badge/Written%20in-Shell/Python-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)]([https://www.gnu.org/software/bash/](https://www.gnu.org/software/bash/))
+![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+[![Version](https://img.shields.io/badge/Version-v8.2-007AFF?style=for-the-badge)](#)
+[![Language](https://img.shields.io/badge/Written%20in-Bash%2FPython-3776AB?style=for-the-badge&logo=gnu-bash&logoColor=white)](#)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
-[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@BlueFalcon2270)
 
-<br />
 </div>
 
-An all-in-one, automated deployment toolkit designed to completely set up a fresh Linux server. Built on a clean, scalable architecture, it handles everything from initial security and utility installations to advanced Cloudflare WARP routing, and features a Google Material Design 3 web dashboard for one-click VPN management.
+<br>
+
+## 📖 About
+Deploy OpenVPN, WireGuard, Cloudflare WARP, and dynamic firewall rules with a single command. The toolkit comes complete with a gorgeous web-based management dashboard, allowing you to instantly configure your entire networking stack without manually editing configs.
 
 <br>
 
-## âš¡ Quick Run
-Run this single command with root privileges on your fresh VPS. It acts as an intelligent bootstrapper, safely handling fresh installations as well as pulling the latest updates without merge conflicts:
-
-```bash
-bash <(curl -Ls https://raw.githubusercontent.com/bluefalcon2270/bluefalcon-ultimate-toolkit/main/install.sh)
-```
-
-**Global Shortcut:** Once installed, simply type `bfu` from anywhere in your terminal to instantly launch the master control panel!
+## 📸 Screenshot
+![Screenshot](screenshot.png)
 
 <br>
 
-## ðŸ—ï¸ System Architecture
-The toolkit is structured for maximum maintainability and professional scaling:
-
-* **Material Design Web UI (`/panel`):** A Flask-based MVC web dashboard fully rewritten using Google Material Design 3. Features a persistent left-navigation sidebar, separating routing, management, and system logs into dedicated views.
-* **Centralized Utilities (`/cli/essential_tools.sh`):** Core dependencies and advanced environments like Docker are treated as standard packages within the core utility deployment.
-* **Isolated VPN Engines (`/core`):** Backend execution scripts are categorized by protocol, ensuring easy debugging and safe updates without cross-contamination.
-
-<br>
-
-## ðŸŒŸ Features
-
-### 1ï¸âƒ£ System Essentials
-* **Update System:** Run standard package updates non-interactively.
-* **System Packages:** Installs a critical checklist of packages (`nano`, `curl`, `git`, `htop`, `ufw`, `iptables`, and the complete `docker-ce` engine & compose plugins).
-* **SSH Settings:** Change your SSH port, root password, and securely toggle password vs. key logins directly from a status dashboard.
-
-### 2ï¸âƒ£ Master Web Panel & Initialization
-* **Unified Setup Wizard:** Configure your OpenVPN engine, panel credentials, and WARP endpoints from a single, centralized web setup page.
-* **Live SSE Streaming:** Watch background deployment scripts execute in real-time directly inside your browser.
-* **Centralized Log Center:** Read `journalctl` outputs for OpenVPN, WARP, and System services directly from the web browser without SSHing into the server.
-
-### 3ï¸âƒ£ OpenVPN Management
-* **Terminal & Web Sync:** Create, pause, and revoke users directly from the terminal, with all changes instantly reflected in the Web Panel database.
-* **Live Dashboards:** Monitor your server's live health (CPU, RAM, Disk, Network) with real-time dynamic, AWS-style progress bars.
-* **Automated Profiles:** Download mobile/desktop profiles instantly.
-
-### 4ï¸âƒ£ Cloudflare WARP
-* **Dual-Stack Routing:** Hide your server's true IP and bypass restrictions by routing IPv4 and/or IPv6 traffic through Cloudflare's WireGuard network (`wgcf`).
-* **WARP+ Support:** Upgrade your connection instantly using a premium license key.
-* **Intelligent Network Bypassing:** OpenVPN config generators are hardcoded to bypass the WARP tunnel, ensuring your VPN files are always mapped to your true physical server IP.
+## 🚀 How to Use
+1. **Connect:** SSH into your freshly installed Debian/Ubuntu VPS.
+2. **Run the Installer:** Paste the following command:
+   ```bash
+   bash <(curl -Ls https://raw.githubusercontent.com/bluefalcon2270/bluefalcon-ultimate-toolkit/main/setup.sh)
+   ```
+3. **Enjoy:** Follow the on-screen prompts to set up your web panel credentials.
 
 <br>
 
-## âœ… Supported Systems
-| Distribution | Compatibility |
+## ✨ Features
+- **All-In-One Deployment:** Installs Web Panel, NGINX, SQLite, OpenVPN, WireGuard, and WARP seamlessly.
+- **Web Dashboard:** Manage users, monitor live traffic, and generate client configurations through a beautiful UI.
+- **Automated Routing:** Automatically configures iptables for NAT routing and port forwarding.
+
+<br>
+
+## 💻 Supported Systems
+| Operating System | Compatibility |
 | :--- | :---: |
-| **Ubuntu** (22.04, 24.04) | âœ… |
-| **Debian** (11, 12, 13) | âœ… |
+| **Ubuntu 20.04 / 22.04** | ✅ |
+| **Debian 11 / 12** | ✅ |
 
 <br>
+
+## 📺 Video Tutorial
+*(A video tutorial is coming soon! Check back later for a link to the YouTube walkthrough.)*
+
+[![YouTube](https://img.shields.io/badge/YouTube-Subscribe-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@BlueFalcon2270)
+
+<br>
+
+## ☕ Support & Donate
+If you find this tool helpful and want to support its continued development, consider buying me a coffee or donating via crypto!
+
+- **Gram on ton:** `UQAQ1fZyX_EAcz0Q5z7sEfQxE0SCrVfycq5spWz0OQIOtrJl`
+- **Solana:** `CRrd7ABM8ZMLNDPvo6Jkq354FpqoUFcNmuN74ztCUcM1`
+- **Ethereum:** `0x1ec913bb2a65968945103da1734e987a9d1926d8`
 
 ---
-**Watch the Tutorial:** I use this exact toolkit in my YouTube tutorials to ensure viewers have a standardized, error-free environment before we dive into advanced server deployments. Subscribe at [@BlueFalcon2270](https://www.youtube.com/@BlueFalcon2270).
+<div align="center">
+<i>Created by BlueFalcon</i>
+</div>

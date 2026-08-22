@@ -1,4 +1,8 @@
-# Automatic Version Bumping Rule
-From now on, every single time you successfully modify any code, you MUST automatically increment the global version number by +0.1 across all scripts (e.g. core/ui_utils.sh, setup.sh) and update the CHANGELOG.md. 
+﻿# BlueFalcon Project Rules
 
-Do not wait for the user to remind you. This is a strict, non-negotiable rule for this entire project.
+This project follows the global BlueFalcon project rules.
+
+Read and strictly apply ALL rules from:
+`c:\Sync\Development\Github\00- BlueFalcon Project Rules\AGENTS.md`
+
+Open and read that file before making any changes to this project.

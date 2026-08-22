@@ -1,6 +1,10 @@
-VERSION="8.1"
+VERSION="8.2"
 
 # Changelog
+
+## [v8.2] - 2026-08-23
+### Changed
+- Standardized project name, README, and common files structure.
 
 ## [v8.1] - 2026-07-06
 ### Fixed
