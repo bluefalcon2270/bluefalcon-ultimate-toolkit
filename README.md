@@ -5,7 +5,7 @@
 **The ultimate all-in-one Linux networking stack designed to turn any standard VPS into a high-performance routing powerhouse.**
 
 ![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
-[![Version](https://img.shields.io/badge/Version-v8.3-007AFF?style=for-the-badge)](#)
+[![Version](https://img.shields.io/badge/Version-v8.4-007AFF?style=for-the-badge)](#)
 [![Language](https://img.shields.io/badge/Written%20in-Bash%2FPython-3776AB?style=for-the-badge&logo=gnu-bash&logoColor=white)](#)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
@@ -18,8 +18,29 @@ Deploy OpenVPN, WireGuard, Cloudflare WARP, and dynamic firewall rules with a si
 
 <br>
 
-## 📸 Screenshot
-![Screenshot](screenshot.png)
+## 📸 Screenshots
+
+![Main Interface](screenshot_main.png)
+
+<details>
+<summary><b>Click to expand more screenshots</b></summary>
+<br>
+
+![Screenshot 1](screenshot_dashboard.png)
+<br>
+
+![Screenshot 2](screenshot_users.png)
+<br>
+
+![Screenshot 3](screenshot_settings.png)
+<br>
+
+![Screenshot 4](screenshot_logs.png)
+<br>
+
+![Screenshot 5](screenshot_terminal.png)
+
+</details>
 
 <br>
 
