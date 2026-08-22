@@ -1,6 +1,10 @@
-VERSION="8.2"
+VERSION="8.3"
 
 # Changelog
+
+## [v8.3] - 2026-08-23
+### Fixed
+- Fixed critical typo in README.md where the installation `curl` command pointed directly to `setup.sh` instead of the `install.sh` bootstrapper.
 
 ## [v8.2] - 2026-08-23
 ### Changed

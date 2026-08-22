@@ -5,7 +5,7 @@
 **The ultimate all-in-one Linux networking stack designed to turn any standard VPS into a high-performance routing powerhouse.**
 
 ![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
-[![Version](https://img.shields.io/badge/Version-v8.2-007AFF?style=for-the-badge)](#)
+[![Version](https://img.shields.io/badge/Version-v8.3-007AFF?style=for-the-badge)](#)
 [![Language](https://img.shields.io/badge/Written%20in-Bash%2FPython-3776AB?style=for-the-badge&logo=gnu-bash&logoColor=white)](#)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
@@ -27,7 +27,7 @@ Deploy OpenVPN, WireGuard, Cloudflare WARP, and dynamic firewall rules with a si
 1. **Connect:** SSH into your freshly installed Debian/Ubuntu VPS.
 2. **Run the Installer:** Paste the following command:
    ```bash
-   bash <(curl -Ls https://raw.githubusercontent.com/bluefalcon2270/bluefalcon-ultimate-toolkit/main/setup.sh)
+   bash <(curl -Ls https://raw.githubusercontent.com/bluefalcon2270/bluefalcon-ultimate-toolkit/main/install.sh)
    ```
 3. **Enjoy:** Follow the on-screen prompts to set up your web panel credentials.
 
